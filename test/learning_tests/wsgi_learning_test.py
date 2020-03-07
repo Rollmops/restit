@@ -23,13 +23,13 @@ def wsgi_app(environ, start_response):
 class WsgiLearningTestCase(unittest.TestCase):
     def test_wsgi_application_get(self):
         with self._start_server() as port:
-            response = requests.get("http://127.0.0.1:{port}".format(port=port))
+            response = requests.get(f"http://127.0.0.1:{port}")
             self.assertEqual(200, response.status_code)
             self.assertIn("REQUEST_METHOD: GET", response.text)
 
     def test_wsgi_application_post(self):
         with self._start_server() as port:
-            response = requests.post("http://127.0.0.1:{port}".format(port=port), data={"key": "value"})
+            response = requests.post(f"http://127.0.0.1:{port}")
             self.assertEqual(200, response.status_code)
             self.assertIn("REQUEST_METHOD: POST", response.text)
 
