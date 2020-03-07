@@ -15,8 +15,10 @@ def wsgi_app(environ, start_response):
 
     start_response(status, headers)
 
-    ret = [("%s: %s\n" % (key, value)).encode("utf-8")
-           for key, value in environ.items()]
+    ret = [
+        f"{key}: {value}\n".encode("utf-8")
+        for key, value in environ.items()
+    ]
     return ret
 
 
