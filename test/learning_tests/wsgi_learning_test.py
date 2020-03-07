@@ -5,7 +5,6 @@ from wsgiref.simple_server import make_server
 from wsgiref.util import setup_testing_defaults
 
 import requests
-from requests import Response
 
 
 def wsgi_app(environ, start_response):
@@ -24,13 +23,13 @@ def wsgi_app(environ, start_response):
 class WsgiLearningTestCase(unittest.TestCase):
     def test_wsgi_application_get(self):
         with self._start_server() as port:
-            response: Response = requests.get(f"http://127.0.0.1:{port}")
+            response = requests.get(f"http://127.0.0.1:{port}")
             self.assertEqual(200, response.status_code)
             self.assertIn("REQUEST_METHOD: GET", response.text)
 
     def test_wsgi_application_post(self):
         with self._start_server() as port:
-            response: Response = requests.post(f"http://127.0.0.1:{port}", data={"key": "value"})
+            response = requests.post(f"http://127.0.0.1:{port}", data={"key": "value"})
             self.assertEqual(200, response.status_code)
             self.assertIn("REQUEST_METHOD: POST", response.text)
 

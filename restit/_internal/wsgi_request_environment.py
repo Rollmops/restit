@@ -6,9 +6,7 @@ class RequestType(Enum):
 
 
 class WsgiRequestEnvironment:
-    request_method: RequestType = None
-
-    def __init__(self, request_method):
+    def __init__(self, request_method: RequestType):
         self.request_method = request_method
 
     @staticmethod
