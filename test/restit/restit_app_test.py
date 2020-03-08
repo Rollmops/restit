@@ -4,24 +4,44 @@ import requests
 
 from restit.request import Request
 from restit.resource import Resource
-from restit.resource_mapping import ResourceMapping
 from restit.response import Response
 from restit.restit_app import RestitApp
 from test.helper import start_server_with_wsgi_app
 
 
 class TestResource(Resource):
+    __url__ = "/"
 
     def get(self, request: Request):
         return Response("Hallo")
 
 
+class TestResource2(Resource):
+    __url__ = "/miau"
+
+    def get(self, request: Request) -> Response:
+        return Response("wuff", 201)
+
+
 class RestitAppTestCase(unittest.TestCase):
-    def test_simple_get_resource(self):
-        restit_app = RestitApp(resource_mapping=[
-            ResourceMapping("/", TestResource())
+    def setUp(self) -> None:
+        self.restit_app = RestitApp(resources=[
+            TestResource(),
+            TestResource2()
         ])
 
-        with start_server_with_wsgi_app(restit_app) as port:
+    def test_simple_get_resource(self):
+        with start_server_with_wsgi_app(self.restit_app) as port:
             response = requests.get(f"http://127.0.0.1:{port}/")
             self.assertEqual(200, response.status_code)
+            self.assertEqual("Hallo", response.text)
+
+            response = requests.get(f"http://127.0.0.1:{port}/miau")
+            self.assertEqual(201, response.status_code)
+            self.assertEqual("wuff", response.text)
+
+    def test_method_not_allowed_405(self):
+        with start_server_with_wsgi_app(self.restit_app) as port:
+            response = requests.delete(f"http://127.0.0.1:{port}/")
+            self.assertEqual(405, response.status_code)
+            self.assertEqual("Specified method is invalid for this resource", response.text)

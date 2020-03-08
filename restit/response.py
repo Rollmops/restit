@@ -18,6 +18,13 @@ class Response:
         self.header = header or {}
         self.encoding = encoding or DEFAULT_ENCODING
 
+    @staticmethod
+    def from_http_status(http_status: HTTPStatus) -> "Response":
+        return Response(
+            response_body=http_status.description,
+            status_code=http_status.value
+        )
+
     def get_body_as_bytes(self) -> bytes:
         if isinstance(self.response_body, dict):
             response_body_as_string = orjson.dumps(self.response_body)
@@ -33,7 +40,7 @@ class Response:
             self._adapt_content_type()
 
     def get_status(self) -> str:
-        return f"{int(self.status_code)} {self.status_code.name}"
+        return f"{self.status_code.value} {self.status_code.name}"
 
     def _adapt_content_type(self):
         if isinstance(self.response_body, dict):

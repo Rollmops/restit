@@ -3,6 +3,14 @@ from enum import Enum
 
 class RequestType(Enum):
     GET = "GET"
+    DELETE = "DELETE"
+    POST = "POST"
+    PUT = "PUT"
+    PATCH = "PATCH"
+    OPTIONS = "OPTIONS"
+    HEAD = "HEAD"
+    CONNECT = "CONNECT"
+    TRACE = "TRACE"
 
 
 class WsgiRequestEnvironment:

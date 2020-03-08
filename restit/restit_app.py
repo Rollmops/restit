@@ -5,12 +5,16 @@ from restit._internal.default_404_resource import Default404Resource
 from restit._internal.wsgi_request_environment import WsgiRequestEnvironment
 from restit.request import Request
 from restit.resource import Resource
-from restit.resource_mapping import ResourceMapping
 
 
 class RestitApp:
-    def __init__(self, resource_mapping: List[ResourceMapping]):
-        self.__resource_mapping = resource_mapping
+    def __init__(self, resources: List[Resource] = None):
+        self.__resources = resources or []
+        self._create_url_ordered_resource()
+
+    def register_resources(self, resources: List[Resource]):
+        self.__resources.extend(resources)
+        self._create_url_ordered_resource()
 
     def __call__(self, environ: dict, start_response: Callable) -> Iterable:
         wsgi_request_environment = WsgiRequestEnvironment.create_from_wsgi_environment_dict(environ)
@@ -35,8 +39,11 @@ class RestitApp:
 
     @lru_cache()
     def _find_resource_for_url(self, url: str) -> Resource:
-        for resource_mapping in self.__resource_mapping:
-            if resource_mapping.matches_url(url):
-                return resource_mapping.resource
+        for resource in self.__resources:
+            if resource.matches_url(url):
+                return resource
 
         return Default404Resource()
+
+    def _create_url_ordered_resource(self):
+        self.__resources = sorted(self.__resources, key=lambda r: r.__url__, reverse=True)
