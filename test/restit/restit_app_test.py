@@ -3,6 +3,7 @@ import unittest
 import requests
 
 from restit.request import Request
+from restit.request_mapping import request_mapping
 from restit.resource import Resource
 from restit.response import Response
 from restit.restit_app import RestitApp
@@ -23,9 +24,8 @@ class TestResource2(Resource):
         return Response("wuff", 201)
 
 
+@request_mapping("/miau/<id:int>")
 class TestResourceWithPathParams(Resource):
-    __url__ = "/miau/<id:int>"
-
     def get(self, request: Request, **path_params) -> Response:
         return Response(path_params)
 
