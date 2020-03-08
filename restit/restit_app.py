@@ -2,6 +2,7 @@ from functools import lru_cache
 from http import HTTPStatus
 from typing import Iterable, Callable, List, Tuple, Dict, Union
 
+# noinspection PyProtectedMember
 from restit._internal.wsgi_request_environment import WsgiRequestEnvironment
 from restit.namespace import Namespace
 from restit.request import Request
@@ -34,11 +35,12 @@ class RestitApp:
     def __call__(self, environ: dict, start_response: Callable) -> Iterable:
         if not self.__init_called:
             self.__init()
+
         wsgi_request_environment = WsgiRequestEnvironment.create_from_wsgi_environment_dict(environ)
 
         resource, path_params = self._find_resource_for_url(wsgi_request_environment.path)
 
-        request = Request()
+        request = Request(query_parameters=wsgi_request_environment.query_parameters)
         response = self._get_response(path_params, request, resource, wsgi_request_environment)
 
         response_body_as_bytes = response.get_body_as_bytes()
@@ -53,6 +55,7 @@ class RestitApp:
     @staticmethod
     def _get_response(path_params, request, resource, wsgi_request_environment):
         if resource is not None:
+            # noinspection PyProtectedMember
             response = resource._handle_request(
                 request_method=wsgi_request_environment.request_method,
                 request=request,
@@ -65,6 +68,7 @@ class RestitApp:
     @lru_cache()
     def _find_resource_for_url(self, url: str) -> Union[Tuple[None, None], Tuple[Resource, Dict]]:
         for resource in self.__resources:
+            # noinspection PyProtectedMember
             is_matching, path_params = resource._get_match(url)
             if is_matching:
                 return resource, path_params

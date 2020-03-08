@@ -24,6 +24,12 @@ class TestResource2(Resource):
         return Response("wuff", 201)
 
 
+@request_mapping("/queryparams")
+class QueryParametersResource(Resource):
+    def get(self, request: Request) -> Response:
+        return Response(request.query_parameters)
+
+
 @request_mapping("/miau/<id:int>")
 class TestResourceWithPathParams(Resource):
     def get(self, request: Request, **path_params) -> Response:
@@ -35,7 +41,8 @@ class RestitAppTestCase(unittest.TestCase):
         self.restit_app = RestitApp(resources=[
             TestResource(),
             TestResource2(),
-            TestResourceWithPathParams()
+            TestResourceWithPathParams(),
+            QueryParametersResource()
         ])
 
     def test_simple_get_resource(self):
@@ -64,3 +71,9 @@ class RestitAppTestCase(unittest.TestCase):
             response = requests.get(f"http://127.0.0.1:{port}/miau/21")
             self.assertEqual(200, response.status_code)
             self.assertEqual({"id": 21}, response.json())
+
+    def test_query_parameter(self):
+        with start_server_with_wsgi_app(self.restit_app) as port:
+            response = requests.get(f"http://127.0.0.1:{port}/queryparams?param1=1&param2=huhu")
+            self.assertEqual(200, response.status_code)
+            self.assertEqual({'param1': '1', 'param2': 'huhu'}, response.json())

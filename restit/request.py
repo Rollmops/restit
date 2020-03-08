@@ -1,2 +1,3 @@
 class Request:
-    pass
+    def __init__(self, query_parameters: dict):
+        self.query_parameters = query_parameters
