@@ -17,7 +17,6 @@ class ResourcePath:
         self._resource_path_regex = self._transform_to_regex()
 
     def _transform_to_regex(self):
-
         path_param_pattern = r"<(\w+)(?:\:(\w+))?>"
         regex_pattern = re.sub(path_param_pattern, self._handle_path_param, self._resource_path)
         regex_pattern = "^" + regex_pattern + "$"

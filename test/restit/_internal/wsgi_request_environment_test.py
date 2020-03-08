@@ -1,6 +1,7 @@
 import unittest
-
 # noinspection PyProtectedMember
+from io import StringIO
+
 from restit._internal.wsgi_request_environment import RequestType, WsgiRequestEnvironment
 
 
@@ -9,7 +10,9 @@ class WsgiEnvironmentTestCase(unittest.TestCase):
         wsgi_request_enviroment = WsgiRequestEnvironment.create_from_wsgi_environment_dict(
             {
                 "REQUEST_METHOD": "GET",
-                "PATH_INFO": "/"
+                "PATH_INFO": "/",
+                "CONTENT_LENGTH": 9,
+                "wsgi.input": StringIO("key=value")
             }
         )
 

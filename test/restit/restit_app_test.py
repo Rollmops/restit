@@ -1,4 +1,5 @@
 import unittest
+from http import HTTPStatus
 
 import requests
 
@@ -30,12 +31,23 @@ class TestResourceWithPathParams(Resource):
         return Response(path_params)
 
 
+@request_mapping("/post")
+class TestRequestBodyResource(Resource):
+    def post(self, request: Request) -> Response:
+        return Response({
+            "query_parameters": request.query_parameters,
+            "body": request.body.decode(),
+            "body_as_json": request.body_as_json
+        }, HTTPStatus.CREATED)
+
+
 class RestitAppTestCase(unittest.TestCase):
     def setUp(self) -> None:
         self.restit_app = RestitApp(resources=[
             TestResource(),
             TestResource2(),
-            TestResourceWithPathParams()
+            TestResourceWithPathParams(),
+            TestRequestBodyResource()
         ])
 
     def test_simple_get_resource(self):
@@ -47,6 +59,28 @@ class RestitAppTestCase(unittest.TestCase):
             response = requests.get(f"http://127.0.0.1:{port}/miau")
             self.assertEqual(201, response.status_code)
             self.assertEqual("wuff", response.text)
+
+    def test_pass_request_body_as_json(self):
+        with start_server_with_wsgi_app(self.restit_app) as port:
+            response = requests.post(
+                f"http://127.0.0.1:{port}/post", json={"key": "value"}
+            )
+            self.assertEqual(201, response.status_code)
+            self.assertEqual({
+                'body': '{"key": "value"}',
+                'body_as_json': {'key': 'value'},
+                'query_parameters': {}
+            }, response.json())
+
+    def test_pass_request_body_as_form(self):
+        with start_server_with_wsgi_app(self.restit_app) as port:
+            response = requests.post(
+                f"http://127.0.0.1:{port}/post", data={"key": "value"}
+            )
+            self.assertEqual(201, response.status_code)
+            self.assertEqual({
+                'body': 'key=value', 'body_as_json': {'key': 'value'}, 'query_parameters': {}
+            }, response.json())
 
     def test_method_not_allowed_405(self):
         with start_server_with_wsgi_app(self.restit_app) as port:

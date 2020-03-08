@@ -1,6 +1,7 @@
 from enum import Enum
-from functools import lru_cache
 from typing import Dict
+
+from restit._internal.common import create_dict_from_query_parameter_syntax
 
 
 class RequestType(Enum):
@@ -17,36 +18,35 @@ class RequestType(Enum):
 
 class WsgiRequestEnvironment:
     def __init__(
-            self, request_method: RequestType, path: str, query_parameters: Dict[str, str], wsgi_environment: dict
+            self, request_method: RequestType,
+            path: str,
+            query_parameters: Dict[str, str],
+            wsgi_environment: dict,
+            body: dict
     ):
         self.request_method = request_method
         self.path = path
         self.query_parameters = query_parameters
         self.wsgi_environment = wsgi_environment
+        self.body = body
 
     @staticmethod
     def create_from_wsgi_environment_dict(environ: dict) -> "WsgiRequestEnvironment":
         wsgi_request_environment = WsgiRequestEnvironment(
             request_method=RequestType(environ["REQUEST_METHOD"]),
             path=environ["PATH_INFO"],
-            query_parameters=WsgiRequestEnvironment._create_query_parameters_from_query_string(
-                environ.get("QUERY_STRING")
-            ),
-            wsgi_environment=environ
+            query_parameters=create_dict_from_query_parameter_syntax(environ.get("QUERY_STRING")),
+            body=WsgiRequestEnvironment._get_request_body(environ),
+            wsgi_environment=environ,
         )
         return wsgi_request_environment
 
     @staticmethod
-    @lru_cache()
-    def _create_query_parameters_from_query_string(query_string: str) -> dict:
-        query_parameters = {}
-        if query_string is None or "=" not in query_string:
-            return query_parameters
-        for query_string_pair in query_string.split("&"):
-            try:
-                key, value = query_string_pair.split("=")
-                query_parameters[key] = value
-            except ValueError:
-                pass
+    def _get_request_body(environ: dict) -> dict:
+        try:
+            request_body_size = int(environ.get('CONTENT_LENGTH', 0))
+        except ValueError:
+            request_body_size = 0
 
-        return query_parameters
+        request_body = environ['wsgi.input'].read(request_body_size)
+        return request_body

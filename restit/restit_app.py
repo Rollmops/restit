@@ -42,7 +42,8 @@ class RestitApp:
 
         request = Request(
             query_parameters=wsgi_request_environment.query_parameters,
-            wsgi_environment=wsgi_request_environment.wsgi_environment
+            wsgi_environment=wsgi_request_environment.wsgi_environment,
+            body=wsgi_request_environment.body
         )
         response = self._get_response(path_params, request, resource, wsgi_request_environment)
 
