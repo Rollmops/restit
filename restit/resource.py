@@ -1,6 +1,7 @@
-import re
 from http import HTTPStatus
+from typing import Tuple, AnyStr, Dict, Union
 
+from restit._internal.resource_path import ResourcePath
 from restit._internal.wsgi_request_environment import RequestType
 from restit.request import Request
 from restit.response import Response
@@ -10,7 +11,7 @@ class Resource:
     __url__ = None
 
     def __init__(self):
-        self.__url_regex = re.compile(self.__url__)
+        self._resource_path = ResourcePath(self.__url__)
         self.__request_type_mapping = {
             RequestType.GET: self.get,
             RequestType.PUT: self.put,
@@ -58,14 +59,14 @@ class Resource:
     def head(self, request: Request) -> Response:
         return Response.from_http_status(HTTPStatus.METHOD_NOT_ALLOWED)
 
-    def _handle_request(self, request_method: RequestType, request: Request) -> Response:
-        return self.__request_type_mapping[request_method](request)
+    def _handle_request(self, request_method: RequestType, request: Request, path_params: Dict) -> Response:
+        return self.__request_type_mapping[request_method](request, **path_params)
 
-    def matches_url(self, url: str) -> bool:
+    def get_match(self, url: str) -> Tuple[bool, Union[None, Dict[str, AnyStr]]]:
         if self.__url__ is None:
             raise Resource.NoRegisteredUrlForResourceException(self)
 
-        return self.__url_regex.match(url) is not None
+        return self._resource_path.get_match(url)
 
     class NoRegisteredUrlForResourceException(Exception):
         pass

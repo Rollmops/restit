@@ -23,11 +23,19 @@ class TestResource2(Resource):
         return Response("wuff", 201)
 
 
+class TestResourceWithPathParams(Resource):
+    __url__ = "/miau/<id:int>"
+
+    def get(self, request: Request, **path_params) -> Response:
+        return Response(path_params)
+
+
 class RestitAppTestCase(unittest.TestCase):
     def setUp(self) -> None:
         self.restit_app = RestitApp(resources=[
             TestResource(),
-            TestResource2()
+            TestResource2(),
+            TestResourceWithPathParams()
         ])
 
     def test_simple_get_resource(self):
@@ -45,3 +53,14 @@ class RestitAppTestCase(unittest.TestCase):
             response = requests.delete(f"http://127.0.0.1:{port}/")
             self.assertEqual(405, response.status_code)
             self.assertEqual("Specified method is invalid for this resource", response.text)
+
+    def test_url_not_found(self):
+        with start_server_with_wsgi_app(self.restit_app) as port:
+            response = requests.get(f"http://127.0.0.1:{port}/NOT_THERE")
+            self.assertEqual(404, response.status_code)
+
+    def test_resource_with_path_params(self):
+        with start_server_with_wsgi_app(self.restit_app) as port:
+            response = requests.get(f"http://127.0.0.1:{port}/miau/21")
+            self.assertEqual(200, response.status_code)
+            self.assertEqual({"id": 21}, response.json())

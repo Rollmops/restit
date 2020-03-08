@@ -27,13 +27,11 @@ class Response:
 
     def get_body_as_bytes(self) -> bytes:
         if isinstance(self.response_body, dict):
-            response_body_as_string = orjson.dumps(self.response_body)
+            return orjson.dumps(self.response_body)
         elif isinstance(self.response_body, str):
-            response_body_as_string = self.response_body
+            return self.response_body.encode(encoding=self.encoding)
         else:
             raise Response.ResponseBodyTypeNotSupportedException(type(self.response_body))
-
-        return response_body_as_string.encode(encoding=self.encoding)
 
     def adapt_header(self):
         if "Content-Type" not in self.header:
