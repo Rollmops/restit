@@ -40,7 +40,10 @@ class RestitApp:
 
         resource, path_params = self._find_resource_for_url(wsgi_request_environment.path)
 
-        request = Request(query_parameters=wsgi_request_environment.query_parameters)
+        request = Request(
+            query_parameters=wsgi_request_environment.query_parameters,
+            wsgi_environment=wsgi_request_environment.wsgi_environment
+        )
         response = self._get_response(path_params, request, resource, wsgi_request_environment)
 
         response_body_as_bytes = response.get_body_as_bytes()

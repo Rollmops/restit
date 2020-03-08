@@ -18,9 +18,13 @@ class Response:
         self.encoding = encoding or DEFAULT_ENCODING
 
     @staticmethod
-    def from_http_status(http_status: HTTPStatus) -> "Response":
+    def from_http_status(
+            http_status: HTTPStatus, description: str = None, additional_description: str = None) -> "Response":
+        description = description or http_status.description
+        if additional_description:
+            description += f" ({additional_description})"
         return Response(
-            response_body=http_status.description,
+            response_body=description,
             status_code=http_status.value
         )
 

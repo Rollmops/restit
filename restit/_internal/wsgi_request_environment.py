@@ -16,10 +16,13 @@ class RequestType(Enum):
 
 
 class WsgiRequestEnvironment:
-    def __init__(self, request_method: RequestType, path: str, query_parameters: Dict[str, str]):
+    def __init__(
+            self, request_method: RequestType, path: str, query_parameters: Dict[str, str], wsgi_environment: dict
+    ):
         self.request_method = request_method
         self.path = path
         self.query_parameters = query_parameters
+        self.wsgi_environment = wsgi_environment
 
     @staticmethod
     def create_from_wsgi_environment_dict(environ: dict) -> "WsgiRequestEnvironment":
@@ -28,9 +31,9 @@ class WsgiRequestEnvironment:
             path=environ["PATH_INFO"],
             query_parameters=WsgiRequestEnvironment._create_query_parameters_from_query_string(
                 environ.get("QUERY_STRING")
-            )
+            ),
+            wsgi_environment=environ
         )
-
         return wsgi_request_environment
 
     @staticmethod
@@ -40,7 +43,10 @@ class WsgiRequestEnvironment:
         if query_string is None or "=" not in query_string:
             return query_parameters
         for query_string_pair in query_string.split("&"):
-            key, value = query_string_pair.split("=")
-            query_parameters[key] = value
+            try:
+                key, value = query_string_pair.split("=")
+                query_parameters[key] = value
+            except ValueError:
+                pass
 
         return query_parameters

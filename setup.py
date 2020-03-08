@@ -6,6 +6,9 @@ setup(
     name="restit",
     version=__version__,
     packages=find_packages(),
+    install_requires=[
+        "marshmallow"
+    ],
     classifiers=[
         # How mature is this project? Common values are
         #   3 - Alpha
