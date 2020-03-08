@@ -3,21 +3,37 @@ from http import HTTPStatus
 from typing import Iterable, Callable, List, Tuple, Dict, Union
 
 from restit._internal.wsgi_request_environment import WsgiRequestEnvironment
+from restit.namespace import Namespace
 from restit.request import Request
 from restit.resource import Resource
 from restit.response import Response
 
 
 class RestitApp:
-    def __init__(self, resources: List[Resource] = None):
-        self.__resources: List[Resource] = resources or []
-        self._create_url_ordered_resource()
+    def __init__(self, resources: List[Resource] = None, namespaces: List[Namespace] = None):
+        self.__namespaces: List[Namespace] = []
+        self.__resources: List[Resource] = []
+        self.register_namespaces(namespaces or [])
+        self.register_resources(resources or [])
+
+        self.__init_called = False
 
     def register_resources(self, resources: List[Resource]):
         self.__resources.extend(resources)
         self._create_url_ordered_resource()
 
+    def register_namespaces(self, namespaces: List[Namespace]):
+        for namespace in namespaces:
+            self.register_resources(namespace.get_adapted_resources())
+
+    def __init(self):
+        for resource in self.__resources:
+            resource.init()
+        self.__init_called = True
+
     def __call__(self, environ: dict, start_response: Callable) -> Iterable:
+        if not self.__init_called:
+            self.__init()
         wsgi_request_environment = WsgiRequestEnvironment.create_from_wsgi_environment_dict(environ)
 
         resource, path_params = self._find_resource_for_url(wsgi_request_environment.path)
@@ -49,7 +65,7 @@ class RestitApp:
     @lru_cache()
     def _find_resource_for_url(self, url: str) -> Union[Tuple[None, None], Tuple[Resource, Dict]]:
         for resource in self.__resources:
-            is_matching, path_params = resource.get_match(url)
+            is_matching, path_params = resource._get_match(url)
             if is_matching:
                 return resource, path_params
 

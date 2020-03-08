@@ -1,7 +1,6 @@
+import json
 from http import HTTPStatus
 from typing import Union
-
-import orjson
 
 from restit import DEFAULT_ENCODING
 
@@ -27,11 +26,13 @@ class Response:
 
     def get_body_as_bytes(self) -> bytes:
         if isinstance(self.response_body, dict):
-            return orjson.dumps(self.response_body)
+            response_body_string = json.dumps(self.response_body)
         elif isinstance(self.response_body, str):
-            return self.response_body.encode(encoding=self.encoding)
+            response_body_string = self.response_body
         else:
             raise Response.ResponseBodyTypeNotSupportedException(type(self.response_body))
+
+        return response_body_string.encode(encoding=self.encoding)
 
     def adapt_header(self):
         if "Content-Type" not in self.header:

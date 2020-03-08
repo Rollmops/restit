@@ -11,7 +11,7 @@ class Resource:
     __url__ = None
 
     def __init__(self):
-        self._resource_path = ResourcePath(self.__url__)
+        self._resource_path = None
         self.__request_type_mapping = {
             RequestType.GET: self.get,
             RequestType.PUT: self.put,
@@ -23,6 +23,9 @@ class Resource:
             RequestType.HEAD: self.head,
             RequestType.TRACE: self.trace
         }
+
+    def init(self):
+        self._resource_path = ResourcePath(self.__url__)
 
     def get(self, request: Request) -> Response:
         return Response.from_http_status(HTTPStatus.METHOD_NOT_ALLOWED)
@@ -62,11 +65,17 @@ class Resource:
     def _handle_request(self, request_method: RequestType, request: Request, path_params: Dict) -> Response:
         return self.__request_type_mapping[request_method](request, **path_params)
 
-    def get_match(self, url: str) -> Tuple[bool, Union[None, Dict[str, AnyStr]]]:
+    def _get_match(self, url: str) -> Tuple[bool, Union[None, Dict[str, AnyStr]]]:
         if self.__url__ is None:
             raise Resource.NoRegisteredUrlForResourceException(self)
+
+        if not self._resource_path:
+            raise Resource.InitFunctionNotCalledException()
 
         return self._resource_path.get_match(url)
 
     class NoRegisteredUrlForResourceException(Exception):
+        pass
+
+    class InitFunctionNotCalledException(Exception):
         pass
