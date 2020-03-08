@@ -11,7 +11,10 @@ from restit.response import Response
 
 
 class RestitApp:
-    def __init__(self, resources: List[Resource] = None, namespaces: List[Namespace] = None):
+    def __init__(
+            self, resources: List[Resource] = None,
+            namespaces: List[Namespace] = None
+    ):
         self.__namespaces: List[Namespace] = []
         self.__resources: List[Resource] = []
         self.register_namespaces(namespaces or [])
@@ -57,14 +60,18 @@ class RestitApp:
         return [response_body_as_bytes]
 
     @staticmethod
-    def _get_response(path_params, request, resource, wsgi_request_environment):
+    def _get_response(path_params, request, resource, wsgi_request_environment) -> Response:
         if resource is not None:
-            # noinspection PyProtectedMember
-            response = resource._handle_request(
-                request_method=wsgi_request_environment.request_method,
-                request=request,
-                path_params=path_params
-            )
+            # noinspection PyBroadException
+            try:
+                # noinspection PyProtectedMember
+                response = resource._handle_request(
+                    request_method=wsgi_request_environment.request_method,
+                    request=request,
+                    path_params=path_params
+                )
+            except Exception:
+                response = Response.from_http_status(HTTPStatus.INTERNAL_SERVER_ERROR)
         else:
             response = Response.from_http_status(HTTPStatus.NOT_FOUND)
         return response

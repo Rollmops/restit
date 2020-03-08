@@ -41,13 +41,20 @@ class TestRequestBodyResource(Resource):
         }, HTTPStatus.CREATED)
 
 
+@request_mapping("/error")
+class ErrorResource(Resource):
+    def get(self, request: Request) -> Response:
+        raise Exception()
+
+
 class RestitAppTestCase(unittest.TestCase):
     def setUp(self) -> None:
         self.restit_app = RestitApp(resources=[
             TestResource(),
             TestResource2(),
             TestResourceWithPathParams(),
-            TestRequestBodyResource()
+            TestRequestBodyResource(),
+            ErrorResource()
         ])
 
     def test_simple_get_resource(self):
@@ -98,3 +105,8 @@ class RestitAppTestCase(unittest.TestCase):
             response = requests.get(f"http://127.0.0.1:{port}/miau/21")
             self.assertEqual(200, response.status_code)
             self.assertEqual({"id": 21}, response.json())
+
+    def test_internal_server_error(self):
+        with start_server_with_wsgi_app(self.restit_app) as port:
+            response = requests.get(f"http://127.0.0.1:{port}/error")
+            self.assertEqual(500, response.status_code)
