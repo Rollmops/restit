@@ -37,9 +37,13 @@ jobs:
           flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
       - name: Test with pytest
         run: |
-          pip install pytest pytest-cov
-          pytest --cov restit test/
+          pip install pytest
+          pytest test/
       - name: Coveralls
+        run: |
+          pip install coveralls
+          coverage run --soruce=restit setup.py test
+          coveralls
         uses: coverallsapp/github-action@master
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
