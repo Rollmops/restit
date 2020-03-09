@@ -11,14 +11,14 @@ from restit.restit_app import RestitApp
 from test.helper import start_server_with_wsgi_app
 
 
-class TestResource(Resource):
+class MyResource(Resource):
     __url__ = "/"
 
     def get(self, request: Request):
         return Response("Hallo")
 
 
-class TestResource2(Resource):
+class MyResource2(Resource):
     __url__ = "/miau"
 
     def get(self, request: Request) -> Response:
@@ -26,13 +26,13 @@ class TestResource2(Resource):
 
 
 @request_mapping("/miau/<id:int>")
-class TestResourceWithPathParams(Resource):
+class ResourceWithPathParams(Resource):
     def get(self, request: Request, **path_params) -> Response:
         return Response(path_params)
 
 
 @request_mapping("/post")
-class TestRequestBodyResource(Resource):
+class RequestBodyResource(Resource):
     def post(self, request: Request) -> Response:
         return Response({
             "query_parameters": request.query_parameters,
@@ -50,10 +50,10 @@ class ErrorResource(Resource):
 class RestitAppTestCase(unittest.TestCase):
     def setUp(self) -> None:
         self.restit_app = RestitApp(resources=[
-            TestResource(),
-            TestResource2(),
-            TestResourceWithPathParams(),
-            TestRequestBodyResource(),
+            MyResource(),
+            MyResource2(),
+            ResourceWithPathParams(),
+            RequestBodyResource(),
             ErrorResource()
         ])
 
