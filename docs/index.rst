@@ -51,8 +51,8 @@ Quick example
         app.start_development_server()
 
 
-You can also use a production-ready server like [Gunicorn](#https://gunicorn.org/)
-(given the name of the above module is *restit_app_test.py*):
+You can also use a production-ready server like `Gunicorn <https://gunicorn.org/>`_)
+(given the name of the above module is `restit_app_test.py`):
 
 .. code-block:: bash
 
