@@ -66,16 +66,5 @@ class Resource:
         return self.__request_type_mapping[request_method](request, **path_params)
 
     def _get_match(self, url: str) -> Tuple[bool, Union[None, Dict[str, AnyStr]]]:
-        if self.__url__ is None:
-            raise Resource.NoRegisteredUrlForResourceException(self)
-
-        if not self._resource_path:
-            raise Resource.InitFunctionNotCalledException()
-
+        assert self._resource_path
         return self._resource_path.get_match(url)
-
-    class NoRegisteredUrlForResourceException(Exception):
-        pass
-
-    class InitFunctionNotCalledException(Exception):
-        pass

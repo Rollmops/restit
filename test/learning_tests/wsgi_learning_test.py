@@ -3,7 +3,7 @@ from wsgiref.util import setup_testing_defaults
 
 import requests
 
-from test.helper import start_server_with_wsgi_app
+from test.start_server_with_wsgi_app import start_server_with_wsgi_app
 
 
 def wsgi_app(environ, start_response):

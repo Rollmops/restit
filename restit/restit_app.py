@@ -23,8 +23,14 @@ class RestitApp:
         self.__init_called = False
 
     def register_resources(self, resources: List[Resource]):
+        self._check_resource_request_mapping(resources)
         self.__resources.extend(resources)
         self._create_url_ordered_resource()
+
+    def _check_resource_request_mapping(self, resources):
+        for resource in resources:
+            if resource.__url__ is None:
+                raise RestitApp.MissingRequestMappingException(resource)
 
     def register_namespaces(self, namespaces: List[Namespace]):
         for namespace in namespaces:
@@ -88,3 +94,6 @@ class RestitApp:
 
     def _create_url_ordered_resource(self):
         self.__resources = sorted(self.__resources, key=lambda r: r.__url__, reverse=True)
+
+    class MissingRequestMappingException(Exception):
+        pass
