@@ -51,7 +51,7 @@ Quick example
         app.start_development_server()
 
 
-You can also use a production-ready server like [Gunicorn](#https://gunicorn.org/)
+You can also use a production-ready server like [Gunicorn](#https://gunicorn.org/) 
 (given the name of the above module is *restit_app_test.py*):
 
 .. code-block:: bash
@@ -59,15 +59,4 @@ You can also use a production-ready server like [Gunicorn](#https://gunicorn.org
     gunicorn -w 4 restit_app_test:app
 
 
-.. toctree::
-   :maxdepth: 2
-   :caption: Contents:
 
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`

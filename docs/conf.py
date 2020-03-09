@@ -20,7 +20,7 @@
 # -- Project information -----------------------------------------------------
 
 project = 'restit'
-copyright = '2018, Erik Tuerke'
+copyright = '2020, Erik Tuerke'
 author = 'Erik Tuerke'
 
 # The short X.Y version
