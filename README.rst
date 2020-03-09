@@ -12,8 +12,10 @@ RestIt
 
 Python HTTP REST library including OOP-readiness and Open-API generation
 
-Feature
--------
+For a more comprehensive documentation see: https://restit.readthedocs.io/en/latest/
+
+Features
+--------
 
 - `WSGI <https://www.python.org/dev/peps/pep-3333/>`_ conform
 - Validation (using `marshmallow <https://marshmallow.readthedocs.io/en/stable/>`_):
@@ -57,6 +59,5 @@ You can also use a production-ready server like `Gunicorn <https://gunicorn.org/
 .. code-block:: bash
 
     gunicorn -w 4 restit_app_test:app
-
 
 
