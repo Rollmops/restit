@@ -11,7 +11,7 @@ from test.base_test_server_test_case import BaseTestServerTestCase
 
 
 class MyResource(Resource):
-    __url__ = "/"
+    __request_mapping__ = "/"
 
     def get(self, request: Request):
         return Response("Hallo")
@@ -23,7 +23,7 @@ class NoMethodsResource(Resource):
 
 
 class MyResource2(Resource):
-    __url__ = "/miau"
+    __request_mapping__ = "/miau"
 
     def get(self, request: Request) -> Response:
         return Response("wuff", 201)

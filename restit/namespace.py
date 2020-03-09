@@ -15,7 +15,7 @@ class Namespace:
     @lru_cache(maxsize=1)
     def get_adapted_resources(self) -> List[Resource]:
         for resource in self.__resources:
-            resource.__url__ = self._prepend_path(resource.__url__)
+            resource.__request_mapping__ = self._prepend_path(resource.__request_mapping__)
 
         return self.__resources
 

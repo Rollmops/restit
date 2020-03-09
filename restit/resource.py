@@ -8,7 +8,7 @@ from restit.response import Response
 
 
 class Resource:
-    __url__ = None
+    __request_mapping__ = None
 
     def __init__(self):
         self._resource_path = None
@@ -25,7 +25,7 @@ class Resource:
         }
 
     def init(self):
-        self._resource_path = ResourcePath(self.__url__)
+        self._resource_path = ResourcePath(self.__request_mapping__)
 
     def get(self, request: Request) -> Response:
         return Response.from_http_status(HTTPStatus.METHOD_NOT_ALLOWED)
