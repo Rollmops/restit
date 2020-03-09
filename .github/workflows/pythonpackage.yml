@@ -44,6 +44,5 @@ jobs:
           pip install coveralls
           coverage run --soruce=restit setup.py test
           coveralls
-        uses: coverallsapp/github-action@master
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
