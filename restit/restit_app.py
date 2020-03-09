@@ -1,9 +1,11 @@
+from contextlib import contextmanager
 from functools import lru_cache
 from http import HTTPStatus
 from typing import Iterable, Callable, List, Tuple, Dict, Union
 
 # noinspection PyProtectedMember
 from restit._internal.wsgi_request_environment import WsgiRequestEnvironment
+from restit.development_server import DevelopmentServer
 from restit.namespace import Namespace
 from restit.request import Request
 from restit.resource import Resource
@@ -23,19 +25,29 @@ class RestitApp:
         self.__init_called = False
 
     def register_resources(self, resources: List[Resource]):
-        self._check_resource_request_mapping(resources)
+        self.__check_resource_request_mapping(resources)
         self.__resources.extend(resources)
         self._create_url_ordered_resource()
-
-    @staticmethod
-    def _check_resource_request_mapping(resources):
-        for resource in resources:
-            if resource.__request_mapping__ is None:
-                raise RestitApp.MissingRequestMappingException(resource)
 
     def register_namespaces(self, namespaces: List[Namespace]):
         for namespace in namespaces:
             self.register_resources(namespace.get_adapted_resources())
+
+    def start_development_server(self, host: str = None, port: int = 5000, blocking: bool = True):
+        development_server = DevelopmentServer(self, host, port)
+        development_server.start(blocking=blocking)
+
+    @contextmanager
+    def start_development_server_in_context(self, host: str = None, port: int = 5000) -> int:
+        development_server = DevelopmentServer(self, host, port)
+        with development_server.start_in_context() as port:
+            yield port
+
+    @staticmethod
+    def __check_resource_request_mapping(resources):
+        for resource in resources:
+            if resource.__request_mapping__ is None:
+                raise RestitApp.MissingRequestMappingException(resource)
 
     def __init(self):
         for resource in self.__resources:

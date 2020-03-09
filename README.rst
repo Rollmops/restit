@@ -18,13 +18,13 @@ Features
 --------
 
 - `WSGI <https://www.python.org/dev/peps/pep-3333/>`_ conform
-- Validation (using `marshmallow <https://marshmallow.readthedocs.io/en/stable/>`_):
+- Validation (using `marshmallow <https://marshmallow.readthedocs.io/en/stable/>`_)
     - query parameter validation
     - path parameter validation
     - request body validation
     - response body validation
 - `OpenApi <https://swagger.io/docs/specification/about/>`_ documentation generation
-- *OOP* ready (no module-based global instances necessary)
+- *OOP*-ready (no module-based global instances necessary)
 - Easy to test
 - very few dependencies
 
