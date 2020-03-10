@@ -13,15 +13,15 @@ class ExceptionResponseMaker:
     def __init__(self, http_exception: HTTPException):
         self.http_exception = http_exception
 
-    def create_response(self, accept: MIMEAccept) -> Response:
-        if accept.accept_html:
+    def create_response(self, media_type: MIMEAccept) -> Response:
+        if media_type.accept_html:
             response = self.create_html_response()
-        elif accept.accept_json:
+        elif media_type.accept_json:
             response = self.create_json_response()
         else:
             response = self.create_plain_text_response()
 
-        response.set_body_as_bytes(accept)
+        response.serialize_response_body(media_type)
         return response
 
     def create_html_response(self) -> Response:

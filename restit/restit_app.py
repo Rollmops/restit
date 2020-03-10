@@ -70,7 +70,7 @@ class RestitApp:
         resource, path_params = self._find_resource_for_url(request.path)
 
         response = self._create_response_and_handle_exceptions(path_params, request, resource)
-        response.adapt_header()
+
         header_as_list = [(key, value) for key, value in response.header.items()]
         start_response(response.get_status(), header_as_list)
 
@@ -102,7 +102,7 @@ class RestitApp:
                 request=request,
                 path_params=path_params
             )
-            response.set_body_as_bytes(request.accept_mimetypes)
+            response.serialize_response_body(request.accept_mimetypes)
         else:
             raise NotFound()
         return response

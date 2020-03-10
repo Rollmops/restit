@@ -1,14 +1,24 @@
-import json
+from functools import lru_cache
 from http import HTTPStatus
-from typing import Union
+from typing import Union, List
 
 from werkzeug.datastructures import MIMEAccept
 from werkzeug.exceptions import NotAcceptable
 
 from restit import _DEFAULT_ENCODING
+from restit.response_serializer import ResponseSerializer
+from restit.response_serializer.default_dict_json_response_serializer import DefaultDictJsonResponseSerializer
+from restit.response_serializer.default_dict_text_response_serializer import DefaultDictTextResponseSerializer
+from restit.response_serializer.default_str_text_response_serializer import DefaultStrTextResponseSerializer
 
 
 class Response:
+    _RESPONSE_SERIALIZER: List[ResponseSerializer] = [
+        DefaultDictJsonResponseSerializer(),
+        DefaultStrTextResponseSerializer(),
+        DefaultDictTextResponseSerializer()
+    ]
+
     def __init__(
             self,
             response_body: Union[str, dict],
@@ -21,38 +31,37 @@ class Response:
         self.encoding = encoding or _DEFAULT_ENCODING
         self.body_as_bytes = b""
 
-    def set_body_as_bytes(self, accept: MIMEAccept):
-        if isinstance(self.response_body, dict):
-            response_body_string = self._get_response_as_json(accept)
-        elif isinstance(self.response_body, str):
-            response_body_string = self.response_body
-        else:
-            raise Response.ResponseBodyTypeNotSupportedException(type(self.response_body))
+    @staticmethod
+    def register_response_serializer(response_serializer: ResponseSerializer):
+        Response._RESPONSE_SERIALIZER.insert(0, response_serializer)
 
-        self.body_as_bytes = response_body_string.encode(encoding=self.encoding)
+    def serialize_response_body(self, media_type: MIMEAccept):
+        matching_response_serializer_list = self._get_matching_response_serializer_for_media_type(media_type)
+        if not matching_response_serializer_list:
+            raise NotAcceptable()
 
-    def _get_response_as_json(self, accept):
-        if not accept.accept_json:
-            raise NotAcceptable(
-                f"Trying to send a JSON response, but JSON is not accepted by the client (accepted: {accept})"
-            )
-        response_body_string = json.dumps(self.response_body)
-        return response_body_string
+        for response_serializer in matching_response_serializer_list:
+            if response_serializer.is_responsible_for_response_data_type(type(self.response_body)):
+                self.body_as_bytes = response_serializer.serialize(self.response_body)
+                self.header["Content-Type"] = response_serializer.get_content_type()
+                return
 
-    def adapt_header(self):
-        if "Content-Type" not in self.header:
-            self._adapt_content_type()
+        raise Response.ResponseBodyTypeNotSupportedException(
+            f"Unable to find response serializer for media type {media_type} and response data type "
+            f"{type(self.response_body)}"
+        )
+
+    @staticmethod
+    @lru_cache()
+    def _get_matching_response_serializer_for_media_type(media_type: MIMEAccept) -> List[ResponseSerializer]:
+        return [
+            response_serializer
+            for response_serializer in Response._RESPONSE_SERIALIZER
+            if response_serializer.is_responsible_for_media_type(media_type)
+        ]
 
     def get_status(self) -> str:
         return f"{self.status_code.value} {self.status_code.name}"
-
-    def _adapt_content_type(self):
-        if isinstance(self.response_body, dict):
-            self.header["Content-Type"] = f"application/json; charset={self.encoding}"
-        elif isinstance(self.response_body, str):
-            self.header["Content-Type"] = f"text/plain; charset={self.encoding}"
-        else:
-            Response.ResponseBodyTypeNotSupportedException(type(self.response_body))
 
     class ResponseBodyTypeNotSupportedException(Exception):
         pass

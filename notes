@@ -1,8 +1,0 @@
-- mapper objekte (repsonse object -> mime type)
-    z.b. dict -> application/json
-
-    Response.register_response_mapper()
-
-{
-    "_href": generate_hyperling(Resource
-}

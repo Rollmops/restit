@@ -130,15 +130,6 @@ class RestitAppTestCase(BaseTestServerTestCase):
         self.assertEqual(500, response.status_code)
         self.assertEqual('{"code": 500, "name": "Internal Server Error", "description": ""}', response.text)
 
-    def test_accept_json_not_supported(self):
-        port = self.test_server.server_port
-        response = requests.get(f"http://127.0.0.1:{port}/send-json", headers={'Accept': "text/plain"})
-        self.assertEqual(406, response.status_code)
-        self.assertEqual(
-            "Not Acceptable: Trying to send a JSON response, but JSON is not accepted by the client "
-            "(accepted: text/plain) (406)", response.text
-        )
-
     def test_missing_request_mapping(self):
         class ResourceWithoutRequestMapping(Resource):
             pass
