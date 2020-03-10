@@ -19,7 +19,7 @@ _DEFAULT_RESPONSE_SERIALIZER = [
 
 
 class Response:
-    _RESPONSE_SERIALIZER: List[ResponseSerializer] = _DEFAULT_RESPONSE_SERIALIZER
+    _RESPONSE_SERIALIZER: List[ResponseSerializer] = _DEFAULT_RESPONSE_SERIALIZER.copy()
 
     def __init__(
             self,
@@ -28,7 +28,7 @@ class Response:
             header: dict = None, encoding=None
     ):
         self.response_body = response_body
-        self.status_code = HTTPStatus(status_code, None)
+        self.status_code: HTTPStatus = HTTPStatus(status_code, None) if isinstance(status_code, int) else status_code
         self.header = header or {}
         self.encoding = encoding or _DEFAULT_ENCODING
         self.body_as_bytes = b""
@@ -45,7 +45,7 @@ class Response:
 
     @staticmethod
     def restore_default_response_serializer():
-        Response._RESPONSE_SERIALIZER = _DEFAULT_RESPONSE_SERIALIZER
+        Response._RESPONSE_SERIALIZER = _DEFAULT_RESPONSE_SERIALIZER.copy()
         Response._get_matching_response_serializer_for_media_type.cache_clear()
 
     def serialize_response_body(self, media_type: MIMEAccept):

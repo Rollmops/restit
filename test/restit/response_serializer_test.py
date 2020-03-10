@@ -8,8 +8,9 @@ from restit.response_serializer import ResponseSerializer
 
 
 class ResponseSerializerTestCase(unittest.TestCase):
-    def setUp(self) -> None:
+    def tearDown(self) -> None:
         Response.restore_default_response_serializer()
+        pass
 
     def test_default_dict_to_json(self):
         response = Response({"key": "value"})
