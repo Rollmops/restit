@@ -2,6 +2,9 @@ import json
 from http import HTTPStatus
 from typing import Union
 
+from werkzeug.datastructures import MIMEAccept
+from werkzeug.exceptions import NotAcceptable
+
 from restit import _DEFAULT_ENCODING
 
 
@@ -16,27 +19,25 @@ class Response:
         self.status_code = HTTPStatus(status_code, None)
         self.header = header or {}
         self.encoding = encoding or _DEFAULT_ENCODING
+        self.body_as_bytes = b""
 
-    @staticmethod
-    def from_http_status(
-            http_status: HTTPStatus, description: str = None, additional_description: str = None) -> "Response":
-        description = description or http_status.description
-        if additional_description:
-            description += f" ({additional_description})"
-        return Response(
-            response_body=description,
-            status_code=http_status.value
-        )
-
-    def get_body_as_bytes(self) -> bytes:
+    def set_body_as_bytes(self, accept: MIMEAccept):
         if isinstance(self.response_body, dict):
-            response_body_string = json.dumps(self.response_body)
+            response_body_string = self._get_response_as_json(accept)
         elif isinstance(self.response_body, str):
             response_body_string = self.response_body
         else:
             raise Response.ResponseBodyTypeNotSupportedException(type(self.response_body))
 
-        return response_body_string.encode(encoding=self.encoding)
+        self.body_as_bytes = response_body_string.encode(encoding=self.encoding)
+
+    def _get_response_as_json(self, accept):
+        if not accept.accept_json:
+            raise NotAcceptable(
+                f"Trying to send a JSON response, but JSON is not accepted by the client (accepted: {accept})"
+            )
+        response_body_string = json.dumps(self.response_body)
+        return response_body_string
 
     def adapt_header(self):
         if "Content-Type" not in self.header:

@@ -39,6 +39,12 @@ class ErrorResource(Resource):
         raise Exception()
 
 
+@request_mapping("/send-json")
+class SendJsonResource(Resource):
+    def get(self, request: Request) -> Response:
+        return Response({"key": "value"})
+
+
 class RestitAppTestCase(BaseTestServerTestCase):
     @classmethod
     def setUpClass(cls) -> None:
@@ -47,7 +53,8 @@ class RestitAppTestCase(BaseTestServerTestCase):
             MyResource2(),
             ResourceWithPathParams(),
             ErrorResource(),
-            NoMethodsResource()
+            NoMethodsResource(),
+            SendJsonResource()
         ]
         BaseTestServerTestCase.setUpClass()
 
@@ -88,6 +95,21 @@ class RestitAppTestCase(BaseTestServerTestCase):
         port = self.test_server.server_port
         response = requests.get(f"http://127.0.0.1:{port}/error")
         self.assertEqual(500, response.status_code)
+
+    def test_internal_server_error_as_json(self):
+        port = self.test_server.server_port
+        response = requests.get(f"http://127.0.0.1:{port}/error", headers={'Accept': "application/json"})
+        self.assertEqual(500, response.status_code)
+        self.assertEqual('{"code": 500, "name": "Internal Server Error", "description": ""}', response.text)
+
+    def test_accept_json_not_supported(self):
+        port = self.test_server.server_port
+        response = requests.get(f"http://127.0.0.1:{port}/send-json", headers={'Accept': "text/plain"})
+        self.assertEqual(406, response.status_code)
+        self.assertEqual(
+            "Not Acceptable: Trying to send a JSON response, but JSON is not accepted by the client "
+            "(accepted: text/plain) (406)", response.text
+        )
 
     def test_missing_request_mapping(self):
         class ResourceWithoutRequestMapping(Resource):

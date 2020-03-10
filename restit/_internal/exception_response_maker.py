@@ -15,11 +15,14 @@ class ExceptionResponseMaker:
 
     def create_response(self, accept: MIMEAccept) -> Response:
         if accept.accept_html:
-            return self.create_html_response()
+            response = self.create_html_response()
         elif accept.accept_json:
-            return self.create_json_response()
+            response = self.create_json_response()
         else:
-            return self.create_plain_text_response()
+            response = self.create_plain_text_response()
+
+        response.set_body_as_bytes(accept)
+        return response
 
     def create_html_response(self) -> Response:
         html_text = ExceptionResponseMaker.HTML_TEMPLATE.format(
