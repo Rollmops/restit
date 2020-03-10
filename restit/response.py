@@ -1,4 +1,3 @@
-from functools import lru_cache
 from http import HTTPStatus
 from typing import Union, List
 
@@ -11,13 +10,15 @@ from restit.response_serializer.default_dict_json_response_serializer import Def
 from restit.response_serializer.default_dict_text_response_serializer import DefaultDictTextResponseSerializer
 from restit.response_serializer.default_str_text_response_serializer import DefaultStrTextResponseSerializer
 
+_DEFAULT_RESPONSE_SERIALIZER = [
+    DefaultDictJsonResponseSerializer(),
+    DefaultStrTextResponseSerializer(),
+    DefaultDictTextResponseSerializer()
+]
+
 
 class Response:
-    _RESPONSE_SERIALIZER: List[ResponseSerializer] = [
-        DefaultDictJsonResponseSerializer(),
-        DefaultStrTextResponseSerializer(),
-        DefaultDictTextResponseSerializer()
-    ]
+    _RESPONSE_SERIALIZER: List[ResponseSerializer] = _DEFAULT_RESPONSE_SERIALIZER
 
     def __init__(
             self,
@@ -35,6 +36,14 @@ class Response:
     def register_response_serializer(response_serializer: ResponseSerializer):
         Response._RESPONSE_SERIALIZER.insert(0, response_serializer)
 
+    @staticmethod
+    def clear_all_response_serializer():
+        Response._RESPONSE_SERIALIZER = []
+
+    @staticmethod
+    def restore_default_response_serializer():
+        Response._RESPONSE_SERIALIZER = _DEFAULT_RESPONSE_SERIALIZER
+
     def serialize_response_body(self, media_type: MIMEAccept):
         matching_response_serializer_list = self._get_matching_response_serializer_for_media_type(media_type)
         if not matching_response_serializer_list:
@@ -47,12 +56,11 @@ class Response:
                 return
 
         raise Response.ResponseBodyTypeNotSupportedException(
-            f"Unable to find response serializer for media type {media_type} and response data type "
+            f"Unable to find response data serializer for media type {media_type} and response data type "
             f"{type(self.response_body)}"
         )
 
     @staticmethod
-    @lru_cache()
     def _get_matching_response_serializer_for_media_type(media_type: MIMEAccept) -> List[ResponseSerializer]:
         return [
             response_serializer
