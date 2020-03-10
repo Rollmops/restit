@@ -117,7 +117,7 @@ class RestitAppTestCase(BaseTestServerTestCase):
         port = self.test_server.server_port
         response = requests.get(f"http://127.0.0.1:{port}/miau/21")
         self.assertEqual(200, response.status_code)
-        self.assertEqual({"id": 21}, response.json())
+        self.assertEqual({"id": "21"}, response.json())
 
     def test_internal_server_error(self):
         port = self.test_server.server_port
