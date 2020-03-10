@@ -1,22 +1,30 @@
+import logging
+import traceback
 from contextlib import contextmanager
 from functools import lru_cache
-from http import HTTPStatus
 from typing import Iterable, Callable, List, Tuple, Dict, Union
 
 # noinspection PyProtectedMember
-from restit._internal.wsgi_request_environment import WsgiRequestEnvironment
+from werkzeug.exceptions import HTTPException, InternalServerError, NotFound
+
+from restit._internal.exception_response_maker import ExceptionResponseMaker
 from restit.development_server import DevelopmentServer
 from restit.namespace import Namespace
 from restit.request import Request
 from restit.resource import Resource
 from restit.response import Response
 
+LOGGER = logging.getLogger(__name__)
+
 
 class RestitApp:
     def __init__(
             self, resources: List[Resource] = None,
-            namespaces: List[Namespace] = None
+            namespaces: List[Namespace] = None,
+            expose_exceptions_to_sever: bool = False
+
     ):
+        self.expose_exceptions_to_sever = expose_exceptions_to_sever
         self.__namespaces: List[Namespace] = []
         self.__resources: List[Resource] = []
         self.register_namespaces(namespaces or [])
@@ -58,41 +66,45 @@ class RestitApp:
         if not self.__init_called:
             self.__init()
 
-        wsgi_request_environment = WsgiRequestEnvironment.create_from_wsgi_environment_dict(environ)
+        request = Request(environ)
+        resource, path_params = self._find_resource_for_url(request.path)
 
-        resource, path_params = self._find_resource_for_url(wsgi_request_environment.path)
-
-        request = Request(
-            query_parameters=wsgi_request_environment.query_parameters,
-            wsgi_environment=wsgi_request_environment.wsgi_environment,
-            body=wsgi_request_environment.body
-        )
-        response = self._get_response(path_params, request, resource, wsgi_request_environment)
+        response = self._create_response_and_handle_exceptions(path_params, request, resource)
 
         response_body_as_bytes = response.get_body_as_bytes()
         response.adapt_header()
-
         header_as_list = [(key, value) for key, value in response.header.items()]
-
         start_response(response.get_status(), header_as_list)
 
         return [response_body_as_bytes]
 
+    def _create_response_and_handle_exceptions(self, path_params, request, resource):
+        try:
+            response = self._get_response_or_raise_not_found(path_params, request, resource)
+        except HTTPException as exception:
+            LOGGER.error(str(exception))
+            exception_response_maker = ExceptionResponseMaker(exception)
+            response = exception_response_maker.create_response(request.accept_mimetypes)
+        except Exception as exception:
+            LOGGER.error(str(exception))
+            LOGGER.error(traceback.format_exc())
+            internal_exception = InternalServerError(str(exception) if self.expose_exceptions_to_sever else "")
+            exception_response_maker = ExceptionResponseMaker(internal_exception)
+            response = exception_response_maker.create_response(request.accept_mimetypes)
+        return response
+
     @staticmethod
-    def _get_response(path_params, request, resource, wsgi_request_environment) -> Response:
+    def _get_response_or_raise_not_found(path_params: dict, request: Request, resource: Resource) -> Response:
         if resource is not None:
             # noinspection PyBroadException
-            try:
-                # noinspection PyProtectedMember
-                response = resource._handle_request(
-                    request_method=wsgi_request_environment.request_method,
-                    request=request,
-                    path_params=path_params
-                )
-            except Exception:
-                response = Response.from_http_status(HTTPStatus.INTERNAL_SERVER_ERROR)
+            # noinspection PyProtectedMember
+            response = resource._handle_request(
+                request_method=request.method,
+                request=request,
+                path_params=path_params
+            )
         else:
-            response = Response.from_http_status(HTTPStatus.NOT_FOUND)
+            raise NotFound()
         return response
 
     @lru_cache()

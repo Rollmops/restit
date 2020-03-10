@@ -1,21 +1,43 @@
 import json
-from json import JSONDecodeError
+from functools import lru_cache
 
-from restit import DEFAULT_ENCODING
-from restit._internal.common import create_dict_from_query_parameter_syntax
+import werkzeug.wrappers
+from werkzeug.utils import escape
+
+from restit import _DEFAULT_ENCODING
 
 
-class Request:
-    def __init__(self, query_parameters: dict, wsgi_environment: dict = None, body: bytes = None):
-        self.query_parameters = query_parameters
-        self.wsgi_environment = wsgi_environment
-        self.body: bytes = body or b""
-        self.body_as_json: dict = {}
-        self.__set_body_as_json()
+class Request(werkzeug.wrappers.Request):
 
-    def __set_body_as_json(self):
-        body_as_string = self.body.decode(encoding=DEFAULT_ENCODING)
-        try:
-            self.body_as_json = json.loads(body_as_string)
-        except JSONDecodeError:
-            self.body_as_json = create_dict_from_query_parameter_syntax(body_as_string)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.query_parameters = {}
+        self.body_as_dict = {}
+        self._init()
+
+    def _init(self):
+        self.query_parameters = \
+            self._create_dict_from_assignment_syntax(self.query_string.decode(encoding=_DEFAULT_ENCODING))
+        if self.is_json():
+            self.body_as_dict.update(json.loads(self.data.decode(encoding=_DEFAULT_ENCODING)))
+        else:
+            self.body_as_dict.update(dict(self.form))
+
+    def is_json(self) -> bool:
+        return self.content_type.lower() == "application/json"
+
+    @staticmethod
+    @lru_cache()
+    def _create_dict_from_assignment_syntax(assignment_syntax_data: str) -> dict:
+        return_dict = {}
+        if assignment_syntax_data is None or "=" not in assignment_syntax_data:
+            return return_dict
+        for query_string_pair in assignment_syntax_data.split("&"):
+            try:
+                key, value = query_string_pair.split("=")
+                return_dict[key] = escape(value)
+            except ValueError:
+                pass
+
+        return return_dict

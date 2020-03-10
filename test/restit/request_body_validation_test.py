@@ -18,7 +18,7 @@ class RequestBodySchema(Schema):
 class QueryParametersResource(Resource):
     @expect_request_body(schema=RequestBodySchema())
     def post(self, request: Request) -> Response:
-        return Response(request.body_as_json)
+        return Response(request.body_as_dict)
 
 
 class RequestBodyValidationTestCase(BaseTestServerTestCase):
@@ -38,5 +38,7 @@ class RequestBodyValidationTestCase(BaseTestServerTestCase):
         response = requests.post(f"http://127.0.0.1:{self.port}/miau", data={"param1": "hans", "param2": 222})
         self.assertEqual(422, response.status_code)
         self.assertEqual(
-            "Request body validation failed ({'param1': ['Not a valid integer.']})", response.text
+            "<title>422 Unprocessable Entity</title>\n"
+            "<h1>Unprocessable Entity</h1>\n"
+            "<p>Request body validation failed ({'param1': ['Not a valid integer.']})</p>\n", response.text
         )

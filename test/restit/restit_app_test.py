@@ -1,5 +1,3 @@
-from http import HTTPStatus
-
 import requests
 
 from restit.request import Request
@@ -13,7 +11,7 @@ from test.base_test_server_test_case import BaseTestServerTestCase
 class MyResource(Resource):
     __request_mapping__ = "/"
 
-    def get(self, request: Request):
+    def get(self, request: Request) -> Response:
         return Response("Hallo")
 
 
@@ -35,16 +33,6 @@ class ResourceWithPathParams(Resource):
         return Response(path_params)
 
 
-@request_mapping("/post")
-class RequestBodyResource(Resource):
-    def post(self, request: Request) -> Response:
-        return Response({
-            "query_parameters": request.query_parameters,
-            "body": request.body.decode(),
-            "body_as_json": request.body_as_json
-        }, HTTPStatus.CREATED)
-
-
 @request_mapping("/error")
 class ErrorResource(Resource):
     def get(self, request: Request) -> Response:
@@ -58,7 +46,6 @@ class RestitAppTestCase(BaseTestServerTestCase):
             MyResource(),
             MyResource2(),
             ResourceWithPathParams(),
-            RequestBodyResource(),
             ErrorResource(),
             NoMethodsResource()
         ]
@@ -74,35 +61,13 @@ class RestitAppTestCase(BaseTestServerTestCase):
         self.assertEqual(201, response.status_code)
         self.assertEqual("wuff", response.text)
 
-    def test_pass_request_body_as_json(self):
-        port = self.test_server.server_port
-        response = requests.post(
-            f"http://127.0.0.1:{port}/post", json={"key": "value"}
-        )
-        self.assertEqual(201, response.status_code)
-        self.assertEqual({
-            'body': '{"key": "value"}',
-            'body_as_json': {'key': 'value'},
-            'query_parameters': {}
-        }, response.json())
-
-    def test_pass_request_body_as_form(self):
-        port = self.test_server.server_port
-        response = requests.post(
-            f"http://127.0.0.1:{port}/post", data={"key": "value"}
-        )
-        self.assertEqual(201, response.status_code)
-        self.assertEqual({
-            'body': 'key=value', 'body_as_json': {'key': 'value'}, 'query_parameters': {}
-        }, response.json())
-
     def test_method_not_allowed_405(self):
         port = self.test_server.server_port
 
         for method in ["get", "delete", "put", "post", "patch", "trace", "options", "connect"]:
             response = requests.request(method, f"http://127.0.0.1:{port}/no_methods")
             self.assertEqual(405, response.status_code)
-            self.assertEqual("Specified method is invalid for this resource", response.text)
+            self.assertIn("405 Method Not Allowed", response.text)
 
         response = requests.head(f"http://127.0.0.1:{port}/no_methods")
         self.assertEqual(405, response.status_code)

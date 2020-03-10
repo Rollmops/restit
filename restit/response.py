@@ -2,7 +2,7 @@ import json
 from http import HTTPStatus
 from typing import Union
 
-from restit import DEFAULT_ENCODING
+from restit import _DEFAULT_ENCODING
 
 
 class Response:
@@ -15,7 +15,7 @@ class Response:
         self.response_body = response_body
         self.status_code = HTTPStatus(status_code, None)
         self.header = header or {}
-        self.encoding = encoding or DEFAULT_ENCODING
+        self.encoding = encoding or _DEFAULT_ENCODING
 
     @staticmethod
     def from_http_status(

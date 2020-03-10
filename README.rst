@@ -50,10 +50,11 @@ Quick example
 
 
     if __name__ == "__main__":
+        # start a development server on http://127.0.0.1:5000
         app.start_development_server()
 
 
-You can also use a production-ready server like `Gunicorn <https://gunicorn.org/>`_)
+You can also use a production-ready server like `Gunicorn <https://gunicorn.org/>`_
 (given the name of the above module is `restit_app_test.py`):
 
 .. code-block:: bash
