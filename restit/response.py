@@ -1,3 +1,4 @@
+from functools import lru_cache
 from http import HTTPStatus
 from typing import Union, List
 
@@ -35,14 +36,17 @@ class Response:
     @staticmethod
     def register_response_serializer(response_serializer: ResponseSerializer):
         Response._RESPONSE_SERIALIZER.insert(0, response_serializer)
+        Response._get_matching_response_serializer_for_media_type.cache_clear()
 
     @staticmethod
     def clear_all_response_serializer():
         Response._RESPONSE_SERIALIZER = []
+        Response._get_matching_response_serializer_for_media_type.cache_clear()
 
     @staticmethod
     def restore_default_response_serializer():
         Response._RESPONSE_SERIALIZER = _DEFAULT_RESPONSE_SERIALIZER
+        Response._get_matching_response_serializer_for_media_type.cache_clear()
 
     def serialize_response_body(self, media_type: MIMEAccept):
         matching_response_serializer_list = self._get_matching_response_serializer_for_media_type(media_type)
@@ -61,6 +65,7 @@ class Response:
         )
 
     @staticmethod
+    @lru_cache()
     def _get_matching_response_serializer_for_media_type(media_type: MIMEAccept) -> List[ResponseSerializer]:
         return [
             response_serializer
