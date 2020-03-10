@@ -27,8 +27,36 @@ class MyResource2(Resource):
         return Response("wuff", 201)
 
 
-@request_mapping("/miau/<id:int>")
+# @request_mapping("/parts")
+# class PartsResource(Resource):
+#     def get(self, id: int):
+#         return Response({})
+#
+#     def put(self, id: int):
+#         return Response("", 201)
+
+
+# @request_mapping("/parts/:id")
+# class PartResource(Resource):
+#     def get(self, id: int):
+#         return Response({})
+#
+#     def put(self, id: int):
+#         return Response("", 201)
+#
+
+# @request_mapping(
+#     path="/miau/:id/jdasdsa/:id2",
+#     path_params = [
+#         path_parameter("id", type=int, description="dsadjwqjhdjq"),
+#         path_parameter("id2", type=int, description="dsadjwqjhdjq")
+#     ]
+# )
+# @path_parameter("id", type=int, description="dsadjwqjhdjq")
+# @path_parameter("id2", type=int, description="dsadjwqjhdjq")
+@request_mapping("/miau/:id")
 class ResourceWithPathParams(Resource):
+
     def get(self, request: Request, **path_params) -> Response:
         return Response(path_params)
 
