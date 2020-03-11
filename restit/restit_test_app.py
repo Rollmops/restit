@@ -12,18 +12,15 @@ from restit.restit_app import RestitApp
 
 class RestitTestApp(RestitApp):
 
-    def __init__(self, restit_app: RestitApp, raise_exceptions: bool = False):
+    def __init__(self, restit_app: RestitApp):
         super().__init__(
             resources=restit_app._resources,
             namespaces=restit_app._namespaces,
-            expose_exceptions_to_sever=restit_app._expose_exceptions_to_sever,
+            debug=restit_app._debug,
 
         )
-        self._raise_exceptions = raise_exceptions
         self._init()
 
-    def set_raise_on_exceptions(self, raise_on_exceptions: bool):
-        self._raise_exceptions = raise_on_exceptions
 
     def get(self, path: str, json: dict = None, data: dict = None, headers: dict = None) -> Response:
         return self._get_response_for_method(path, json, data, headers, "GET")

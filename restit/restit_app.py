@@ -7,8 +7,8 @@ from typing import Iterable, Callable, List, Tuple, Dict, Union
 # noinspection PyProtectedMember
 from werkzeug.exceptions import HTTPException, InternalServerError, NotFound
 
-from restit._internal.exception_response_maker import ExceptionResponseMaker
 from restit.development_server import DevelopmentServer
+from restit.internal.exception_response_maker import ExceptionResponseMaker
 from restit.namespace import Namespace
 from restit.request import Request
 from restit.resource import Resource
@@ -21,18 +21,23 @@ class RestitApp:
     def __init__(
             self, resources: List[Resource] = None,
             namespaces: List[Namespace] = None,
-            expose_exceptions_to_sever: bool = False
+            debug: bool = False,
+            raise_exceptions: bool = False
 
     ):
-        self._expose_exceptions_to_sever = expose_exceptions_to_sever
+        self._debug = debug
         self._namespaces: List[Namespace] = []
         self._resources: List[Resource] = []
+        self._raise_exceptions = raise_exceptions
         self.register_namespaces(namespaces or [])
         self.register_resources(resources or [])
 
         self.__development_server: Union[DevelopmentServer, None] = None
 
         self._init_called = False
+
+    def set_raise_on_exceptions(self, raise_on_exceptions: bool):
+        self._raise_exceptions = raise_on_exceptions
 
     def register_resources(self, resources: List[Resource]):
         self.__check_resource_request_mapping(resources)
@@ -94,9 +99,11 @@ class RestitApp:
             exception_response_maker = ExceptionResponseMaker(exception)
             response = exception_response_maker.create_response(request.get_accepted_media_types())
         except Exception as exception:
+            if self._raise_exceptions:
+                raise
             LOGGER.error(str(exception))
             LOGGER.error(traceback.format_exc())
-            internal_exception = InternalServerError(str(exception) if self._expose_exceptions_to_sever else "")
+            internal_exception = InternalServerError(str(exception) if self._debug else "")
             exception_response_maker = ExceptionResponseMaker(internal_exception)
             response = exception_response_maker.create_response(request.get_accepted_media_types())
         return response

@@ -13,7 +13,7 @@ class BaseTestServerTestCase(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
-        cls.restit_app = RestitApp(resources=BaseTestServerTestCase.resources)
+        cls.restit_app = RestitApp(resources=BaseTestServerTestCase.resources, debug=True)
         cls.port = cls.restit_app.start_development_server(port=0, blocking=False)
 
     @classmethod

@@ -2,6 +2,7 @@ import unittest
 
 from werkzeug.exceptions import MethodNotAllowed
 
+from restit import Hyperlink
 from restit.request import Request
 from restit.request_mapping import request_mapping
 from restit.resource import Resource
@@ -30,6 +31,22 @@ class NoMethodsResource(Resource):
     pass
 
 
+@request_mapping("/miau/:id")
+class ResourceWithPathParams(Resource):
+
+    def get(self, request: Request, **path_params) -> Response:
+        return Response(path_params)
+
+
+@request_mapping("/resource_with_hyperlink")
+class ResourceWithHyperLink(Resource):
+    def get(self, request: Request) -> Response:
+        return Response({
+            "hyperlink_with_path_params": Hyperlink(ResourceWithPathParams).generate(request, id=10),
+            "hyperlink": Hyperlink(MyResource).generate(request)
+        })
+
+
 @request_mapping("/pass_headers")
 class PassHeadersResource(Resource):
     def get(self, request: Request) -> Response:
@@ -41,7 +58,9 @@ class RestitTestAppTestCase(unittest.TestCase):
         resit_app = RestitApp(resources=[
             MyResource(),
             NoMethodsResource(),
-            PassHeadersResource()
+            PassHeadersResource(),
+            ResourceWithHyperLink(),
+            ResourceWithPathParams()
         ])
         self.resit_test_app = RestitTestApp(resit_app)
 
@@ -131,4 +150,13 @@ class RestitTestAppTestCase(unittest.TestCase):
             'Accept-Encoding': 'gzip, deflate',
             'Content-Type': '*/*',
             'Host': '127.0.0.1'
+        }, response.json())
+
+    def test_hyperlinks(self):
+        response = self.resit_test_app.get("/resource_with_hyperlink")
+
+        self.assertEqual(200, response.get_status_code())
+        self.assertEqual({
+            'hyperlink': 'http://127.0.0.1/',
+            'hyperlink_with_path_params': 'http://127.0.0.1/miau/10'
         }, response.json())

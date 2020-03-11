@@ -1,5 +1,6 @@
 import requests
 
+from restit import Hyperlink
 from restit.request import Request
 from restit.request_mapping import request_mapping
 from restit.resource import Resource
@@ -25,33 +26,7 @@ class MyResource2(Resource):
         return Response("wuff", 201)
 
 
-# @request_mapping("/parts")
-# class PartsResource(Resource):
-#     def get(self, id: int):
-#         return Response({})
-#
-#     def put(self, id: int):
-#         return Response("", 201)
 
-
-# @request_mapping("/parts/:id")
-# class PartResource(Resource):
-#     def get(self, id: int):
-#         return Response({})
-#
-#     def put(self, id: int):
-#         return Response("", 201)
-#
-
-# @request_mapping(
-#     path="/miau/:id/jdasdsa/:id2",
-#     path_params = [
-#         path_parameter("id", type=int, description="dsadjwqjhdjq"),
-#         path_parameter("id2", type=int, description="dsadjwqjhdjq")
-#     ]
-# )
-# @path_parameter("id", type=int, description="dsadjwqjhdjq")
-# @path_parameter("id2", type=int, description="dsadjwqjhdjq")
 @request_mapping("/miau/:id")
 class ResourceWithPathParams(Resource):
 
@@ -62,13 +37,30 @@ class ResourceWithPathParams(Resource):
 @request_mapping("/error")
 class ErrorResource(Resource):
     def get(self, request: Request) -> Response:
-        raise Exception()
+        raise Exception("OH NOOOO")
 
 
 @request_mapping("/send-json")
 class SendJsonResource(Resource):
     def get(self, request: Request) -> Response:
         return Response({"key": "value"})
+
+
+@request_mapping("/resource_with_hyperlink")
+class ResourceWithHyperLink(Resource):
+    def get(self, request: Request) -> Response:
+        return Response({
+            "hyperlink_with_path_params": Hyperlink(ResourceWithPathParams).generate(request, id=10),
+            "hyperlink": Hyperlink(MyResource).generate(request)
+        })
+
+
+@request_mapping("/resource_with_hyperlink_error")
+class ResourceWithHyperLinkError(Resource):
+    def get(self, request: Request) -> Response:
+        return Response({
+            "hyperlink_with_path_params": Hyperlink(ResourceWithPathParams).generate(request, not_there=10),
+        })
 
 
 class RestitAppTestCase(BaseTestServerTestCase):
@@ -80,7 +72,9 @@ class RestitAppTestCase(BaseTestServerTestCase):
             ResourceWithPathParams(),
             ErrorResource(),
             NoMethodsResource(),
-            SendJsonResource()
+            SendJsonResource(),
+            ResourceWithHyperLink(),
+            ResourceWithHyperLinkError()
         ]
         BaseTestServerTestCase.setUpClass()
 
@@ -115,11 +109,17 @@ class RestitAppTestCase(BaseTestServerTestCase):
     def test_internal_server_error(self):
         response = requests.get(f"http://127.0.0.1:{self.port}/error")
         self.assertEqual(500, response.status_code)
+        self.assertEqual(
+            "<title>500 Internal Server Error</title>\n"
+            "<h1>Internal Server Error</h1>\n"
+            "<p>OH NOOOO</p>\n",
+            response.text
+        )
 
     def test_internal_server_error_as_json(self):
         response = requests.get(f"http://127.0.0.1:{self.port}/error", headers={'Accept': "application/json"})
         self.assertEqual(500, response.status_code)
-        self.assertEqual('{"code": 500, "name": "Internal Server Error", "description": ""}', response.text)
+        self.assertEqual('{"code": 500, "name": "Internal Server Error", "description": "OH NOOOO"}', response.text)
 
     def test_missing_request_mapping(self):
         class ResourceWithoutRequestMapping(Resource):
@@ -128,3 +128,21 @@ class RestitAppTestCase(BaseTestServerTestCase):
         with self.assertRaises(RestitApp.MissingRequestMappingException):
             RestitApp(resources=[ResourceWithoutRequestMapping()])
 
+    def test_hyperlink(self):
+        response = requests.get(f"http://127.0.0.1:{self.port}/resource_with_hyperlink")
+        self.assertEqual(200, response.status_code)
+        self.assertEqual({
+            "hyperlink_with_path_params": f"http://127.0.0.1:{self.port}/miau/10",
+            "hyperlink": f"http://127.0.0.1:{self.port}/"
+        }, response.json())
+
+    def test_hyperlink_path_param_not_found(self):
+        response = requests.get(f"http://127.0.0.1:{self.port}/resource_with_hyperlink_error")
+        self.assertEqual(500, response.status_code)
+        self.assertEqual(
+            "<title>500 Internal Server Error</title>\n"
+            "<h1>Internal Server Error</h1>\n"
+            "<p>The path parameter id in request mapping '/miau/:id' was not found in the provided path parameters "
+            "{'not_there': 10}</p>\n",
+            response.text
+        )

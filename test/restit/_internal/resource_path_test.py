@@ -1,6 +1,6 @@
 import unittest
 
-from restit._internal.resource_path import ResourcePath
+from restit.internal.resource_path import ResourcePath
 
 
 class ResourcePathTestCase(unittest.TestCase):

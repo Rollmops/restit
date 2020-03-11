@@ -10,15 +10,15 @@ class ResourcePath:
         "str": (r"\S+", str),
         None: (r"\S+", str)
     }
+    _PATH_PARAM_REGEX = re.compile(r":(\w+)(?:<(\w+)>)?")
 
-    def __init__(self, resource_path: str):
-        self._resource_path = resource_path
+    def __init__(self, request_mapping: str):
+        self._request_mapping = request_mapping
         self._type_mapping = {}
-        self._resource_path_regex = self._transform_to_regex()
+        self._request_mapping_regex = self._transform_to_regex()
 
     def _transform_to_regex(self):
-        path_param_pattern = r":(\w+)(?:<(\w+)>)?"
-        regex_pattern = re.sub(path_param_pattern, self._handle_path_param, self._resource_path)
+        regex_pattern = ResourcePath._PATH_PARAM_REGEX.sub(self._handle_path_param, self._request_mapping)
         regex_pattern = "^" + regex_pattern + "$"
         return re.compile(regex_pattern)
 
@@ -31,11 +31,29 @@ class ResourcePath:
             raise ResourcePath.UnknownPathParamTypeAnnotation(match.group(2))
 
     def get_match(self, url: str) -> Tuple[bool, Union[None, Dict[str, AnyStr]]]:
-        match = self._resource_path_regex.match(url)
+        match = self._request_mapping_regex.match(url)
         if match:
             match_dict = {param: self._type_mapping[param](value) for param, value in match.groupdict().items()}
             return True, match_dict
         return False, None
 
+    @staticmethod
+    def generate_url_with_path_parameter_values(request_mapping: str, path_param: dict) -> str:
+        def _replace_with_path_param(match: Match):
+            key = match.group(1)
+            try:
+                value = str(path_param[key])
+            except KeyError:
+                raise ResourcePath.ExpectedPathParameterForRequestMappingNotFoundException(
+                    f"The path parameter {key} in request mapping '{request_mapping}' was not found in the provided "
+                    f"path parameters {path_param}"
+                )
+            return value
+
+        return ResourcePath._PATH_PARAM_REGEX.sub(_replace_with_path_param, request_mapping)
+
     class UnknownPathParamTypeAnnotation(Exception):
+        pass
+
+    class ExpectedPathParameterForRequestMappingNotFoundException(Exception):
         pass

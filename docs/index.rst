@@ -23,8 +23,8 @@ Feature
     - response body validation
 - `OpenApi <https://swagger.io/docs/specification/about/>`_ documentation generation
 - *OOP* ready (no module-based global instances necessary)
+- Easy hyperlink generation
 - Easy to test
-- very few dependencies
 
 Quick example
 -------------

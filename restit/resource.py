@@ -3,7 +3,7 @@ from typing import Tuple, AnyStr, Dict, Union
 from werkzeug import Request
 from werkzeug.exceptions import MethodNotAllowed
 
-from restit._internal.resource_path import ResourcePath
+from restit.internal.resource_path import ResourcePath
 from restit.response import Response
 
 

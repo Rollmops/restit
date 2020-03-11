@@ -1,4 +1,5 @@
 from .development_server import DevelopmentServer
+from .hyperlink import Hyperlink
 from .namespace import Namespace
 from .query_parameters_decorator import query_parameters
 from .request import Request
