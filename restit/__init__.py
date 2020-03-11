@@ -1,12 +1,8 @@
 __version__ = "0.1.0"
 
-import logging
 import sys
 
 _DEFAULT_ENCODING = sys.getdefaultencoding()
-
-LOGGER = logging.getLogger(__name__)
-LOGGER.setLevel(level=logging.WARNING)
 
 
 def set_default_encoding(default_encoding: str):
