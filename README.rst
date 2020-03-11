@@ -33,11 +33,11 @@ Quick example
 
 .. code-block:: python
 
-    from restit.request import Request
-    from restit.request_mapping import request_mapping
-    from restit.resource import Resource
-    from restit.response import Response
-    from restit.restit_app import RestitApp
+    from restit import Request
+    from restit import request_mapping
+    from restit import Resource
+    from restit import Response
+    from restit import RestitApp
 
 
     @request_mapping("/")
