@@ -13,6 +13,3 @@ class DefaultStrTextResponseSerializer(ResponseSerializer):
 
     def serialize(self, response_input: str) -> bytes:
         return response_input.encode(encoding=get_default_encoding())
-
-    def get_content_type(self) -> str:
-        return "text/plain"

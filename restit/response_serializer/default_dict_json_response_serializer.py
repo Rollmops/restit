@@ -14,6 +14,3 @@ class DefaultDictJsonResponseSerializer(ResponseSerializer):
 
     def serialize(self, response_input: dict) -> bytes:
         return json.dumps(response_input).encode(encoding=get_default_encoding())
-
-    def get_content_type(self) -> str:
-        return "application/json"

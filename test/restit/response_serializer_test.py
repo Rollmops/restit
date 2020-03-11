@@ -13,7 +13,6 @@ from restit.response_serializer.default_dict_text_response_serializer import Def
 class ResponseSerializerTestCase(unittest.TestCase):
     def tearDown(self) -> None:
         Response.restore_default_response_serializer()
-        pass
 
     def test_default_dict_to_json(self):
         response = Response({"key": "value"})
