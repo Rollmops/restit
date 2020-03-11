@@ -8,6 +8,7 @@ from typing import Iterable, Callable, List, Tuple, Dict, Union
 from werkzeug.exceptions import HTTPException, InternalServerError, NotFound
 
 from restit.development_server import DevelopmentServer
+from restit.internal.default_favicon_resource import DefaultFaviconResource
 from restit.internal.exception_response_maker import ExceptionResponseMaker
 from restit.namespace import Namespace
 from restit.request import Request
@@ -66,9 +67,12 @@ class RestitApp:
     def __check_resource_request_mapping(resources):
         for resource in resources:
             if resource.__request_mapping__ is None:
-                raise RestitApp.MissingRequestMappingException(resource)
+                raise RestitApp.MissingRequestMappingException(
+                    f"The resource class {resource.__class__.__name__} does not appear to have a @request_mapping(...)"
+                )
 
     def _init(self):
+        self._resources.append(DefaultFaviconResource())
         for resource in self._resources:
             resource.init()
         self._init_called = True
