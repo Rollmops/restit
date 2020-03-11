@@ -13,20 +13,20 @@ from test.base_test_server_test_case import BaseTestServerTestCase
 class RequestBodyResource(Resource):
     def get(self, request: Request) -> Response:
         return Response({
-            "form": dict(request.form),
-            "data": request.data.decode(),
-            "query_string": request.query_string.decode(),
+            "form": dict(request.get_extended_request_info().form),
+            "data": request.get_extended_request_info().data.decode(),
+            "query_string": request.get_extended_request_info().query_string.decode(),
             "query_parameters": request.query_parameters,
-            "content_type": request.content_type
+            "content_type": request.get_extended_request_info().content_type
         })
 
     def post(self, request: Request) -> Response:
         return Response({
-            "form": dict(request.form),
-            "data": request.data.decode(),
-            "query_string": request.query_string.decode(),
+            "form": dict(request.get_extended_request_info().form),
+            "data": request.get_extended_request_info().data.decode(),
+            "query_string": request.get_extended_request_info().query_string.decode(),
             "query_parameters": request.query_parameters,
-            "content_type": request.content_type
+            "content_type": request.get_extended_request_info().content_type
         }, HTTPStatus.CREATED)
 
 
@@ -37,7 +37,7 @@ class RestitAppTestCase(BaseTestServerTestCase):
         BaseTestServerTestCase.setUpClass()
 
     def test_request_value_test_post_with_json(self):
-        port = self.test_server.server_port
+        port = self.port
         response = requests.post(f"http://127.0.0.1:{port}/", json={"key": "value"})
 
         self.assertEqual(201, response.status_code)
@@ -50,7 +50,7 @@ class RestitAppTestCase(BaseTestServerTestCase):
         }, response.json())
 
     def test_request_value_test_get_with_json(self):
-        port = self.test_server.server_port
+        port = self.port
         response = requests.get(f"http://127.0.0.1:{port}/", json={"key": "value"})
 
         self.assertEqual(200, response.status_code)
@@ -63,7 +63,7 @@ class RestitAppTestCase(BaseTestServerTestCase):
         }, response.json())
 
     def test_request_value_test_post_with_data(self):
-        port = self.test_server.server_port
+        port = self.port
         response = requests.post(f"http://127.0.0.1:{port}/", data={"key": "value"})
         self.assertEqual(201, response.status_code)
         self.assertEqual({
@@ -75,7 +75,7 @@ class RestitAppTestCase(BaseTestServerTestCase):
         }, response.json())
 
     def test_request_value_test_get_with_data(self):
-        response = requests.get(f"http://127.0.0.1:{self.test_server.server_port}/", data={"key": "value"})
+        response = requests.get(f"http://127.0.0.1:{self.port}/", data={"key": "value"})
         self.assertEqual(200, response.status_code)
         self.assertEqual({
             'data': '',
@@ -86,7 +86,7 @@ class RestitAppTestCase(BaseTestServerTestCase):
         }, response.json())
 
     def test_query_parameters_in_post(self):
-        response = requests.post(f"http://127.0.0.1:{self.test_server.server_port}/?key=value")
+        response = requests.post(f"http://127.0.0.1:{self.port}/?key=value")
         self.assertEqual(201, response.status_code)
         self.assertEqual({
             'data': '',
@@ -97,7 +97,7 @@ class RestitAppTestCase(BaseTestServerTestCase):
         }, response.json())
 
     def test_query_parameters_in_get(self):
-        response = requests.get(f"http://127.0.0.1:{self.test_server.server_port}/?key=value")
+        response = requests.get(f"http://127.0.0.1:{self.port}/?key=value")
         self.assertEqual(200, response.status_code)
         self.assertEqual({
             'data': '',

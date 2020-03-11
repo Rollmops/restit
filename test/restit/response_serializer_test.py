@@ -20,19 +20,19 @@ class ResponseSerializerTestCase(unittest.TestCase):
         response = Response({"key": "value"})
         response.serialize_response_body(MIMEAccept([("application/json", 1)]))
 
-        self.assertEqual(b'{"key": "value"}', response.body_as_bytes)
+        self.assertEqual(b'{"key": "value"}', response.content)
 
     def test_default_dict_to_text(self):
         response = Response({"key": "value"})
         response.serialize_response_body(MIMEAccept([("text/plain", 1)]))
 
-        self.assertEqual(b'{"key": "value"}', response.body_as_bytes)
+        self.assertEqual(b'{"key": "value"}', response.content)
 
     def test_default_str_to_text(self):
         response = Response("Test")
         response.serialize_response_body(MIMEAccept([("text/plain", 1)]))
 
-        self.assertEqual(b'Test', response.body_as_bytes)
+        self.assertEqual(b'Test', response.content)
 
     def test_clear_all_default_serializer(self):
         Response.clear_all_response_serializer()
@@ -58,7 +58,7 @@ class ResponseSerializerTestCase(unittest.TestCase):
         response = Response("Test")
         response.serialize_response_body(MIMEAccept([("my/type", 1)]))
 
-        self.assertEqual(b'tseT', response.body_as_bytes)
+        self.assertEqual(b'tseT', response.content)
 
     def test_prioritize_media_type(self):
         media_type = MIMEAccept([("application/json", 1), ("text/plain", 0.7)])
@@ -71,21 +71,21 @@ class ResponseSerializerTestCase(unittest.TestCase):
         response = Response({"key": "value"})
         response.serialize_response_body(media_type)
 
-        self.assertEqual(b'{"key": "value"}', response.body_as_bytes)
-        self.assertEqual("application/json", response.header["Content-Type"])
+        self.assertEqual(b'{"key": "value"}', response.content)
+        self.assertEqual("application/json", response._headers["Content-Type"])
 
     def test_dict_fallback_response_serializer(self):
         Response.register_response_serializer(DictFallbackResponseSerializer())
         response = Response({"key": "value"})
         response.serialize_response_body(MIMEAccept([("wuff/miau", 1)]))
 
-        self.assertEqual(b'{"key": "value"}', response.body_as_bytes)
-        self.assertEqual("application/json", response.header["Content-Type"])
+        self.assertEqual(b'{"key": "value"}', response.content)
+        self.assertEqual("application/json", response._headers["Content-Type"])
 
     def test_string_fallback_response_serializer(self):
         Response.register_response_serializer(StringFallbackResponseSerializer())
         response = Response("huhu")
         response.serialize_response_body(MIMEAccept([("wuff/miau", 1)]))
 
-        self.assertEqual(b'huhu', response.body_as_bytes)
-        self.assertEqual("text/plain", response.header["Content-Type"])
+        self.assertEqual(b'huhu', response.content)
+        self.assertEqual("text/plain", response._headers["Content-Type"])

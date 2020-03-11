@@ -3,7 +3,7 @@ from marshmallow import Schema, fields
 from werkzeug import Request
 from werkzeug.exceptions import BadRequest
 
-from restit.expect_query_parameters_decorator import expect_query_parameters
+from restit.query_parameters_decorator import query_parameters
 from restit.request_mapping import request_mapping
 from restit.resource import Resource
 from restit.response import Response
@@ -17,14 +17,14 @@ class QueryParameterSchema(Schema):
 
 @request_mapping("/queryparams")
 class QueryParametersResource(Resource):
-    @expect_query_parameters(schema=QueryParameterSchema())
+    @query_parameters(schema=QueryParameterSchema())
     def get(self, request: Request) -> Response:
         return Response(request.query_parameters)
 
 
 @request_mapping("/custom-error-class")
 class CustomErrorClassResource(Resource):
-    @expect_query_parameters(schema=QueryParameterSchema(), validation_error_class=BadRequest)
+    @query_parameters(schema=QueryParameterSchema(), validation_error_class=BadRequest)
     def get(self, request: Request) -> Response:
         return Response(request.query_parameters)
 

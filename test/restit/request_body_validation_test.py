@@ -1,8 +1,8 @@
 import requests
 from marshmallow import Schema, fields
 
-from restit.expect_request_body_decorator import expect_request_body
 from restit.request import Request
+from restit.request_body_decorator import request_body
 from restit.request_mapping import request_mapping
 from restit.resource import Resource
 from restit.response import Response
@@ -16,9 +16,9 @@ class RequestBodySchema(Schema):
 
 @request_mapping("/miau")
 class QueryParametersResource(Resource):
-    @expect_request_body(schema=RequestBodySchema())
+    @request_body(schema=RequestBodySchema())
     def post(self, request: Request) -> Response:
-        return Response(request.body_as_dict)
+        return Response(request._body_as_dict)
 
 
 class RequestBodyValidationTestCase(BaseTestServerTestCase):

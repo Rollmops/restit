@@ -1,6 +1,7 @@
 import logging
 from contextlib import contextmanager
 from threading import Thread
+from time import sleep
 from typing import Union, Callable, Generator
 from wsgiref.simple_server import make_server, WSGIServer
 
@@ -26,6 +27,10 @@ class DevelopmentServer:
             self._thread = Thread(target=self.server.serve_forever)
             self._thread.start()
             return self.server.server_port
+
+    def wait_until_ready(self, check_interval: int = None):
+        check_interval = check_interval or 0.1
+        sleep(1)
 
     def stop(self):
         LOGGER.debug("Stopping development server")

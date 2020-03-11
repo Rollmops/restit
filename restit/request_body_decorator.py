@@ -1,15 +1,17 @@
 from marshmallow import Schema, ValidationError
-from werkzeug import Request
 from werkzeug.exceptions import UnprocessableEntity
 
+from restit.request import Request
 
-def expect_query_parameters(schema: Schema, validation_error_class=UnprocessableEntity):
+
+def request_body(schema: Schema, validation_error_class=UnprocessableEntity):
     def decorator(func):
         def wrapper(self, request: Request, **path_parameters):
             try:
-                request.query_parameters = schema.load(request.query_parameters)
+                # noinspection PyProtectedMember
+                request._body_as_dict = schema.load(request._body_as_dict)
             except ValidationError as error:
-                raise validation_error_class(f"Query parameter validation failed ({str(error)})")
+                raise validation_error_class(f"Request body validation failed ({str(error)})")
             else:
                 return func(self, request, **path_parameters)
 

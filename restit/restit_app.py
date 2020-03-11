@@ -24,31 +24,39 @@ class RestitApp:
             expose_exceptions_to_sever: bool = False
 
     ):
-        self.expose_exceptions_to_sever = expose_exceptions_to_sever
-        self.__namespaces: List[Namespace] = []
-        self.__resources: List[Resource] = []
+        self._expose_exceptions_to_sever = expose_exceptions_to_sever
+        self._namespaces: List[Namespace] = []
+        self._resources: List[Resource] = []
         self.register_namespaces(namespaces or [])
         self.register_resources(resources or [])
 
-        self.__init_called = False
+        self.__development_server: Union[DevelopmentServer, None] = None
+
+        self._init_called = False
 
     def register_resources(self, resources: List[Resource]):
         self.__check_resource_request_mapping(resources)
-        self.__resources.extend(resources)
+        self._resources.extend(resources)
         self._create_url_ordered_resource()
 
     def register_namespaces(self, namespaces: List[Namespace]):
         for namespace in namespaces:
             self.register_resources(namespace.get_adapted_resources())
 
-    def start_development_server(self, host: str = None, port: int = 5000, blocking: bool = True):
-        development_server = DevelopmentServer(self, host, port)
-        development_server.start(blocking=blocking)
+    def start_development_server(self, host: str = None, port: int = 5000, blocking: bool = True) -> int:
+        self.__development_server = DevelopmentServer(self, host, port)
+        self.__development_server.start(blocking=blocking)
+        if not blocking:
+            self.__development_server.wait_until_ready()
+        return self.__development_server.server.server_port
+
+    def stop_development_server(self):
+        self.__development_server.stop()
 
     @contextmanager
     def start_development_server_in_context(self, host: str = None, port: int = 5000) -> int:
-        development_server = DevelopmentServer(self, host, port)
-        with development_server.start_in_context() as port:
+        self.__development_server = DevelopmentServer(self, host, port)
+        with self.__development_server.start_in_context() as port:
             yield port
 
     @staticmethod
@@ -57,39 +65,40 @@ class RestitApp:
             if resource.__request_mapping__ is None:
                 raise RestitApp.MissingRequestMappingException(resource)
 
-    def __init(self):
-        for resource in self.__resources:
+    def _init(self):
+        for resource in self._resources:
             resource.init()
-        self.__init_called = True
+        self._init_called = True
 
-    def __call__(self, environ: dict, start_response: Callable) -> Iterable:
-        if not self.__init_called:
-            self.__init()
+    def __call__(self, wsgi_environ: dict, start_response: Callable) -> Iterable:
+        if not self._init_called:
+            self._init()
 
-        request = Request(environ)
-        resource, path_params = self._find_resource_for_url(request.path)
+        request = Request(wsgi_environ)
+        resource, path_params = self._find_resource_for_url(request.get_path())
 
         response = self._create_response_and_handle_exceptions(path_params, request, resource)
 
-        header_as_list = [(key, value) for key, value in response.header.items()]
-        start_response(response.get_status(), header_as_list)
+        header_as_list = [(key, str(value)) for key, value in response.get_headers().items()]
+        start_response(response.get_status_string(), header_as_list)
 
-        return [response.body_as_bytes]
+        return [response.content]
 
-    def _create_response_and_handle_exceptions(self, path_params: dict, request: Request, resource: Resource) \
-            -> Response:
+    def _create_response_and_handle_exceptions(
+            self, path_params: dict, request: Request, resource: Resource
+    ) -> Response:
         try:
             response = self._get_response_or_raise_not_found(path_params, request, resource)
         except HTTPException as exception:
             LOGGER.info(str(exception))
             exception_response_maker = ExceptionResponseMaker(exception)
-            response = exception_response_maker.create_response(request.accept_mimetypes)
+            response = exception_response_maker.create_response(request.get_accepted_media_types())
         except Exception as exception:
             LOGGER.error(str(exception))
             LOGGER.error(traceback.format_exc())
-            internal_exception = InternalServerError(str(exception) if self.expose_exceptions_to_sever else "")
+            internal_exception = InternalServerError(str(exception) if self._expose_exceptions_to_sever else "")
             exception_response_maker = ExceptionResponseMaker(internal_exception)
-            response = exception_response_maker.create_response(request.accept_mimetypes)
+            response = exception_response_maker.create_response(request.get_accepted_media_types())
         return response
 
     @staticmethod
@@ -98,18 +107,18 @@ class RestitApp:
             # noinspection PyBroadException
             # noinspection PyProtectedMember
             response = resource._handle_request(
-                request_method=request.method,
+                request_method=request.get_request_method_name(),
                 request=request,
                 path_params=path_params
             )
-            response.serialize_response_body(request.accept_mimetypes)
+            response.serialize_response_body(request.get_accepted_media_types())
         else:
             raise NotFound()
         return response
 
     @lru_cache()
     def _find_resource_for_url(self, url: str) -> Union[Tuple[None, None], Tuple[Resource, Dict]]:
-        for resource in self.__resources:
+        for resource in self._resources:
             # noinspection PyProtectedMember
             is_matching, path_params = resource._get_match(url)
             if is_matching:
@@ -118,7 +127,7 @@ class RestitApp:
         return None, None
 
     def _create_url_ordered_resource(self):
-        self.__resources = sorted(self.__resources, key=lambda r: r.__request_mapping__, reverse=True)
+        self._resources = sorted(self._resources, key=lambda r: r.__request_mapping__, reverse=True)
 
     class MissingRequestMappingException(Exception):
         pass
