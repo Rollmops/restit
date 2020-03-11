@@ -5,7 +5,7 @@ import werkzeug.wrappers
 from werkzeug.datastructures import MIMEAccept
 from werkzeug.utils import escape
 
-from restit import _DEFAULT_ENCODING
+from restit import get_default_encoding
 
 
 class Request:
@@ -18,10 +18,12 @@ class Request:
     def _init(self):
         self.query_parameters = \
             self._create_dict_from_assignment_syntax(
-                self._extended_request_info.query_string.decode(encoding=_DEFAULT_ENCODING)
+                self._extended_request_info.query_string.decode(encoding=get_default_encoding())
             )
         if self.is_json():
-            self._body_as_dict.update(json.loads(self._extended_request_info.data.decode(encoding=_DEFAULT_ENCODING)))
+            self._body_as_dict.update(
+                json.loads(self._extended_request_info.data.decode(encoding=get_default_encoding()))
+            )
         else:
             self._body_as_dict.update(dict(self._extended_request_info.form))
 
@@ -42,6 +44,9 @@ class Request:
 
     def get_body_as_dict(self) -> dict:
         return self._body_as_dict
+
+    def get_headers(self) -> dict:
+        return dict(self.get_extended_request_info().headers)
 
     @staticmethod
     @lru_cache()

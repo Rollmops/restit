@@ -30,11 +30,18 @@ class NoMethodsResource(Resource):
     pass
 
 
+@request_mapping("/pass_headers")
+class PassHeadersResource(Resource):
+    def get(self, request: Request) -> Response:
+        return Response(request.get_headers())
+
+
 class RestitTestAppTestCase(unittest.TestCase):
     def setUp(self) -> None:
         resit_app = RestitApp(resources=[
             MyResource(),
-            NoMethodsResource()
+            NoMethodsResource(),
+            PassHeadersResource()
         ])
         self.resit_test_app = RestitTestApp(resit_app)
 
@@ -47,6 +54,18 @@ class RestitTestAppTestCase(unittest.TestCase):
         self.assertEqual({
             'Content-Encoding': 'utf-8',
             'Content-Length': 16,
+            'Content-Type': 'application/json'
+        }, response._headers)
+
+    def test_get_data_body(self):
+        response = self.resit_test_app.get("/", data={"key": "value", "key2": "value2"})
+        self.assertEqual(200, response.get_status_code())
+        self.assertEqual({'key': 'value', 'key2': 'value2'}, response.json())
+        self.assertEqual('{"key": "value", "key2": "value2"}', response.text)
+        self.assertEqual(b'{"key": "value", "key2": "value2"}', response.content)
+        self.assertEqual({
+            'Content-Encoding': 'utf-8',
+            'Content-Length': 34,
             'Content-Type': 'application/json'
         }, response._headers)
 
@@ -103,3 +122,13 @@ class RestitTestAppTestCase(unittest.TestCase):
             self.assertEqual(405, self.resit_test_app.delete("/no_methods").get_status_code())
             self.assertEqual(405, self.resit_test_app.patch("/no_methods").get_status_code())
             self.assertEqual(405, self.resit_test_app.options("/no_methods").get_status_code())
+
+    def test_pass_headers(self):
+        response = self.resit_test_app.get("/pass_headers")
+        self.assertEqual(200, response.get_status_code())
+        self.assertEqual({
+            'Accept': '*/*',
+            'Accept-Encoding': 'gzip, deflate',
+            'Content-Type': '*/*',
+            'Host': '127.0.0.1'
+        }, response.json())

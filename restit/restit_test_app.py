@@ -66,7 +66,8 @@ class RestitTestApp(RestitApp):
         if json is not None:
             body_as_bytes = dumps(json).encode(encoding=get_default_encoding())
         elif data is not None:
-            body_as_bytes = dumps(data).encode(encoding=get_default_encoding())
+            body_as_bytes = "&".join([f"{key}={value}" for key, value in data.items()])
+            body_as_bytes = body_as_bytes.encode(encoding=get_default_encoding())
         wsgi_environment["REQUEST_METHOD"] = method
         wsgi_environment["PATH_INFO"] = path
         wsgi_environment["CONTENT_LENGTH"] = len(body_as_bytes)

@@ -127,3 +127,4 @@ class RestitAppTestCase(BaseTestServerTestCase):
 
         with self.assertRaises(RestitApp.MissingRequestMappingException):
             RestitApp(resources=[ResourceWithoutRequestMapping()])
+
