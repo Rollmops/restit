@@ -8,6 +8,8 @@ from restit.response import Response
 from restit.response_serializer import ResponseSerializer
 from restit.response_serializer.default_dict_json_response_serializer import DefaultDictJsonResponseSerializer
 from restit.response_serializer.default_dict_text_response_serializer import DefaultDictTextResponseSerializer
+from restit.response_serializer.dict_fallback_response_serializer import DictFallbackResponseSerializer
+from restit.response_serializer.str_fallback_response_serializer import StringFallbackResponseSerializer
 
 
 class ResponseSerializerTestCase(unittest.TestCase):
@@ -71,3 +73,19 @@ class ResponseSerializerTestCase(unittest.TestCase):
 
         self.assertEqual(b'{"key": "value"}', response.body_as_bytes)
         self.assertEqual("application/json", response.header["Content-Type"])
+
+    def test_dict_fallback_response_serializer(self):
+        Response.register_response_serializer(DictFallbackResponseSerializer())
+        response = Response({"key": "value"})
+        response.serialize_response_body(MIMEAccept([("wuff/miau", 1)]))
+
+        self.assertEqual(b'{"key": "value"}', response.body_as_bytes)
+        self.assertEqual("application/json", response.header["Content-Type"])
+
+    def test_string_fallback_response_serializer(self):
+        Response.register_response_serializer(StringFallbackResponseSerializer())
+        response = Response("huhu")
+        response.serialize_response_body(MIMEAccept([("wuff/miau", 1)]))
+
+        self.assertEqual(b'huhu', response.body_as_bytes)
+        self.assertEqual("text/plain", response.header["Content-Type"])

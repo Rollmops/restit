@@ -13,7 +13,7 @@ from restit.response_serializer.default_str_text_response_serializer import Defa
 _DEFAULT_RESPONSE_SERIALIZER = [
     DefaultDictJsonResponseSerializer(),
     DefaultStrTextResponseSerializer(),
-    DefaultDictTextResponseSerializer()
+    DefaultDictTextResponseSerializer(),
 ]
 
 
