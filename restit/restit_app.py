@@ -51,8 +51,6 @@ class RestitApp:
     def start_development_server(self, host: str = None, port: int = 5000, blocking: bool = True) -> int:
         self.__development_server = DevelopmentServer(self, host, port)
         self.__development_server.start(blocking=blocking)
-        if not blocking:
-            self.__development_server.wait_until_ready()
         return self.__development_server.server.server_port
 
     def stop_development_server(self):
