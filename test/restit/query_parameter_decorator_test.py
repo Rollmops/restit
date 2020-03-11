@@ -1,13 +1,14 @@
-import requests
+import unittest
+
 from marshmallow import Schema, fields
 from werkzeug import Request
 from werkzeug.exceptions import BadRequest
 
+from restit import RestitApp, RestitTestApp
 from restit.query_parameters_decorator import query_parameters
 from restit.request_mapping import request_mapping
 from restit.resource import Resource
 from restit.response import Response
-from test.base_test_server_test_case import BaseTestServerTestCase
 
 
 class QueryParameterSchema(Schema):
@@ -29,23 +30,22 @@ class CustomErrorClassResource(Resource):
         return Response(request.query_parameters)
 
 
-class QueryParameterDecoratorTestCase(BaseTestServerTestCase):
-    @classmethod
-    def setUpClass(cls) -> None:
-        BaseTestServerTestCase.resources = [
+class QueryParameterDecoratorTestCase(unittest.TestCase):
+    def setUp(self) -> None:
+        restit_app = RestitApp(resources=[
             QueryParametersResource(),
             CustomErrorClassResource()
-        ]
-        BaseTestServerTestCase.setUpClass()
+        ])
+        self.restit_test_app = RestitTestApp(restit_app)
 
     def test_query_parameter(self):
-        response = requests.get(f"http://127.0.0.1:{self.port}/queryparams?param1=1&param2=huhu")
-        self.assertEqual(200, response.status_code)
+        response = self.restit_test_app.get("/queryparams?param1=1&param2=huhu")
+        self.assertEqual(200, response.get_status_code())
         self.assertEqual({'param1': 1, 'param2': 'huhu'}, response.json())
 
     def test_validation_error_gives_422_status(self):
-        response = requests.get(f"http://127.0.0.1:{self.port}/queryparams?param1=1&")
-        self.assertEqual(422, response.status_code)
+        response = self.restit_test_app.get(f"/queryparams?param1=1&")
+        self.assertEqual(422, response.get_status_code())
         self.assertEqual(
             "<title>422 Unprocessable Entity</title>\n"
             "<h1>Unprocessable Entity</h1>\n"
@@ -54,8 +54,8 @@ class QueryParameterDecoratorTestCase(BaseTestServerTestCase):
         )
 
     def test_validation_error_custom_error_class(self):
-        response = requests.get(f"http://127.0.0.1:{self.port}/custom-error-class?param1=1&")
-        self.assertEqual(400, response.status_code)
+        response = self.restit_test_app.get(f"/custom-error-class?param1=1&")
+        self.assertEqual(400, response.get_status_code())
         self.assertEqual(
             "<title>400 Bad Request</title>\n"
             "<h1>Bad Request</h1>\n"

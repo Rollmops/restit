@@ -1,7 +1,7 @@
 from typing import Type
 
-from restit import Request
 from restit.internal.resource_path import ResourcePath
+from restit.request import Request
 from restit.resource import Resource
 
 

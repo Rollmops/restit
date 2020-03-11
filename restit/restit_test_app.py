@@ -21,7 +21,6 @@ class RestitTestApp(RestitApp):
         )
         self._init()
 
-
     def get(self, path: str, json: dict = None, data: dict = None, headers: dict = None) -> Response:
         return self._get_response_for_method(path, json, data, headers, "GET")
 
@@ -47,7 +46,7 @@ class RestitTestApp(RestitApp):
 
     def _get_response(self, wsgi_environment):
         request = Request(wsgi_environment)
-        resource, path_params = self._find_resource_for_url(request.get_path())
+        resource, path_params = self._find_resource_for_url(request.get_extended_request_info().path)
         if self._raise_exceptions:
             return self._get_response_or_raise_not_found(path_params, request, resource)
         else:
@@ -58,6 +57,7 @@ class RestitTestApp(RestitApp):
     ):
         header = header or {}
         wsgi_environment = {}
+        parsed_path = urlparse(path)
         setup_testing_defaults(wsgi_environment)
         body_as_bytes = b""
         if json is not None:
@@ -66,10 +66,10 @@ class RestitTestApp(RestitApp):
             body_as_bytes = "&".join([f"{key}={value}" for key, value in data.items()])
             body_as_bytes = body_as_bytes.encode(encoding=get_default_encoding())
         wsgi_environment["REQUEST_METHOD"] = method
-        wsgi_environment["PATH_INFO"] = path
+        wsgi_environment["PATH_INFO"] = parsed_path.path
         wsgi_environment["CONTENT_LENGTH"] = len(body_as_bytes)
         wsgi_environment["wsgi.input"] = BytesIO(body_as_bytes)
-        wsgi_environment["QUERY_STRING"] = urlparse(path).query
+        wsgi_environment["QUERY_STRING"] = parsed_path.query
         wsgi_environment["HTTP_ACCEPT"] = header.get("Accept", "*/*")
         wsgi_environment["HTTP_ACCEPT_ENCODING"] = header.get("Accept-Encoding", "gzip, deflate")
         wsgi_environment["CONTENT_TYPE"] = header.get("Content-Type", self._get_content_type(json, data))

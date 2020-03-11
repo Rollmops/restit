@@ -1,10 +1,15 @@
+from collections import namedtuple, defaultdict
 from typing import Tuple, AnyStr, Dict, Union
 
 from werkzeug import Request
-from werkzeug.exceptions import MethodNotAllowed
+from werkzeug.exceptions import MethodNotAllowed, BadRequest
 
 from restit.internal.resource_path import ResourcePath
 from restit.response import Response
+
+PathParameter = namedtuple("PathParameter", ["name", "type", "doc"])
+
+_PATH_PARAMETER_MAPPING = defaultdict(list)
 
 
 class Resource:
@@ -12,6 +17,10 @@ class Resource:
 
     def __init__(self):
         self._resource_path = None
+
+    @classmethod
+    def add_path_parameter(cls, path_parameter: PathParameter):
+        _PATH_PARAMETER_MAPPING[cls].append(path_parameter)
 
     def init(self):
         self._resource_path = ResourcePath(self.__request_mapping__)
@@ -53,8 +62,32 @@ class Resource:
 
     def _handle_request(self, request_method: str, request: Request, path_params: Dict) -> Response:
         method = getattr(self, request_method.lower())
-        return method(request, **path_params)
+
+        passed_path_parameters = self._collect_and_convert_path_parameters(path_params)
+
+        return method(request, **passed_path_parameters)
+
+    def _collect_and_convert_path_parameters(self, path_params: dict):
+        for path_parameter in _PATH_PARAMETER_MAPPING[self.__class__]:
+            try:
+                path_parameter_value = path_params[path_parameter.name]
+            except KeyError:
+                raise Resource.PathParameterNotFoundException(
+                    f"Unable to find {path_parameter} in incoming path parameters {path_params}"
+                )
+            try:
+                path_params[path_parameter.name] = path_parameter.type(path_parameter_value)
+            except ValueError as error:
+                raise BadRequest(
+                    f"Path parameter value '{path_parameter_value}' is not matching '{path_parameter}' "
+                    f"({str(error)})"
+                )
+
+        return path_params
 
     def _get_match(self, url: str) -> Tuple[bool, Union[None, Dict[str, AnyStr]]]:
         assert self._resource_path
         return self._resource_path.get_match(url)
+
+    class PathParameterNotFoundException(Exception):
+        pass

@@ -33,7 +33,6 @@ class NoMethodsResource(Resource):
 
 @request_mapping("/miau/:id")
 class ResourceWithPathParams(Resource):
-
     def get(self, request: Request, **path_params) -> Response:
         return Response(path_params)
 
