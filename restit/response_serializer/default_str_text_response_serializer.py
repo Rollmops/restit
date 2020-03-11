@@ -1,6 +1,6 @@
 from typing import List
 
-from restit import get_default_encoding
+from restit.common import get_default_encoding
 from restit.response_serializer import ResponseSerializer
 
 

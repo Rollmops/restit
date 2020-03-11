@@ -4,7 +4,7 @@ from typing import Union
 from urllib.parse import urlparse
 from wsgiref.util import setup_testing_defaults
 
-from restit import get_default_encoding
+from restit.common import get_default_encoding
 from restit.request import Request
 from restit.response import Response
 from restit.restit_app import RestitApp

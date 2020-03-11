@@ -5,7 +5,7 @@ from typing import Union, List
 from werkzeug.datastructures import MIMEAccept
 from werkzeug.exceptions import NotAcceptable
 
-from restit import get_default_encoding
+from restit.common import get_default_encoding
 from restit.response_serializer import ResponseSerializer
 from restit.response_serializer.default_dict_json_response_serializer import DefaultDictJsonResponseSerializer
 from restit.response_serializer.default_dict_text_response_serializer import DefaultDictTextResponseSerializer

@@ -5,7 +5,7 @@ import werkzeug.wrappers
 from werkzeug.datastructures import MIMEAccept
 from werkzeug.utils import escape
 
-from restit import get_default_encoding
+from restit.common import get_default_encoding
 
 
 class Request:
