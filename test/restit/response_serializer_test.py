@@ -1,10 +1,13 @@
 import unittest
+from typing import List
 
 from werkzeug.datastructures import MIMEAccept
 from werkzeug.exceptions import NotAcceptable
 
 from restit.response import Response
 from restit.response_serializer import ResponseSerializer
+from restit.response_serializer.default_dict_json_response_serializer import DefaultDictJsonResponseSerializer
+from restit.response_serializer.default_dict_text_response_serializer import DefaultDictTextResponseSerializer
 
 
 class ResponseSerializerTestCase(unittest.TestCase):
@@ -38,11 +41,11 @@ class ResponseSerializerTestCase(unittest.TestCase):
 
     def test_register_response_serializer(self):
         class MyResponseSerializer(ResponseSerializer):
-            def is_responsible_for_response_data_type(self, response_data_type: type) -> bool:
-                return response_data_type == str
+            def get_response_data_type(self) -> type:
+                return str
 
-            def is_responsible_for_media_type(self, media_type: MIMEAccept) -> bool:
-                return "my/type" in media_type
+            def get_media_type_strings(self) -> List[str]:
+                return ["my/type"]
 
             def get_content_type(self) -> str:
                 return "my/type"
@@ -55,3 +58,17 @@ class ResponseSerializerTestCase(unittest.TestCase):
         response.serialize_response_body(MIMEAccept([("my/type", 1)]))
 
         self.assertEqual(b'tseT', response.body_as_bytes)
+
+    def test_prioritize_media_type(self):
+        media_type = MIMEAccept([("application/json", 1), ("text/plain", 0.7)])
+
+        Response.clear_all_response_serializer()
+
+        Response.register_response_serializer(DefaultDictJsonResponseSerializer())
+        Response.register_response_serializer(DefaultDictTextResponseSerializer())
+
+        response = Response({"key": "value"})
+        response.serialize_response_body(media_type)
+
+        self.assertEqual(b'{"key": "value"}', response.body_as_bytes)
+        self.assertEqual("application/json", response.header["Content-Type"])

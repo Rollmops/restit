@@ -1,15 +1,15 @@
-from werkzeug.datastructures import MIMEAccept
+from typing import List
 
 from restit import get_default_encoding
 from restit.response_serializer import ResponseSerializer
 
 
 class DefaultStrTextResponseSerializer(ResponseSerializer):
-    def is_responsible_for_media_type(self, media_type: MIMEAccept) -> bool:
-        return "text/plain" in media_type
+    def get_media_type_strings(self) -> List[str]:
+        return ["text/plain"]
 
-    def is_responsible_for_response_data_type(self, response_data_type: type) -> bool:
-        return response_data_type == str
+    def get_response_data_type(self) -> type:
+        return str
 
     def serialize(self, response_input: str) -> bytes:
         return response_input.encode(encoding=get_default_encoding())

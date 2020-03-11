@@ -54,7 +54,7 @@ class Response:
             raise NotAcceptable()
 
         for response_serializer in matching_response_serializer_list:
-            if response_serializer.is_responsible_for_response_data_type(type(self.response_body)):
+            if isinstance(self.response_body, response_serializer.get_response_data_type()):
                 self.body_as_bytes = response_serializer.serialize(self.response_body)
                 self.header["Content-Type"] = response_serializer.get_content_type()
                 return
@@ -67,11 +67,13 @@ class Response:
     @staticmethod
     @lru_cache()
     def _get_matching_response_serializer_for_media_type(media_type: MIMEAccept) -> List[ResponseSerializer]:
-        return [
+        matching_response_serializer = [
             response_serializer
             for response_serializer in Response._RESPONSE_SERIALIZER
-            if response_serializer.is_responsible_for_media_type(media_type)
+            if response_serializer.can_handle_incoming_media_type(media_type)
         ]
+
+        return sorted(matching_response_serializer, key=lambda s: s.priority)
 
     def get_status(self) -> str:
         return f"{self.status_code.value} {self.status_code.name}"
