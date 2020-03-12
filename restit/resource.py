@@ -29,15 +29,15 @@ class Resource:
     def init(self):
         self._resource_path = ResourcePath(self.__request_mapping__)
 
-    def get(self, request: Request) -> Response:
+    def get(self, request: Request, **path_params) -> Response:
         raise MethodNotAllowed()
 
     # noinspection PyMethodMayBeStatic,PyUnusedLocal
-    def post(self, request: Request) -> Response:
+    def post(self, request: Request, **path_params) -> Response:
         raise MethodNotAllowed()
 
     # noinspection PyMethodMayBeStatic,PyUnusedLocal
-    def put(self, request: Request) -> Response:
+    def put(self, request: Request, **path_params) -> Response:
         raise MethodNotAllowed()
 
     # noinspection PyMethodMayBeStatic,PyUnusedLocal
@@ -45,23 +45,23 @@ class Resource:
         raise MethodNotAllowed()
 
     # noinspection PyMethodMayBeStatic,PyUnusedLocal
-    def patch(self, request: Request) -> Response:
+    def patch(self, request: Request, **path_params) -> Response:
         raise MethodNotAllowed()
 
     # noinspection PyMethodMayBeStatic,PyUnusedLocal
-    def options(self, request: Request) -> Response:
+    def options(self, request: Request, **path_params) -> Response:
         raise MethodNotAllowed()
 
     # noinspection PyMethodMayBeStatic,PyUnusedLocal
-    def trace(self, request: Request) -> Response:
+    def trace(self, request: Request, **path_params) -> Response:
         raise MethodNotAllowed()
 
     # noinspection PyMethodMayBeStatic,PyUnusedLocal
-    def connect(self, request: Request) -> Response:
+    def connect(self, request: Request, **path_params) -> Response:
         raise MethodNotAllowed()
 
     # noinspection PyMethodMayBeStatic,PyUnusedLocal
-    def head(self, request: Request) -> Response:
+    def head(self, request: Request, **path_params) -> Response:
         raise MethodNotAllowed()
 
     def _handle_request(self, request_method: str, request: Request, path_params: Dict) -> Response:

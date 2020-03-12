@@ -7,6 +7,7 @@ from werkzeug.exceptions import NotAcceptable
 
 from restit.common import get_default_encoding
 from restit.response_serializer import ResponseSerializer
+from restit.response_serializer.default_bytes_text_response_serializer import DefaultBytesTextResponseSerializer
 from restit.response_serializer.default_dict_json_response_serializer import DefaultDictJsonResponseSerializer
 from restit.response_serializer.default_dict_text_response_serializer import DefaultDictTextResponseSerializer
 from restit.response_serializer.default_str_text_response_serializer import DefaultStrTextResponseSerializer
@@ -14,6 +15,7 @@ from restit.response_serializer.default_str_text_response_serializer import Defa
 _DEFAULT_RESPONSE_SERIALIZER = [
     DefaultDictJsonResponseSerializer(),
     DefaultStrTextResponseSerializer(),
+    DefaultBytesTextResponseSerializer(),
     DefaultDictTextResponseSerializer(),
 ]
 
@@ -23,7 +25,7 @@ class Response:
 
     def __init__(
             self,
-            response_body: Union[str, dict],
+            response_body: Union[str, dict, bytes],
             status_code: Union[int, HTTPStatus] = 200,
             headers: dict = None
     ):

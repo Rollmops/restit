@@ -30,7 +30,7 @@ class ExceptionResponseMaker:
             name=self.http_exception.name,
             description=self.http_exception.description
         )
-        response = Response(html_text, status_code=self.http_exception.code)
+        response = Response(html_text, status_code=self.http_exception.code, headers={"Content-Type": "text/html"})
         return response
 
     def create_json_response(self) -> Response:

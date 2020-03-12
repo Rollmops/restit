@@ -33,7 +33,10 @@ class ResourcePath:
     def get_match(self, url: str) -> Tuple[bool, Union[None, Dict[str, AnyStr]]]:
         match = self._request_mapping_regex.match(url)
         if match:
-            match_dict = {param: self._type_mapping[param](value) for param, value in match.groupdict().items()}
+            match_dict = {
+                param: self._type_mapping.get(param, str)(value)
+                for param, value in match.groupdict().items()
+            }
             return True, match_dict
         return False, None
 

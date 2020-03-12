@@ -1,7 +1,10 @@
 import unittest
 
-from restit import Resource, Response, Request, request_mapping
+import requests
+
+from restit import Resource, Response, Request, request_mapping, RestitApp
 from restit.internal.open_api.open_api_spec import OpenApiSpec
+from restit.internal.open_api_resource import OpenApiResource
 
 
 @request_mapping("/path")
@@ -21,18 +24,18 @@ class SecondResource(Resource):
 
 
 class OpenApiSpecTestCase(unittest.TestCase):
-    def test_something(self):
-        open_api_spec = OpenApiSpec(
+    def setUp(self) -> None:
+        self.open_api_spec = OpenApiSpec(
             title="First OpenApi Test",
             description="Super description",
             version="1.2.3"
         )
 
-        open_api_spec.register_resource(FirstResource())
-        open_api_spec.register_resource(SecondResource())
+        self.open_api_spec.register_resource(FirstResource())
+        self.open_api_spec.register_resource(SecondResource())
 
-        open_api_dict = open_api_spec.generate()
-
+    def test_something(self):
+        open_api_dict = self.open_api_spec.generate()
         expected_open_api_dict = {
             'info': {
                 'description': 'Super description',
@@ -42,15 +45,13 @@ class OpenApiSpecTestCase(unittest.TestCase):
             'openapi': '3.0.0',
             'paths': {
                 '/path': {
-                    'get': {
-                        'description': 'And here we go with a description',
+                    'options': {
                         'parameters': [],
-                        'responses': {},
-                        'summary': 'This is a summary.'
+                        'responses': {}
                     }
                 },
                 '/path/{id}/wuff/{id2}': {
-                    'get': {
+                    'options': {
                         'parameters': [
                             {
                                 'description': None,
@@ -78,5 +79,14 @@ class OpenApiSpecTestCase(unittest.TestCase):
                 }
             }
         }
-
         self.assertEqual(expected_open_api_dict, open_api_dict)
+
+    def test_serve_open_api(self):
+        open_api_resource = OpenApiResource(self.open_api_spec)
+        restit_app = RestitApp(resources=[open_api_resource], debug=True, raise_exceptions=True)
+
+        with restit_app.start_development_server_in_context(port=0) as port:
+            response = requests.get(f"http://127.0.0.1:{port}/api")
+            self.assertEqual(200, response.status_code)
+            self.assertIn("text/html", response.headers["Content-Type"])
+            self.assertIn("<title>Swagger UI</title>", response.text)
