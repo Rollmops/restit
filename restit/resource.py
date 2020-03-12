@@ -1,10 +1,12 @@
 from collections import namedtuple, defaultdict
 from typing import Tuple, AnyStr, Dict, Union
 
-from werkzeug import Request
 from werkzeug.exceptions import MethodNotAllowed, BadRequest
 
 from restit.internal.resource_path import ResourcePath
+from restit.internal.string_type_converter import StringTypeConverter
+from restit.query_parameter_decorator import QueryParameter
+from restit.request import Request
 from restit.response import Response
 
 PathParameter = namedtuple("PathParameter", ["name", "type", "description", "format"])
@@ -65,11 +67,20 @@ class Resource:
         raise MethodNotAllowed()
 
     def _handle_request(self, request_method: str, request: Request, path_params: Dict) -> Response:
-        method = getattr(self, request_method.lower())
-
+        method_object = getattr(self, request_method.lower())
         passed_path_parameters = self._collect_and_convert_path_parameters(path_params)
+        self._process_query_parameters(method_object, request)
+        return method_object(request, **passed_path_parameters)
 
-        return method(request, **passed_path_parameters)
+    @staticmethod
+    def _process_query_parameters(method_object, request):
+        for query_parameter in getattr(method_object, "__query_parameters__", []):  # type: QueryParameter
+            value = request.query_parameters.get(query_parameter.name, query_parameter.default)
+            if value is None and query_parameter.required:
+                # ToDo message
+                raise BadRequest()
+
+            request.query_parameters[query_parameter.name] = StringTypeConverter.convert(value, query_parameter.type)
 
     def _collect_and_convert_path_parameters(self, path_params: dict):
         for path_parameter in _PATH_PARAMETER_MAPPING[self.__class__].values():
@@ -80,7 +91,8 @@ class Resource:
                     f"Unable to find {path_parameter} in incoming path parameters {path_params}"
                 )
             try:
-                path_params[path_parameter.name] = path_parameter.type(path_parameter_value)
+                path_params[path_parameter.name] = \
+                    StringTypeConverter.convert(path_parameter_value, path_parameter.type)
             except ValueError as error:
                 raise BadRequest(
                     f"Path parameter value '{path_parameter_value}' is not matching '{path_parameter}' "

@@ -1,0 +1,26 @@
+@request_mapping("/queryparams")
+class QueryParametersResource(Resource):
+    @query_parameter("param1", type=int, description="chasjdhasd", required=False, default=1)
+    @query_parameter("param1", type=List[int], description="chasjdhasd")
+    # ?parma1=[1,2,3,4]
+    # ?param1=1&param1=2
+
+    @response(
+        200, content_type={
+            "application/json": {
+                "schema": QueryParameterSchema(),
+
+            },
+            "text/html": None
+        },
+        description="adkjsdka"
+    )
+    @response()
+    @request_body(
+        content_types={
+
+        },
+        required=True
+    )
+    def get(self, request: Request) -> Response:
+        return Response(request.query_parameters)

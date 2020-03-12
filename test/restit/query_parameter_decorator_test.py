@@ -1,64 +1,50 @@
 import unittest
+from typing import List
+from uuid import UUID
 
-from marshmallow import Schema, fields
-from werkzeug import Request
-from werkzeug.exceptions import BadRequest
-
-from restit import RestitApp, RestitTestApp
-from restit.query_parameters_decorator import query_parameters
+from restit import RestitApp, RestitTestApp, Request
+from restit.query_parameter_decorator import query_parameter
 from restit.request_mapping_decorator import request_mapping
 from restit.resource import Resource
 from restit.response import Response
 
 
-class QueryParameterSchema(Schema):
-    param1 = fields.Int(required=True)
-    param2 = fields.Str(required=True)
-
-
-@request_mapping("/queryparams")
+@request_mapping("/1")
 class QueryParametersResource(Resource):
-    @query_parameters(schema=QueryParameterSchema())
+    @query_parameter("param1", description="First parameter", type=int)
+    @query_parameter("uuid", description="uuid parameter", type=UUID)
     def get(self, request: Request) -> Response:
-        return Response(request.query_parameters)
+        assert isinstance(request.get_query_parameters()["uuid"], UUID)
+
+        return Response(
+            {
+                "param1": request.get_query_parameters()["param1"],
+                "uuid": str(request.get_query_parameters()["uuid"])
+            }
+        )
 
 
-@request_mapping("/custom-error-class")
-class CustomErrorClassResource(Resource):
-    @query_parameters(schema=QueryParameterSchema(), validation_error_class=BadRequest)
-    def get(self, request: Request) -> Response:
-        return Response(request.query_parameters)
+@request_mapping("/2")
+class QueryParameterListResource(Resource):
+    @query_parameter("int_list", description="A list of ints", type=List[int])
+    def get(self, request: Request, **path_params) -> Response:
+        return Response(request.get_query_parameters())
 
 
-class QueryParameterDecoratorTestCase(unittest.TestCase):
+class QueryParameterTest(unittest.TestCase):
     def setUp(self) -> None:
         restit_app = RestitApp(resources=[
             QueryParametersResource(),
-            CustomErrorClassResource()
+            QueryParameterListResource()
         ])
         self.restit_test_app = RestitTestApp(restit_app)
 
     def test_query_parameter(self):
-        response = self.restit_test_app.get("/queryparams?param1=1&param2=huhu")
+        response = self.restit_test_app.get("/1?param1=3&uuid=08695ead-392a-40ab-99fa-2fe64c3b48b4")
         self.assertEqual(200, response.get_status_code())
-        self.assertEqual({'param1': 1, 'param2': 'huhu'}, response.json())
+        self.assertEqual({"param1": 3, "uuid": '08695ead-392a-40ab-99fa-2fe64c3b48b4'}, response.json())
 
-    def test_validation_error_gives_422_status(self):
-        response = self.restit_test_app.get(f"/queryparams?param1=1&")
-        self.assertEqual(422, response.get_status_code())
-        self.assertEqual(
-            "<title>422 Unprocessable Entity</title>\n"
-            "<h1>Unprocessable Entity</h1>\n"
-            "<p>Query parameter validation failed ({'param2': ['Missing data for required field.']})</p>\n",
-            response.text
-        )
-
-    def test_validation_error_custom_error_class(self):
-        response = self.restit_test_app.get(f"/custom-error-class?param1=1&")
-        self.assertEqual(400, response.get_status_code())
-        self.assertEqual(
-            "<title>400 Bad Request</title>\n"
-            "<h1>Bad Request</h1>\n"
-            "<p>Query parameter validation failed ({'param2': ['Missing data for required field.']})</p>\n",
-            response.text
-        )
+    def test_query_parameter_list(self):
+        response = self.restit_test_app.get("/2?int_list=[1,2,3,4]")
+        self.assertEqual(200, response.get_status_code())
+        self.assertEqual({"int_list": [1, 2, 3, 4]}, response.json())

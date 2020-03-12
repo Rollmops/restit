@@ -48,6 +48,9 @@ class Request:
     def get_headers(self) -> dict:
         return dict(self.get_extended_request_info().headers)
 
+    def get_query_parameters(self) -> dict:
+        return self.query_parameters
+
     @staticmethod
     @lru_cache()
     def _create_dict_from_assignment_syntax(assignment_syntax_data: str) -> dict:
