@@ -3,7 +3,7 @@ from http import HTTPStatus
 import requests
 
 from restit.request import Request
-from restit.request_mapping import request_mapping
+from restit.request_mapping_decorator import request_mapping
 from restit.resource import Resource
 from restit.response import Response
 from test.base_test_server_test_case import BaseTestServerTestCase

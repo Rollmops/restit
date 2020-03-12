@@ -41,7 +41,7 @@ class Resource:
         raise MethodNotAllowed()
 
     # noinspection PyMethodMayBeStatic,PyUnusedLocal
-    def delete(self, request: Request) -> Response:
+    def delete(self, request: Request, **path_params) -> Response:
         raise MethodNotAllowed()
 
     # noinspection PyMethodMayBeStatic,PyUnusedLocal

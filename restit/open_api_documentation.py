@@ -3,30 +3,33 @@ import re
 from functools import lru_cache
 from typing import List, Tuple, Union, Match
 
-from restit import Resource
 from restit.resource import PathParameter
+from restit.resource import Resource
 
 
-class OpenApiSpec:
+class OpenApiDocumentation:
+    _IGNORE_RESOURCE_CLASS_NAMES = ["DefaultFaviconResource", "OpenApiResource"]
+    _SPEC_VERSION = "3.0.0"
     _PYTHON_TYPE_MAPPING = {int: "integer", str: "string"}
 
-    def __init__(self, title: str, description: str, version: str, specification_version: str = None):
+    def __init__(self, title: str, description: str, version: str, path: str = "/api"):
         self.title = title
         self.description = description
         self.version = version
-        self.specification_version = specification_version or "3.0.0"
+        self.path = path
         self._resources: List[Resource] = []
         self._servers = []
 
     def register_resource(self, resource: Resource):
-        self._resources.append(resource)
+        if resource not in self._resources and \
+                resource.__class__.__name__ not in OpenApiDocumentation._IGNORE_RESOURCE_CLASS_NAMES:
+            self._resources.append(resource)
 
     @lru_cache(maxsize=1)
-    def generate(self) -> dict:
+    def generate_spec(self) -> dict:
+        self._resources.sort(key=lambda r: r.__request_mapping__)
         spec_structure = self._generate_base_spec_structure()
-
         self._generate_paths(spec_structure)
-
         return spec_structure
 
     def _generate_paths(self, spec_structure):
@@ -62,7 +65,7 @@ class OpenApiSpec:
                 "required": True,
                 "description": path_parameter.description,
                 "schema": {
-                    "type": OpenApiSpec._PYTHON_TYPE_MAPPING.get(path_parameter.type, "string"),
+                    "type": OpenApiDocumentation._PYTHON_TYPE_MAPPING.get(path_parameter.type, "string"),
                     "format": path_parameter.format
                 }
             } for name, path_parameter in parameter_definitions.items()
@@ -83,10 +86,8 @@ class OpenApiSpec:
 
     def _add_summary_and_description_to_method(self, method_spec: dict, method_object: object):
         summary, description = self._get_summary_and_description_from_doc(method_object.__doc__)
-        if summary:
-            method_spec["summary"] = summary
-        if description:
-            method_spec["description"] = description
+        method_spec["summary"] = summary
+        method_spec["description"] = description
 
     @staticmethod
     def _get_summary_and_description_from_doc(doc: str) -> Tuple[Union[str, None], Union[str, None]]:
@@ -111,14 +112,14 @@ class OpenApiSpec:
     def _is_resource_method_allowed(method_object: object) -> bool:
         resource_method_code = inspect.getsource(method_object)
         match = re.match(
-            r"^.+def\s+\w+\(self,\s*request:\s*Request\)\s*->\s*Response:.+raise\s+MethodNotAllowed\(\).*$",
+            r"^.+def\s+\w+\(self,\s*request:\s*Request.+\)\s*->\s*Response:.+raise\s+MethodNotAllowed\(\).*$",
             resource_method_code, flags=re.DOTALL | re.IGNORECASE
         )
         return match is None
 
     def _generate_base_spec_structure(self) -> dict:
         return {
-            "openapi": self.specification_version,
+            "openapi": OpenApiDocumentation._SPEC_VERSION,
             "info": {
                 "title": self.title,
                 "description": self.description,

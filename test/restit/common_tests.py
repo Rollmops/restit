@@ -1,6 +1,6 @@
 import unittest
 
-from restit.request_mapping import PathIsNotStartingWithSlashException, request_mapping
+from restit.request_mapping_decorator import PathIsNotStartingWithSlashException, request_mapping
 from restit.resource import Resource
 
 

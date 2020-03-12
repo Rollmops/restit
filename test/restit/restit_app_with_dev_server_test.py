@@ -2,7 +2,7 @@ import requests
 
 from restit import Hyperlink
 from restit.request import Request
-from restit.request_mapping import request_mapping
+from restit.request_mapping_decorator import request_mapping
 from restit.resource import Resource
 from restit.response import Response
 from restit.restit_app import RestitApp

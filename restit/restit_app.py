@@ -10,7 +10,9 @@ from werkzeug.exceptions import HTTPException, InternalServerError, NotFound
 from restit.development_server import DevelopmentServer
 from restit.internal.default_favicon_resource import DefaultFaviconResource
 from restit.internal.exception_response_maker import ExceptionResponseMaker
+from restit.internal.open_api_resource import OpenApiResource
 from restit.namespace import Namespace
+from restit.open_api_documentation import OpenApiDocumentation
 from restit.request import Request
 from restit.resource import Resource
 from restit.response import Response
@@ -23,19 +25,24 @@ class RestitApp:
             self, resources: List[Resource] = None,
             namespaces: List[Namespace] = None,
             debug: bool = False,
-            raise_exceptions: bool = False
+            raise_exceptions: bool = False,
+            open_api_documentation: OpenApiDocumentation = None
 
     ):
         self._debug = debug
         self._namespaces: List[Namespace] = []
         self._resources: List[Resource] = []
         self._raise_exceptions = raise_exceptions
+        self._open_api_documentation = open_api_documentation
         self.register_namespaces(namespaces or [])
         self.register_resources(resources or [])
 
         self.__development_server: Union[DevelopmentServer, None] = None
 
         self._init_called = False
+
+    def set_open_api_documentation(self, open_api_documentation: OpenApiDocumentation):
+        self._open_api_documentation = open_api_documentation
 
     def set_raise_on_exceptions(self, raise_on_exceptions: bool):
         self._raise_exceptions = raise_on_exceptions
@@ -73,8 +80,12 @@ class RestitApp:
 
     def _init(self):
         self._resources.append(DefaultFaviconResource())
+        if self._open_api_documentation:
+            self._resources.append(OpenApiResource(self._open_api_documentation))
         for resource in self._resources:
             resource.init()
+            if self._open_api_documentation:
+                self._open_api_documentation.register_resource(resource)
         self._init_called = True
 
     def __call__(self, wsgi_environ: dict, start_response: Callable) -> Iterable:

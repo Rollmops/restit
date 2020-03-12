@@ -2,8 +2,10 @@ import os
 from pathlib import Path
 from typing import Union
 
-from restit import Resource, Response, Request
 from restit.internal.suffix_media_type_mapping import SUFFIX_MEDIA_TYPE_MAPPING
+from restit.request import Request
+from restit.resource import Resource
+from restit.response import Response
 
 
 class StaticDirectoryResource(Resource):

@@ -6,7 +6,7 @@ from werkzeug.exceptions import BadRequest
 
 from restit import RestitApp, RestitTestApp
 from restit.query_parameters_decorator import query_parameters
-from restit.request_mapping import request_mapping
+from restit.request_mapping_decorator import request_mapping
 from restit.resource import Resource
 from restit.response import Response
 
