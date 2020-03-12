@@ -2,6 +2,7 @@ import inspect
 import re
 from functools import lru_cache
 from typing import List, Tuple, Union, Match
+from uuid import UUID
 
 from restit.resource import PathParameter
 from restit.resource import Resource
@@ -10,7 +11,11 @@ from restit.resource import Resource
 class OpenApiDocumentation:
     _IGNORE_RESOURCE_CLASS_NAMES = ["DefaultFaviconResource", "OpenApiResource"]
     _SPEC_VERSION = "3.0.0"
-    _PYTHON_TYPE_MAPPING = {int: "integer", str: "string"}
+    _PYTHON_TYPE_SCHEMA_MAPPING = {
+        int: {"type": "integer"},
+        str: {"type": "string"},
+        UUID: {"type": "string", "format": "uuid"}
+    }
 
     def __init__(self, title: str, description: str, version: str, path: str = "/api"):
         self.title = title
@@ -44,32 +49,55 @@ class OpenApiDocumentation:
                 self._infer_path_params_and_open_api_path_syntax(resource.__request_mapping__)
             paths[path] = {
                 method_name: {
-                    "responses": {}
+                    "responses": {},
+                    "parameters": []
                 }
             }
 
             method_spec = paths[path][method_name]
             self._add_summary_and_description_to_method(method_spec, method_object)
-            self._add_method_parameters(method_spec, resource, inferred_path_parameters)
+            self._add_path_parameters(method_spec, resource, inferred_path_parameters)
+            self._add_query_parameters(method_spec, method_object, resource)
 
     @staticmethod
-    def _add_method_parameters(method_spec: dict, resource: Resource, inferred_path_parameters: List[PathParameter]):
+    def _add_query_parameters(method_spec: dict, method_object: object, resource: Resource):
+        method_spec["parameters"].extend([
+            {
+                "name": query_parameter.name,
+                "in": "query",
+                "description": query_parameter.description,
+                "required": query_parameter.required,
+                "schema": OpenApiDocumentation._get_schema_from_type_and_default(
+                    query_parameter.type, query_parameter.default
+                )
+            }
+            for query_parameter in getattr(method_object, "__query_parameters__", [])
+        ])
+
+    @staticmethod
+    def _add_path_parameters(method_spec: dict, resource: Resource, inferred_path_parameters: List[PathParameter]):
         parameter_definitions = resource.get_path_parameters()
         for inferred_path_parameter in inferred_path_parameters:
             if inferred_path_parameter.name not in parameter_definitions:
                 parameter_definitions[inferred_path_parameter.name] = inferred_path_parameter
-        method_spec["parameters"] = [
+
+        method_spec["parameters"].extend([
             {
                 "name": name,
                 "in": "path",
                 "required": True,
                 "description": path_parameter.description,
-                "schema": {
-                    "type": OpenApiDocumentation._PYTHON_TYPE_MAPPING.get(path_parameter.type, "string"),
-                    "format": path_parameter.format
-                }
+                "schema": OpenApiDocumentation._get_schema_from_type_and_default(path_parameter.type, None)
+
             } for name, path_parameter in parameter_definitions.items()
-        ]
+        ])
+
+    @staticmethod
+    def _get_schema_from_type_and_default(_type, default) -> dict:
+        schema = OpenApiDocumentation._PYTHON_TYPE_SCHEMA_MAPPING.get(_type, {})
+        if default:
+            schema["default"] = default
+        return schema
 
     @staticmethod
     def _infer_path_params_and_open_api_path_syntax(path: str) -> Tuple[str, List[PathParameter]]:
