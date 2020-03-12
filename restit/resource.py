@@ -1,4 +1,6 @@
-from typing import Tuple, AnyStr, Dict, Union
+import inspect
+import re
+from typing import Tuple, AnyStr, Dict, Union, List
 
 from werkzeug.exceptions import MethodNotAllowed, BadRequest
 
@@ -12,6 +14,7 @@ from restit.response import Response
 
 class Resource:
     __request_mapping__ = None
+    _METHOD_NAMES = ["get", "post", "put", "delete", "patch", "options", "trace", "connect", "head"]
 
     def __init__(self):
         self._resource_path = None
@@ -40,7 +43,12 @@ class Resource:
 
     # noinspection PyMethodMayBeStatic,PyUnusedLocal
     def options(self, request: Request, **path_params) -> Response:
-        raise MethodNotAllowed()
+        """Identifying allowed request methods.
+
+        The HTTP OPTIONS method is used to describe the communication options for the target resource.
+        """
+        allow = " ".join(self.get_allowed_methods()).upper()
+        return Response("", 204, headers={"Allow": allow})
 
     # noinspection PyMethodMayBeStatic,PyUnusedLocal
     def trace(self, request: Request, **path_params) -> Response:
@@ -88,6 +96,20 @@ class Resource:
                 )
 
         return path_params
+
+    def get_allowed_methods(self) -> List[str]:
+        allowed = []
+        for method_name in Resource._METHOD_NAMES:
+            method_object = getattr(self, method_name)
+            resource_method_code = inspect.getsource(method_object)
+            match = re.match(
+                r"^.+def\s+\w+\(self,\s*request:\s*Request.+\)\s*->\s*Response:.+raise\s+MethodNotAllowed\(\).*$",
+                resource_method_code, flags=re.DOTALL | re.IGNORECASE
+            )
+            if match is None:
+                allowed.append(method_name)
+
+        return allowed
 
     def _get_match(self, url: str) -> Tuple[bool, Union[None, Dict[str, AnyStr]]]:
         assert self._resource_path

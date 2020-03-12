@@ -23,8 +23,10 @@ class NoMethodsResource(Resource):
 @request_mapping("/miau")
 class MyResource2(Resource):
     def get(self, request: Request) -> Response:
-        return Response("wuff", 201)
+        return Response("wuff")
 
+    def post(self, request: Request, **path_params) -> Response:
+        return Response("", 204)
 
 
 @request_mapping("/miau/:id")
@@ -84,11 +86,11 @@ class RestitAppTestCase(BaseTestServerTestCase):
         self.assertEqual("Hallo", response.text)
 
         response = requests.get(f"http://127.0.0.1:{self.port}/miau")
-        self.assertEqual(201, response.status_code)
+        self.assertEqual(200, response.status_code)
         self.assertEqual("wuff", response.text)
 
     def test_method_not_allowed_405(self):
-        for method in ["get", "delete", "put", "post", "patch", "trace", "options", "connect"]:
+        for method in ["get", "delete", "put", "post", "patch", "trace", "connect"]:
             response = requests.request(method, f"http://127.0.0.1:{self.port}/no_methods")
             self.assertEqual(405, response.status_code)
             self.assertIn("405 Method Not Allowed", response.text)
@@ -96,6 +98,11 @@ class RestitAppTestCase(BaseTestServerTestCase):
         response = requests.head(f"http://127.0.0.1:{self.port}/no_methods")
         self.assertEqual(405, response.status_code)
         self.assertEqual("", response.text)
+
+    def test_options_method(self):
+        response = requests.options(f"http://127.0.0.1:{self.port}/miau")
+        self.assertEqual(204, response.status_code)
+        self.assertEqual("GET POST OPTIONS", response.headers["Allow"])
 
     def test_url_not_found(self):
         response = requests.get(f"http://127.0.0.1:{self.port}/NOT_THERE")

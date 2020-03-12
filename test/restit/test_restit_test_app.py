@@ -129,7 +129,7 @@ class RestitTestAppTestCase(unittest.TestCase):
         self.assertEqual(405, self.resit_test_app.put("/no_methods").get_status_code())
         self.assertEqual(405, self.resit_test_app.delete("/no_methods").get_status_code())
         self.assertEqual(405, self.resit_test_app.patch("/no_methods").get_status_code())
-        self.assertEqual(405, self.resit_test_app.options("/no_methods").get_status_code())
+        self.assertEqual(204, self.resit_test_app.options("/no_methods").get_status_code())
 
     def test_raise_if_enabled(self):
         self.resit_test_app.set_raise_on_exceptions(True)
@@ -139,7 +139,6 @@ class RestitTestAppTestCase(unittest.TestCase):
             self.assertEqual(405, self.resit_test_app.put("/no_methods").get_status_code())
             self.assertEqual(405, self.resit_test_app.delete("/no_methods").get_status_code())
             self.assertEqual(405, self.resit_test_app.patch("/no_methods").get_status_code())
-            self.assertEqual(405, self.resit_test_app.options("/no_methods").get_status_code())
 
     def test_pass_headers(self):
         response = self.resit_test_app.get("/pass_headers")

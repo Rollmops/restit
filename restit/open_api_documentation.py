@@ -1,4 +1,3 @@
-import inspect
 import re
 from functools import lru_cache
 from typing import List, Tuple, Union, Match
@@ -44,14 +43,13 @@ class OpenApiDocumentation:
                 self._add_resource(paths, resource)
 
     def _add_resource(self, paths: dict, resource: Resource):
+        path, inferred_path_parameters = \
+            self._infer_path_params_and_open_api_path_syntax(resource.__request_mapping__)
+        paths[path] = {}
         for method_name, method_object in self._get_allowed_resource_methods(resource).items():
-            path, inferred_path_parameters = \
-                self._infer_path_params_and_open_api_path_syntax(resource.__request_mapping__)
-            paths[path] = {
-                method_name: {
-                    "responses": {},
-                    "parameters": []
-                }
+            paths[path][method_name] = {
+                "responses": {},
+                "parameters": []
             }
 
             method_spec = paths[path][method_name]
@@ -130,23 +128,10 @@ class OpenApiDocumentation:
         description = "\n".join(doc_split[1:]) if len(doc) > 1 else None
         return summary.strip("\n "), description.strip("\n ")
 
-    def _get_allowed_resource_methods(self, resource: Resource) -> dict:
-        allowed_resource_methods = {}
-        for method_name in ["get", "put", "post", "delete", "patch", "trace", "options"]:
-            method_object = getattr(resource, method_name)
-            if self._is_resource_method_allowed(method_object):
-                allowed_resource_methods[method_name] = method_object
-
-        return allowed_resource_methods
-
     @staticmethod
-    def _is_resource_method_allowed(method_object: object) -> bool:
-        resource_method_code = inspect.getsource(method_object)
-        match = re.match(
-            r"^.+def\s+\w+\(self,\s*request:\s*Request.+\)\s*->\s*Response:.+raise\s+MethodNotAllowed\(\).*$",
-            resource_method_code, flags=re.DOTALL | re.IGNORECASE
-        )
-        return match is None
+    def _get_allowed_resource_methods(resource: Resource) -> dict:
+        allowed_methods_dict = {allowed: getattr(resource, allowed) for allowed in resource.get_allowed_methods()}
+        return allowed_methods_dict
 
     def _generate_base_spec_structure(self) -> dict:
         return {

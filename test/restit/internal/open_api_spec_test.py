@@ -47,7 +47,15 @@ class OpenApiSpecTestCase(unittest.TestCase):
                                                                               'schema': {'default': 10,
                                                                                          'type': 'integer'}}],
                                                               'responses': {},
-                                                              'summary': 'This is a summary.'}},
+                                                              'summary': 'This is a summary.'},
+                                                      'options': {'description': 'The HTTP OPTIONS method is '
+                                                                                 'used to describe the '
+                                                                                 'communication options for the '
+                                                                                 'target resource.',
+                                                                  'parameters': [],
+                                                                  'responses': {},
+                                                                  'summary': 'Identifying allowed request '
+                                                                             'methods.'}},
                                             '/path/{id}/wuff/{id2}': {'get': {'description': None,
                                                                               'parameters': [{'description': None,
                                                                                               'in': 'path',
@@ -62,7 +70,33 @@ class OpenApiSpecTestCase(unittest.TestCase):
                                                                                               'schema': {
                                                                                                   'type': 'string'}}],
                                                                               'responses': {},
-                                                                              'summary': None}}}}
+                                                                              'summary': None},
+                                                                      'options': {'description': 'The HTTP '
+                                                                                                 'OPTIONS '
+                                                                                                 'method is '
+                                                                                                 'used to '
+                                                                                                 'describe the '
+                                                                                                 'communication '
+                                                                                                 'options for '
+                                                                                                 'the target '
+                                                                                                 'resource.',
+                                                                                  'parameters': [{'description': None,
+                                                                                                  'in': 'path',
+                                                                                                  'name': 'id',
+                                                                                                  'required': True,
+                                                                                                  'schema': {
+                                                                                                      'default': 10,
+                                                                                                      'type': 'integer'}},
+                                                                                                 {'description': None,
+                                                                                                  'in': 'path',
+                                                                                                  'name': 'id2',
+                                                                                                  'required': True,
+                                                                                                  'schema': {
+                                                                                                      'type': 'string'}}],
+                                                                                  'responses': {},
+                                                                                  'summary': 'Identifying '
+                                                                                             'allowed request '
+                                                                                             'methods.'}}}}
         self.assertEqual(expected_open_api_dict, open_api_dict)
 
     def test_serve_open_api(self):
@@ -77,6 +111,7 @@ class OpenApiSpecTestCase(unittest.TestCase):
             OpenApiDocumentation(title="First documentation", description="", version="1.2.3")
         )
 
+        restit_app.start_development_server()
         with restit_app.start_development_server_in_context(port=0) as port:
             response = requests.get(f"http://127.0.0.1:{port}/api")
             self.assertEqual(200, response.status_code)
