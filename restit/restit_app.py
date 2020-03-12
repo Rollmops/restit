@@ -9,13 +9,14 @@ from werkzeug.exceptions import HTTPException, InternalServerError, NotFound
 
 from restit.development_server import DevelopmentServer
 from restit.internal.default_favicon_resource import DefaultFaviconResource
-from restit.internal.exception_response_maker import ExceptionResponseMaker
+from restit.internal.exception_response_maker import HttpExceptionResponseMaker
 from restit.internal.open_api_resource import OpenApiResource
 from restit.namespace import Namespace
 from restit.open_api_documentation import OpenApiDocumentation
 from restit.request import Request
 from restit.resource import Resource
 from restit.response import Response
+from restit.rfc7807_http_problem import Rfc7807HttpProblem
 
 LOGGER = logging.getLogger(__name__)
 
@@ -108,17 +109,27 @@ class RestitApp:
         try:
             response = self._get_response_or_raise_not_found(path_params, request, resource)
         except HTTPException as exception:
-            LOGGER.info(str(exception))
-            exception_response_maker = ExceptionResponseMaker(exception)
-            response = exception_response_maker.create_response(request.get_accepted_media_types())
+            rfc7807_http_problem = Rfc7807HttpProblem.from_http_exception(exception)
+            response = self._create_rfc7807_response(request, rfc7807_http_problem)
+        except Rfc7807HttpProblem as problem:
+            response = self._create_rfc7807_response(request, problem)
         except Exception as exception:
             if self._raise_exceptions:
                 raise
             LOGGER.error(str(exception))
             LOGGER.error(traceback.format_exc())
             internal_exception = InternalServerError(str(exception) if self._debug else "")
-            exception_response_maker = ExceptionResponseMaker(internal_exception)
+            exception_response_maker = HttpExceptionResponseMaker(
+                Rfc7807HttpProblem.from_http_exception(internal_exception)
+            )
             response = exception_response_maker.create_response(request.get_accepted_media_types())
+        return response
+
+    @staticmethod
+    def _create_rfc7807_response(request, rfc7807_http_problem):
+        LOGGER.info(str(rfc7807_http_problem))
+        exception_response_maker = HttpExceptionResponseMaker(rfc7807_http_problem)
+        response = exception_response_maker.create_response(request.get_accepted_media_types())
         return response
 
     @staticmethod
