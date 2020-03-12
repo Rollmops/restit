@@ -1,10 +1,10 @@
-from typing import Type, List
+from typing import Type
 
 
 class StringTypeConverter:
     @staticmethod
     def convert(string: str, into_type: Type):
-        if getattr(into_type, "_gorg", None) == List:
+        if getattr(into_type, "_name", None) == "List":
             # noinspection PyUnresolvedReferences
             return StringTypeConverter._convert_iterable(string, into_type.__args__[0], "[]", list)
         if into_type == list:

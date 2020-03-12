@@ -76,10 +76,13 @@ class OpenApiDocumentation:
 
     @staticmethod
     def _add_path_parameters(method_spec: dict, resource: Resource, inferred_path_parameters: List[PathParameter]):
-        parameter_definitions = resource.get_path_parameters()
-        for inferred_path_parameter in inferred_path_parameters:
-            if inferred_path_parameter.name not in parameter_definitions:
-                parameter_definitions[inferred_path_parameter.name] = inferred_path_parameter
+        parameter_definitions = getattr(resource, "__path_parameters__", [])
+        path_parameters = {
+            path_parameter.name: path_parameter for path_parameter in inferred_path_parameters
+        }
+        path_parameters.update({
+            path_parameter.name: path_parameter for path_parameter in parameter_definitions
+        })
 
         method_spec["parameters"].extend([
             {
@@ -89,7 +92,7 @@ class OpenApiDocumentation:
                 "description": path_parameter.description,
                 "schema": OpenApiDocumentation._get_schema_from_type_and_default(path_parameter.type, None)
 
-            } for name, path_parameter in parameter_definitions.items()
+            } for name, path_parameter in path_parameters.items()
         ])
 
     @staticmethod
@@ -105,7 +108,7 @@ class OpenApiDocumentation:
 
         def _handle_path_parameter(match: Match) -> str:
             path_parameter_list.append(
-                PathParameter(match.group(1), eval(match.group(2)) if match.group(2) else str, None, None)
+                PathParameter(match.group(1), None, eval(match.group(2)) if match.group(2) else str)
             )
             return "{%s}" % match.group(1)
 

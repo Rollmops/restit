@@ -1,16 +1,13 @@
 import unittest
-from collections import namedtuple
 
 from restit import request_mapping, Request, Response, path_parameter, RestitApp, RestitTestApp
 from restit.resource import Resource
-
-PathParam = namedtuple("PathParam", ["name", "schema", "description"])
 
 
 @request_mapping("/path/:id1/and/:id2/and/:id3")
 @path_parameter("id1", type=int, description="First path parameter")
 @path_parameter("id2", type=float, description="Second path parameter")
-@path_parameter("id3")
+@path_parameter("id3", description="Id3")
 class Resource1(Resource):
     def get(self, request: Request, **path_params) -> Response:
         return Response(path_params)
@@ -32,7 +29,8 @@ class PathParameterTestCase(unittest.TestCase):
         self.assertEqual(
             "<title>400 Bad Request</title>\n"
             "<h1>Bad Request</h1>\n"
-            "<p>Path parameter value 'hans' is not matching 'PathParameter(name='id2', type=<class 'float'>, "
-            "description='Second path parameter', format=None)' (could not convert string to float: 'hans')</p>\n",
+            "<p>Path parameter value 'hans' is not matching 'PathParameter(name='id2', "
+            "description='Second path parameter', type=<class 'float'>)' "
+            "(could not convert string to float: 'hans')</p>\n",
             response.text
         )

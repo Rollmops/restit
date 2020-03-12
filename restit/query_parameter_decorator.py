@@ -8,6 +8,7 @@ LOGGER = logging.getLogger(__name__)
 QueryParameter = namedtuple("QueryParameter", ["name", "description", "type", "required", "default"])
 
 
+# noinspection PyShadowingBuiltins
 def query_parameter(name: str, description: str, type: Type = str, required: bool = True, default: Any = None):
     def decorator(func):
         _query_parameter = QueryParameter(name, description, type, required, default)

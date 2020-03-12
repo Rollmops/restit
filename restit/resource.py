@@ -1,17 +1,13 @@
-from collections import namedtuple, defaultdict
 from typing import Tuple, AnyStr, Dict, Union
 
 from werkzeug.exceptions import MethodNotAllowed, BadRequest
 
 from restit.internal.resource_path import ResourcePath
 from restit.internal.string_type_converter import StringTypeConverter
+from restit.path_parameter_decorator import PathParameter
 from restit.query_parameter_decorator import QueryParameter
 from restit.request import Request
 from restit.response import Response
-
-PathParameter = namedtuple("PathParameter", ["name", "type", "description", "format"])
-
-_PATH_PARAMETER_MAPPING = defaultdict(dict)
 
 
 class Resource:
@@ -19,14 +15,6 @@ class Resource:
 
     def __init__(self):
         self._resource_path = None
-
-    @classmethod
-    def add_path_parameter(cls, path_parameter: PathParameter):
-        _PATH_PARAMETER_MAPPING[cls][path_parameter.name] = path_parameter
-
-    @classmethod
-    def get_path_parameters(cls) -> dict:
-        return _PATH_PARAMETER_MAPPING[cls]
 
     def init(self):
         self._resource_path = ResourcePath(self.__request_mapping__)
@@ -83,7 +71,7 @@ class Resource:
             request.query_parameters[query_parameter.name] = StringTypeConverter.convert(value, query_parameter.type)
 
     def _collect_and_convert_path_parameters(self, path_params: dict):
-        for path_parameter in _PATH_PARAMETER_MAPPING[self.__class__].values():
+        for path_parameter in getattr(self, "__path_parameters__", []):  # type: PathParameter
             try:
                 path_parameter_value = path_params[path_parameter.name]
             except KeyError:

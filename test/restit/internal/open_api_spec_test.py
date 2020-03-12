@@ -77,8 +77,6 @@ class OpenApiSpecTestCase(unittest.TestCase):
             OpenApiDocumentation(title="First documentation", description="", version="1.2.3")
         )
 
-        restit_app.start_development_server()
-
         with restit_app.start_development_server_in_context(port=0) as port:
             response = requests.get(f"http://127.0.0.1:{port}/api")
             self.assertEqual(200, response.status_code)
