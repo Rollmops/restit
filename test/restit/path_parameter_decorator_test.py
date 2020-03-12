@@ -1,12 +1,15 @@
 import unittest
+from collections import namedtuple
 
 from restit import request_mapping, Request, Response, path_parameter, RestitApp, RestitTestApp
 from restit.resource import Resource
 
+PathParam = namedtuple("PathParam", ["name", "schema", "description"])
+
 
 @request_mapping("/path/:id1/and/:id2/and/:id3")
-@path_parameter("id1", type=int, doc="First path parameter")
-@path_parameter("id2", type=float, doc="Second path parameter")
+@path_parameter("id1", type=int, description="First path parameter")
+@path_parameter("id2", type=float, description="Second path parameter")
 @path_parameter("id3")
 class Resource1(Resource):
     def get(self, request: Request, **path_params) -> Response:
@@ -15,9 +18,7 @@ class Resource1(Resource):
 
 class PathParameterTestCase(unittest.TestCase):
     def setUp(self) -> None:
-        restit_app = RestitApp(resources=[
-            Resource1()
-        ])
+        restit_app = RestitApp(resources=[Resource1()])
         self.restit_test_app = RestitTestApp(restit_app)
 
     def test_path_parameters(self):
@@ -32,5 +33,6 @@ class PathParameterTestCase(unittest.TestCase):
             "<title>400 Bad Request</title>\n"
             "<h1>Bad Request</h1>\n"
             "<p>Path parameter value 'hans' is not matching 'PathParameter(name='id2', type=<class 'float'>, "
-            "doc='Second path parameter')' (could not convert string to float: 'hans')</p>\n", response.text
+            "description='Second path parameter', format=None)' (could not convert string to float: 'hans')</p>\n",
+            response.text
         )

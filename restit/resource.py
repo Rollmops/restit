@@ -7,9 +7,9 @@ from werkzeug.exceptions import MethodNotAllowed, BadRequest
 from restit.internal.resource_path import ResourcePath
 from restit.response import Response
 
-PathParameter = namedtuple("PathParameter", ["name", "type", "doc"])
+PathParameter = namedtuple("PathParameter", ["name", "type", "description", "format"])
 
-_PATH_PARAMETER_MAPPING = defaultdict(list)
+_PATH_PARAMETER_MAPPING = defaultdict(dict)
 
 
 class Resource:
@@ -20,7 +20,11 @@ class Resource:
 
     @classmethod
     def add_path_parameter(cls, path_parameter: PathParameter):
-        _PATH_PARAMETER_MAPPING[cls].append(path_parameter)
+        _PATH_PARAMETER_MAPPING[cls][path_parameter.name] = path_parameter
+
+    @classmethod
+    def get_path_parameters(cls) -> dict:
+        return _PATH_PARAMETER_MAPPING[cls]
 
     def init(self):
         self._resource_path = ResourcePath(self.__request_mapping__)
@@ -68,7 +72,7 @@ class Resource:
         return method(request, **passed_path_parameters)
 
     def _collect_and_convert_path_parameters(self, path_params: dict):
-        for path_parameter in _PATH_PARAMETER_MAPPING[self.__class__]:
+        for path_parameter in _PATH_PARAMETER_MAPPING[self.__class__].values():
             try:
                 path_parameter_value = path_params[path_parameter.name]
             except KeyError:
