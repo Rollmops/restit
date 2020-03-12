@@ -6,6 +6,7 @@ setup(
     name="restit",
     version=__version__,
     packages=find_packages(),
+    include_package_data=True,
     install_requires=[
         "marshmallow",
         "werkzeug"
