@@ -74,7 +74,7 @@ class Resource:
     def _validate_request_body(method_object: object, request: Request) -> Request:
         request_body_parameter = getattr(method_object, "__request_body_parameter__", None)
         if request_body_parameter:
-            request._body_as_dict = request_body_parameter.validate(request.get_body_as_dict())
+            request._body_as_dict = request_body_parameter.validate(request)
 
         return request
 

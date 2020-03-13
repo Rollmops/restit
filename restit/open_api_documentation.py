@@ -1,8 +1,10 @@
 import re
 from functools import lru_cache
 from typing import List, Tuple, Union, Match
-from uuid import UUID
 
+from restit.internal.open_api_schema_converter import \
+    OpenApiSchemaConverter
+from restit.internal.request_body_parameter import RequestBodyParameter
 from restit.resource import PathParameter
 from restit.resource import Resource
 
@@ -10,11 +12,6 @@ from restit.resource import Resource
 class OpenApiDocumentation:
     _IGNORE_RESOURCE_CLASS_NAMES = ["DefaultFaviconResource", "OpenApiResource"]
     _SPEC_VERSION = "3.0.0"
-    _PYTHON_TYPE_SCHEMA_MAPPING = {
-        int: {"type": "integer"},
-        str: {"type": "string"},
-        UUID: {"type": "string", "format": "uuid"}
-    }
 
     def __init__(self, title: str, description: str, version: str, path: str = "/api"):
         self.title = title
@@ -40,9 +37,9 @@ class OpenApiDocumentation:
         paths = spec_structure["paths"]
         for resource in self._resources:
             if resource.__request_mapping__:
-                self._add_resource(paths, resource)
+                self._add_resource(paths, resource, spec_structure)
 
-    def _add_resource(self, paths: dict, resource: Resource):
+    def _add_resource(self, paths: dict, resource: Resource, spec_structure: dict):
         path, inferred_path_parameters = \
             self._infer_path_params_and_open_api_path_syntax(resource.__request_mapping__)
         paths[path] = {}
@@ -55,10 +52,32 @@ class OpenApiDocumentation:
             method_spec = paths[path][method_name]
             self._add_summary_and_description_to_method(method_spec, method_object)
             self._add_path_parameters(method_spec, resource, inferred_path_parameters)
-            self._add_query_parameters(method_spec, method_object, resource)
+            self._add_query_parameters(method_spec, method_object)
+            self._add_request_body(method_spec, method_object, spec_structure)
 
     @staticmethod
-    def _add_query_parameters(method_spec: dict, method_object: object, resource: Resource):
+    def _add_request_body(method_spec: dict, method_object: object, spec_structure: dict):
+        request_body_parameter = getattr(
+            method_object, "__request_body_parameter__", None)  # type: RequestBodyParameter
+        if request_body_parameter:
+            # ToDo allow creating global schema under components
+            # spec_structure["components"]["schemas"][request_body_parameter.schema.__class__.__name__] = \
+            #    MarshmallowToOpenApiSchemaConverter.convert(request_body_parameter.schema)
+
+            method_spec["requestBody"] = {
+                "description": request_body_parameter.description,
+                "required": request_body_parameter.required,
+                "content": {
+                    content_type:
+                        {
+                            "schema": OpenApiSchemaConverter.convert(schema)
+                        }
+                    for content_type, schema in request_body_parameter.content_types.items()
+                }
+            }
+
+    @staticmethod
+    def _add_query_parameters(method_spec: dict, method_object: object):
         method_spec["parameters"].extend([
             {
                 "name": query_parameter.name,
@@ -95,7 +114,7 @@ class OpenApiDocumentation:
 
     @staticmethod
     def _get_schema_from_type_and_default(_type, default) -> dict:
-        schema = OpenApiDocumentation._PYTHON_TYPE_SCHEMA_MAPPING.get(_type, {})
+        schema = OpenApiSchemaConverter.convert(_type)
         if default:
             schema["default"] = default
         return schema
@@ -141,5 +160,8 @@ class OpenApiDocumentation:
                 "description": self.description,
                 "version": self.version
             },
-            "paths": {}
+            "paths": {},
+            "components": {
+                "schemas": {}
+            }
         }

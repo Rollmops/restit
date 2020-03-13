@@ -25,3 +25,9 @@ class MimeAcceptLearningTestCase(unittest.TestCase):
 
         self.assertEqual("application/json", MIMEAccept([("*/*", 1)]).best_match(["application/json"]))
         self.assertIsNone(MIMEAccept([("application/json", 1)]).best_match(["text/plain"]))
+
+        mime_accept3 = MIMEAccept([("application/json", 1), ("text/html", 1), ("text/*", 1), ("*/*", 1)])
+
+        self.assertEqual("application/json", mime_accept3.best_match(["application/json"]))
+        self.assertEqual("text/html", mime_accept3.best_match(["text/html"]))
+        self.assertEqual("text/plain", mime_accept3.best_match(["text/plain"]))
