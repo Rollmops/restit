@@ -16,6 +16,6 @@ def get_default_encoding() -> str:
 
 def get_open_api_resource_path() -> str:
     import restit
-    path = os.path.join(restit.__path__[0], "open_api")
+    path = os.path.join(restit.__path__[0], "resource", "swagger")
     assert os.path.isdir(path)
     return path

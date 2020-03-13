@@ -7,7 +7,7 @@ from restit.response_serializer import ResponseSerializer
 
 class DefaultDictJsonResponseSerializer(ResponseSerializer):
     def get_media_type_strings(self) -> List[str]:
-        return ["application/json"]
+        return ["application/json", "application/problem+json"]
 
     def get_response_data_type(self) -> type:
         return dict

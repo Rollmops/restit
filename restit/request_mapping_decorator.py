@@ -15,7 +15,7 @@ def request_mapping(path: str, path_parameters: List[PathParameter] = None):
 
         if not path.startswith("/"):
             raise PathIsNotStartingWithSlashException(path)
-        LOGGER.debug("Registering path %s for open_api %s", path, clazz.__name__)
+        LOGGER.debug("Registering path %s for swagger %s", path, clazz.__name__)
         clazz.__request_mapping__ = path
         for path_parameter in path_parameters:
             register_path_parameter(path_parameter, clazz)

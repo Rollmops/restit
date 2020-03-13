@@ -14,9 +14,14 @@ class HttpExceptionResponseMaker:
         self.rfc7807_http_problem = rfc7807_http_problem
 
     def create_response(self, media_type: MIMEAccept) -> Response:
-        if media_type.accept_html:
+        supported_media_types = [
+            "text/html", "application/xhtml+xml", "application/json", "text/plain", "application/problem+json"
+        ]
+        best_match = media_type.best_match(supported_media_types)
+
+        if best_match in ["text/html", "application/xhtml+xml"]:
             response = self.create_html_response()
-        elif media_type.accept_json:
+        elif best_match in ["application/json", "application/problem+json"]:
             response = self.create_rfc7807_json_response()
         else:
             response = self.create_plain_text_response()
