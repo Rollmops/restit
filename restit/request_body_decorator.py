@@ -1,20 +1,20 @@
-from marshmallow import Schema, ValidationError
+import logging
+
+from marshmallow import Schema
 from werkzeug.exceptions import UnprocessableEntity
 
-from restit.request import Request
+from restit.internal.request_body_parameter import RequestBodyParameter
+
+LOGGER = logging.getLogger(__name__)
 
 
 def request_body(schema: Schema, validation_error_class=UnprocessableEntity):
     def decorator(func):
-        def wrapper(self, request: Request, **path_parameters):
-            try:
-                # noinspection PyProtectedMember
-                request._body_as_dict = schema.load(request._body_as_dict)
-            except ValidationError as error:
-                raise validation_error_class(f"Request body validation failed ({str(error)})")
-            else:
-                return func(self, request, **path_parameters)
-
-        return wrapper
+        request_body_parameter = RequestBodyParameter(schema, validation_error_class)
+        LOGGER.debug(
+            "Registering request body parameter %s for %s", request_body_parameter, func.__name__
+        )
+        setattr(func, "__request_body_parameter__", request_body_parameter)
+        return func
 
     return decorator

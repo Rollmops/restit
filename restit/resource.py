@@ -66,7 +66,17 @@ class Resource:
         method_object = getattr(self, request_method.lower())
         passed_path_parameters = self._collect_and_convert_path_parameters(path_params)
         self._process_query_parameters(method_object, request)
-        return method_object(request, **passed_path_parameters)
+        request = self._validate_request_body(method_object, request)
+        response = method_object(request, **passed_path_parameters)
+        return response
+
+    @staticmethod
+    def _validate_request_body(method_object: object, request: Request) -> Request:
+        request_body_parameter = getattr(method_object, "__request_body_parameter__", None)
+        if request_body_parameter:
+            request._body_as_dict = request_body_parameter.validate(request.get_body_as_dict())
+
+        return request
 
     @staticmethod
     def _process_query_parameters(method_object, request):
