@@ -4,3 +4,4 @@ venv/
 .egg/
 *.egg-info/
 .pytest_cache
+dist/*
