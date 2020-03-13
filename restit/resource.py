@@ -5,7 +5,7 @@ from typing import Tuple, AnyStr, Dict, Union, List
 from werkzeug.exceptions import MethodNotAllowed, BadRequest
 
 from restit.internal.resource_path import ResourcePath
-from restit.internal.string_type_converter import StringTypeConverter
+from restit.internal.type_converter.string_type_converter import StringTypeConverter
 from restit.path_parameter_decorator import PathParameter
 from restit.query_parameter_decorator import QueryParameter
 from restit.request import Request
@@ -74,19 +74,20 @@ class Resource:
     def _validate_request_body(method_object: object, request: Request) -> Request:
         request_body_parameter = getattr(method_object, "__request_body_parameter__", None)
         if request_body_parameter:
-            request._body_as_dict = request_body_parameter.validate(request)
+            request.set_body_from_string(request_body_parameter.validate(request))
 
         return request
 
     @staticmethod
     def _process_query_parameters(method_object, request):
         for query_parameter in getattr(method_object, "__query_parameters__", []):  # type: QueryParameter
-            value = request.query_parameters.get(query_parameter.name, query_parameter.default)
+            value = request.get_query_parameters().get(query_parameter.name, query_parameter.default)
             if value is None and query_parameter.required:
                 # ToDo message
                 raise BadRequest()
 
-            request.query_parameters[query_parameter.name] = StringTypeConverter.convert(value, query_parameter.type)
+            # noinspection PyProtectedMember
+            request._query_parameters[query_parameter.name] = StringTypeConverter.convert(value, query_parameter.type)
 
     def _collect_and_convert_path_parameters(self, path_params: dict):
         for path_parameter in getattr(self, "__path_parameters__", []):  # type: PathParameter

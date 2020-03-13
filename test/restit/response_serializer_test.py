@@ -4,12 +4,15 @@ from typing import List
 from werkzeug.datastructures import MIMEAccept
 from werkzeug.exceptions import NotAcceptable
 
+from restit.internal.default_response_serializer.default_dict_json_response_serializer import \
+    DefaultDictJsonResponseSerializer
+from restit.internal.default_response_serializer.default_dict_text_response_serializer import \
+    DefaultDictTextResponseSerializer
+from restit.internal.default_response_serializer.dict_fallback_response_serializer import DictFallbackResponseSerializer
+from restit.internal.default_response_serializer.str_fallback_response_serializer import \
+    StringFallbackResponseSerializer
 from restit.response import Response
 from restit.response_serializer import ResponseSerializer
-from restit.response_serializer.default_dict_json_response_serializer import DefaultDictJsonResponseSerializer
-from restit.response_serializer.default_dict_text_response_serializer import DefaultDictTextResponseSerializer
-from restit.response_serializer.dict_fallback_response_serializer import DictFallbackResponseSerializer
-from restit.response_serializer.str_fallback_response_serializer import StringFallbackResponseSerializer
 
 
 class ResponseSerializerTestCase(unittest.TestCase):

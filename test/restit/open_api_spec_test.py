@@ -24,7 +24,7 @@ class FirstResource(Resource):
         return Response("Hallo")
 
     @request_body(
-        content_type_schemas={
+        {
             "application/json": MyRequestBodySchema(),
             "image/png": bytes
         }, description="A request body"

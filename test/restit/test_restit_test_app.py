@@ -14,16 +14,16 @@ from restit.restit_test_app import RestitTestApp
 @request_mapping("/")
 class MyResource(Resource):
     def get(self, request: Request) -> Response:
-        return Response(request.get_body_as_dict())
+        return Response(request.get_request_body_as_type(dict))
 
     def post(self, request: Request) -> Response:
-        return Response(request.get_body_as_dict(), 201)
+        return Response(request.get_request_body_as_type(dict), 201)
 
     def put(self, request: Request) -> Response:
-        return Response(request.get_body_as_dict(), 201)
+        return Response(request.get_request_body_as_type(dict), 201)
 
     def delete(self, request: Request) -> Response:
-        return Response(request.get_body_as_dict(), 201)
+        return Response(request.get_request_body_as_type(dict), 201)
 
 
 @request_mapping("/no_methods")

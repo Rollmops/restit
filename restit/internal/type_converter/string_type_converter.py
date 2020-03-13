@@ -1,15 +1,19 @@
-from typing import Type, List
+from typing import Type, List, Union
+
+from restit.common import get_default_encoding
 
 
 class StringTypeConverter:
     @staticmethod
-    def convert(string: str, into_type: Type):
+    def convert(string_or_bytes: Union[str, bytes], into_type: Type):
+        if isinstance(string_or_bytes, bytes):
+            string_or_bytes = string_or_bytes.decode(get_default_encoding())
         if into_type == list:
-            return StringTypeConverter._convert_iterable(string, str, "[]", list)
+            return StringTypeConverter._convert_iterable(string_or_bytes, str, "[]", list)
         try:
-            return into_type(string)
+            return into_type(string_or_bytes)
         except TypeError:
-            return StringTypeConverter._convert_advanced_types(string, into_type)
+            return StringTypeConverter._convert_advanced_types(string_or_bytes, into_type)
 
     @staticmethod
     def _convert_advanced_types(string: str, into_type: Type):

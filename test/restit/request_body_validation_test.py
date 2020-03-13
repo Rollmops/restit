@@ -16,9 +16,9 @@ class RequestBodySchema(Schema):
 
 @request_mapping("/miau")
 class QueryParametersResource(Resource):
-    @request_body(content_type_schemas={"application/x-www-form-urlencoded": RequestBodySchema()}, description="Huhu")
+    @request_body({"application/x-www-form-urlencoded": RequestBodySchema()}, description="Huhu")
     def post(self, request: Request) -> Response:
-        return Response(request.get_body_as_dict())
+        return Response(request.get_request_body_as_type(dict))
 
 
 class RequestBodyValidationTestCase(BaseTestServerTestCase):

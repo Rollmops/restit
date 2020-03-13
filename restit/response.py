@@ -6,11 +6,15 @@ from werkzeug.datastructures import MIMEAccept
 from werkzeug.exceptions import NotAcceptable
 
 from restit.common import get_default_encoding
+from restit.internal.default_response_serializer.default_bytes_text_response_serializer import \
+    DefaultBytesTextResponseSerializer
+from restit.internal.default_response_serializer.default_dict_json_response_serializer import \
+    DefaultDictJsonResponseSerializer
+from restit.internal.default_response_serializer.default_dict_text_response_serializer import \
+    DefaultDictTextResponseSerializer
+from restit.internal.default_response_serializer.default_str_text_response_serializer import \
+    DefaultStrTextResponseSerializer
 from restit.response_serializer import ResponseSerializer
-from restit.response_serializer.default_bytes_text_response_serializer import DefaultBytesTextResponseSerializer
-from restit.response_serializer.default_dict_json_response_serializer import DefaultDictJsonResponseSerializer
-from restit.response_serializer.default_dict_text_response_serializer import DefaultDictTextResponseSerializer
-from restit.response_serializer.default_str_text_response_serializer import DefaultStrTextResponseSerializer
 
 _DEFAULT_RESPONSE_SERIALIZER = [
     DefaultDictJsonResponseSerializer(),
@@ -90,6 +94,9 @@ class Response:
 
     def get_headers(self) -> dict:
         return self._headers
+
+    def get_content_type(self, fallback: str = None) -> str:
+        return self._headers.get("Content-Type", fallback or "application/octet-stream")
 
     class ResponseBodyTypeNotSupportedException(Exception):
         pass
