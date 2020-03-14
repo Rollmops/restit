@@ -1,5 +1,4 @@
-from werkzeug.datastructures import MIMEAccept
-
+from restit.internal.http_accept import HttpAccept
 from restit.response import Response
 from restit.rfc7807_http_problem import Rfc7807HttpProblem
 
@@ -13,11 +12,15 @@ class HttpExceptionResponseMaker:
     def __init__(self, rfc7807_http_problem: Rfc7807HttpProblem):
         self.rfc7807_http_problem = rfc7807_http_problem
 
-    def create_response(self, media_type: MIMEAccept) -> Response:
+    def create_response(self, http_accept: HttpAccept) -> Response:
         supported_media_types = [
-            "text/html", "application/xhtml+xml", "application/json", "text/plain", "application/problem+json"
+            "text/html", "application/xhtml+xml", "application/json", "application/problem+json"
         ]
-        best_match = media_type.best_match(supported_media_types)
+        best_match = http_accept.get_best_match(supported_media_types)
+        if best_match is None:
+            raise HttpExceptionResponseMaker.NoSupportedMIMETypesFoundException(http_accept.mime_types)
+
+        best_match = best_match[0]
 
         if best_match in ["text/html", "application/xhtml+xml"]:
             response = self.create_html_response()
@@ -26,7 +29,7 @@ class HttpExceptionResponseMaker:
         else:
             response = self.create_plain_text_response()
 
-        response.serialize_response_body(media_type)
+        response.serialize_response_body(http_accept)
         return response
 
     def create_html_response(self) -> Response:
@@ -58,3 +61,6 @@ class HttpExceptionResponseMaker:
             response_body=str(self.rfc7807_http_problem),
             status_code=self.rfc7807_http_problem.status
         )
+
+    class NoSupportedMIMETypesFoundException(Exception):
+        pass

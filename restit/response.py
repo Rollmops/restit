@@ -2,7 +2,6 @@ from http import HTTPStatus
 from json import loads
 from typing import Union, List
 
-from werkzeug.datastructures import MIMEAccept
 from werkzeug.exceptions import NotAcceptable
 
 from restit.common import get_default_encoding
@@ -14,6 +13,7 @@ from restit.internal.default_response_serializer.default_dict_text_response_seri
     DefaultDictTextResponseSerializer
 from restit.internal.default_response_serializer.default_str_text_response_serializer import \
     DefaultStrTextResponseSerializer
+from restit.internal.http_accept import HttpAccept
 from restit.response_serializer import ResponseSerializer
 
 _DEFAULT_RESPONSE_SERIALIZER = [
@@ -52,8 +52,8 @@ class Response:
     def restore_default_response_serializer():
         Response._RESPONSE_SERIALIZER = _DEFAULT_RESPONSE_SERIALIZER.copy()
 
-    def serialize_response_body(self, media_type: MIMEAccept):
-        matching_response_serializer_list = self._get_matching_response_serializer_for_media_type(media_type)
+    def serialize_response_body(self, http_accept: HttpAccept):
+        matching_response_serializer_list = self._get_matching_response_serializer_for_media_type(http_accept)
         if not matching_response_serializer_list:
             raise NotAcceptable()
 
@@ -65,7 +65,7 @@ class Response:
                 return
 
         raise Response.ResponseBodyTypeNotSupportedException(
-            f"Unable to find response data serializer for media type {media_type} and response data type "
+            f"Unable to find response data serializer for {http_accept} and response data type "
             f"{type(self._response_body_input)}"
         )
 
@@ -74,14 +74,14 @@ class Response:
         self._headers.setdefault("Content-Length", len(self.content))
 
     @staticmethod
-    def _get_matching_response_serializer_for_media_type(media_type: MIMEAccept) -> List[ResponseSerializer]:
+    def _get_matching_response_serializer_for_media_type(http_accept: HttpAccept) -> List[ResponseSerializer]:
         matching_response_serializer = [
             response_serializer
             for response_serializer in Response._RESPONSE_SERIALIZER
-            if response_serializer.can_handle_incoming_media_type(media_type)
+            if response_serializer.can_handle_incoming_media_type(http_accept)
         ]
 
-        return sorted(matching_response_serializer, key=lambda s: s.priority)
+        return sorted(matching_response_serializer, key=lambda s: s.priority, reverse=True)
 
     def get_status_string(self) -> str:
         return f"{self._status.value} {self._status.name}"

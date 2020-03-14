@@ -24,3 +24,9 @@ class QueryParametersResource(Resource):
     )
     def get(self, request: Request) -> Response:
         return Response(request.query_parameters)
+
+
+---
+'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9'
+'gzip, deflate, br'
+'de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7'

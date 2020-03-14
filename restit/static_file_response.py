@@ -16,7 +16,7 @@ class StaticFileResponse(Response):
     ):
         headers = headers or {}
         suffix = suffix or StaticFileResponse._get_suffix_from_file_path(file_path)
-        content_type = SUFFIX_MEDIA_TYPE_MAPPING.get(suffix, "text/plain")
+        content_type = SUFFIX_MEDIA_TYPE_MAPPING.get(suffix, )
         headers.setdefault("Content-Type", content_type)
 
         with open(file_path, "rb") as fp:

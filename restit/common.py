@@ -22,13 +22,12 @@ def get_open_api_resource_path() -> str:
     return path
 
 
-def create_dict_from_query_parameter_syntax(query_string_bytes: bytes, encoding: str) -> dict:
-    request_input_string = query_string_bytes.decode(encoding or get_default_encoding())
+def create_dict_from_assignment_syntax(request_input_string: str, group_delimiter: str = "&") -> dict:
     if request_input_string is None or "=" not in request_input_string:
         return {}
 
     return {
         key: escape(value) for key, value in [
-            pair.split("=") for pair in request_input_string.split("&")
+            pair.split("=") for pair in request_input_string.strip(group_delimiter).split(group_delimiter)
         ]
     }

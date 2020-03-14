@@ -23,7 +23,7 @@ class RequestBodyParameter:
         try:
             body_as_dict = request.get_request_body_as_type(dict)
             return schema_or_type.dumps(body_as_dict)
-        except ValidationError as error:
+        except (ValidationError, ValueError) as error:
             raise self.validation_error_class(
                 f"Request body validation failed ({str(error)})"
             )

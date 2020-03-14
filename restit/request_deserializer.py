@@ -11,5 +11,7 @@ class RequestDeserializer:
     def get_deserialized_python_type(self) -> Type:
         raise NotImplemented()
 
-    def can_handle_content_type(self, content_type: str) -> bool:
-        return self.get_content_type_list() is None or content_type in self.get_content_type_list()
+    def can_handle(self, content_type: str, python_type: Type) -> bool:
+        return \
+            (self.get_content_type_list() is None or content_type in self.get_content_type_list()) \
+            and python_type == self.get_deserialized_python_type()

@@ -81,7 +81,7 @@ class Resource:
     @staticmethod
     def _process_query_parameters(method_object, request):
         for query_parameter in getattr(method_object, "__query_parameters__", []):  # type: QueryParameter
-            value = request.get_query_parameters().get(query_parameter.name, query_parameter.default)
+            value = request.get_query_parameters().get(query_parameter.name, )
             if value is None and query_parameter.required:
                 # ToDo message
                 raise BadRequest()

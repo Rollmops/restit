@@ -122,14 +122,14 @@ class RestitApp:
             exception_response_maker = HttpExceptionResponseMaker(
                 Rfc7807HttpProblem.from_http_exception(internal_exception)
             )
-            response = exception_response_maker.create_response(request.get_accepted_media_types())
+            response = exception_response_maker.create_response(request.get_http_accept())
         return response
 
     @staticmethod
-    def _create_rfc7807_response(request, rfc7807_http_problem):
+    def _create_rfc7807_response(request: Request, rfc7807_http_problem: Rfc7807HttpProblem) -> Response:
         LOGGER.info(str(rfc7807_http_problem))
         exception_response_maker = HttpExceptionResponseMaker(rfc7807_http_problem)
-        response = exception_response_maker.create_response(request.get_accepted_media_types())
+        response = exception_response_maker.create_response(request.get_http_accept())
         return response
 
     @staticmethod
@@ -142,7 +142,7 @@ class RestitApp:
                 request=request,
                 path_params=path_params
             )
-            response.serialize_response_body(request.get_accepted_media_types())
+            response.serialize_response_body(request.get_http_accept())
         else:
             raise NotFound()
         return response

@@ -11,22 +11,22 @@ from test.base_test_server_test_case import BaseTestServerTestCase
 
 @request_mapping("/")
 class RequestBodyResource(Resource):
-    def get(self, request: Request) -> Response:
+    def get(self, request: Request, **kwargs) -> Response:
         return Response({
-            "form": dict(request.get_extended_request_info().form),
-            "data": request.get_extended_request_info().data.decode(),
-            "query_string": request.get_extended_request_info().query_string.decode(),
-            "query_parameters": request.query_parameters,
-            "content_type": request.get_extended_request_info().content_type
+            "form": dict(request.get_werkzeug_request().form),
+            "data": request.get_werkzeug_request().data.decode(),
+            "query_string": request.get_werkzeug_request().query_string.decode(),
+            "query_parameters": request.get_query_parameters(),
+            "content_type": request.get_werkzeug_request().content_type
         })
 
-    def post(self, request: Request) -> Response:
+    def post(self, request: Request, **kwargs) -> Response:
         return Response({
-            "form": dict(request.get_extended_request_info().form),
-            "data": request.get_extended_request_info().data.decode(),
-            "query_string": request.get_extended_request_info().query_string.decode(),
-            "query_parameters": request.query_parameters,
-            "content_type": request.get_extended_request_info().content_type
+            "form": dict(request.get_werkzeug_request().form),
+            "data": request.get_werkzeug_request().data.decode(),
+            "query_string": request.get_werkzeug_request().query_string.decode(),
+            "query_parameters": request.get_query_parameters(),
+            "content_type": request.get_werkzeug_request().content_type
         }, HTTPStatus.CREATED)
 
 
