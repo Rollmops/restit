@@ -8,8 +8,10 @@ from restit.response import Response
 
 
 class ResponseStatusParameter:
-    def __init__(self, status: Union[int, HTTPStatus], description: str, content_types: Dict[str, Union[Schema, Type]]):
-        self.status = status if isinstance(status, int) else status.value
+    def __init__(
+            self, status: Union[int, HTTPStatus, None], description: str, content_types: Dict[str, Union[Schema, Type]]
+    ):
+        self.status = status if isinstance(status, int) or status is None else status.value
         self.description = description
         self.content_types = content_types
 

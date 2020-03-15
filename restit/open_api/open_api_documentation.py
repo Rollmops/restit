@@ -5,6 +5,8 @@ from typing import List, Tuple, Union, Match
 from restit.internal.open_api_schema_converter import \
     OpenApiSchemaConverter
 from restit.internal.request_body_properties import RequestBodyProperties
+from restit.internal.response_status_parameter import ResponseStatusParameter
+from restit.open_api.info_object import InfoObject
 from restit.resource import PathParameter
 from restit.resource import Resource
 
@@ -13,10 +15,8 @@ class OpenApiDocumentation:
     _IGNORE_RESOURCE_CLASS_NAMES = ["DefaultFaviconResource", "OpenApiResource"]
     _SPEC_VERSION = "3.0.0"
 
-    def __init__(self, title: str, description: str, version: str, path: str = "/api"):
-        self.title = title
-        self.description = description
-        self.version = version
+    def __init__(self, info: InfoObject, path: str = "/api"):
+        self.info = info
         self.path = path
         self._resources: List[Resource] = []
         self._servers = []
@@ -54,6 +54,19 @@ class OpenApiDocumentation:
             self._add_path_parameters(method_spec, resource, inferred_path_parameters)
             self._add_query_parameters(method_spec, method_object)
             self._add_request_body(method_spec, method_object, spec_structure)
+            self._add_responses(method_spec, method_object, spec_structure)
+
+    @staticmethod
+    def _add_responses(method_spec: dict, method_object: object, spec_structure: dict):
+        response_status_parameters = getattr(method_object, "__response_status_parameters__", None)
+        if response_status_parameters:
+            for response_status_parameter in response_status_parameters:  # type: ResponseStatusParameter
+                method_spec["responses"][response_status_parameter.status or "default"] = {
+                    "description": response_status_parameter.description,
+                    "content": OpenApiDocumentation._create_content_field(
+                        response_status_parameter.content_types, spec_structure
+                    )
+                }
 
     @staticmethod
     def _add_request_body(method_spec: dict, method_object: object, spec_structure: dict):
@@ -67,14 +80,20 @@ class OpenApiDocumentation:
             method_spec["requestBody"] = {
                 "description": request_body_parameter.description,
                 "required": request_body_parameter.required,
-                "content": {
-                    content_type:
-                        {
-                            "schema": OpenApiSchemaConverter.convert(schema)
-                        }
-                    for content_type, schema in request_body_parameter.content_types.items()
-                }
+                "content": OpenApiDocumentation._create_content_field(
+                    request_body_parameter.content_types, spec_structure
+                )
             }
+
+    @staticmethod
+    def _create_content_field(content_types: dict, spec_structure: dict):
+        return {
+            content_type:
+                {
+                    "schema": OpenApiSchemaConverter.convert(schema, spec_structure)
+                }
+            for content_type, schema in content_types.items()
+        }
 
     @staticmethod
     def _add_query_parameters(method_spec: dict, method_object: object):
@@ -125,7 +144,7 @@ class OpenApiDocumentation:
 
         def _handle_path_parameter(match: Match) -> str:
             path_parameter_list.append(
-                PathParameter(match.group(1), None, eval(match.group(2)) if match.group(2) else str)
+                PathParameter(match.group(1), "", eval(match.group(2)) if match.group(2) else str)
             )
             return "{%s}" % match.group(1)
 
@@ -155,11 +174,7 @@ class OpenApiDocumentation:
     def _generate_base_spec_structure(self) -> dict:
         return {
             "openapi": OpenApiDocumentation._SPEC_VERSION,
-            "info": {
-                "title": self.title,
-                "description": self.description,
-                "version": self.version
-            },
+            "info": self.info.to_dict(),
             "paths": {},
             "components": {
                 "schemas": {}

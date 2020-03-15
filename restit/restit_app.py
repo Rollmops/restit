@@ -12,7 +12,7 @@ from restit.internal.default_favicon_resource import DefaultFaviconResource
 from restit.internal.exception_response_maker import HttpExceptionResponseMaker
 from restit.internal.open_api_resource import OpenApiResource
 from restit.namespace import Namespace
-from restit.open_api_documentation import OpenApiDocumentation
+from restit.open_api.open_api_documentation import OpenApiDocumentation
 from restit.request import Request
 from restit.resource import Resource
 from restit.response import Response

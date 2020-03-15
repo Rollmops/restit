@@ -12,7 +12,7 @@ LOGGER = logging.getLogger(__name__)
 # noinspection PyShadowingBuiltins
 def response_status(status: Union[int, HTTPStatus], description: str, content_types: Dict[str, Union[Schema, Type]]):
     def decorator(func):
-        http_status_code = status if isinstance(status, int) else status.value
+        http_status_code = status if isinstance(status, int) or status is None else status.value
         response_status_parameter = ResponseStatusParameter(http_status_code, description, content_types)
 
         registered_response_status_parameters: List[ResponseStatusParameter] = \
