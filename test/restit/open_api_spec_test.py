@@ -69,7 +69,25 @@ class OpenApiSpecTestCase(unittest.TestCase):
                                                                                     'post': {'responses': {},
                                                                                              'parameters': [],
                                                                                              'summary': None,
-                                                                                             'description': None},
+                                                                                             'description': None,
+                                                                                             'requestBody': {
+                                                                                                 'description': 'A request body',
+                                                                                                 'required': True,
+                                                                                                 'content': {
+                                                                                                     'application/json': {
+                                                                                                         'schema': {
+                                                                                                             'title': 'Schema title',
+                                                                                                             'type': 'object',
+                                                                                                             'properties': {
+                                                                                                                 'field1': {
+                                                                                                                     'type': 'string'},
+                                                                                                                 'field2': {
+                                                                                                                     'type': 'integer'}},
+                                                                                                             'required': []}},
+                                                                                                     'image/png': {
+                                                                                                         'schema': {
+                                                                                                             'type': 'string',
+                                                                                                             'format': 'binary'}}}}},
                                                                                     'options': {'responses': {},
                                                                                                 'parameters': [],
                                                                                                 'summary': 'Identifying allowed request methods.',
@@ -117,6 +135,8 @@ class OpenApiSpecTestCase(unittest.TestCase):
         restit_app.set_open_api_documentation(
             OpenApiDocumentation(title="First documentation", description="", version="1.2.3")
         )
+
+        # restit_app.start_development_server()
 
         with restit_app.start_development_server_in_context(port=0) as port:
             response = requests.get(f"http://127.0.0.1:{port}/api")

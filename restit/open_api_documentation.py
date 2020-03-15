@@ -58,7 +58,7 @@ class OpenApiDocumentation:
     @staticmethod
     def _add_request_body(method_spec: dict, method_object: object, spec_structure: dict):
         request_body_parameter = getattr(
-            method_object, "__request_body_parameter__", None)  # type: RequestBodyProperties
+            method_object, "__request_body_properties__", None)  # type: RequestBodyProperties
         if request_body_parameter:
             # ToDo allow creating global schema under components
             # spec_structure["components"]["schemas"][request_body_parameter.schema.__class__.__name__] = \
