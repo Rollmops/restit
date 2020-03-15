@@ -40,5 +40,5 @@ class RequestBodyValidationTestCase(BaseTestServerTestCase):
         self.assertEqual(
             "<title>422 Unprocessable Entity</title>\n"
             "<h1>Unprocessable Entity</h1>\n"
-            "<p>Request body validation failed ({'param1': ['Not a valid integer.']})</p>\n", response.text
+            "<p>Request body schema deserialization failed ({'param1': ['Not a valid integer.']})</p>\n", response.text
         )

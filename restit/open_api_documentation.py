@@ -4,7 +4,7 @@ from typing import List, Tuple, Union, Match
 
 from restit.internal.open_api_schema_converter import \
     OpenApiSchemaConverter
-from restit.internal.request_body_parameter import RequestBodyParameter
+from restit.internal.request_body_properties import RequestBodyProperties
 from restit.resource import PathParameter
 from restit.resource import Resource
 
@@ -58,7 +58,7 @@ class OpenApiDocumentation:
     @staticmethod
     def _add_request_body(method_spec: dict, method_object: object, spec_structure: dict):
         request_body_parameter = getattr(
-            method_object, "__request_body_parameter__", None)  # type: RequestBodyParameter
+            method_object, "__request_body_parameter__", None)  # type: RequestBodyProperties
         if request_body_parameter:
             # ToDo allow creating global schema under components
             # spec_structure["components"]["schemas"][request_body_parameter.schema.__class__.__name__] = \

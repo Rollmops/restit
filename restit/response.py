@@ -59,9 +59,9 @@ class Response:
 
         for response_serializer in matching_response_serializer_list:
             if isinstance(self._response_body_input, response_serializer.get_response_data_type()):
-                self.content = response_serializer.serialize(self._response_body_input)
+                self.content, content_type = response_serializer.serialize(self._response_body_input)
                 self.text = self.content.decode(encoding=self.get_headers()["Content-Encoding"])
-                self._set_headers(response_serializer)
+                self._set_headers(content_type)
                 return
 
         raise Response.ResponseBodyTypeNotSupportedException(
@@ -69,8 +69,8 @@ class Response:
             f"{type(self._response_body_input)}"
         )
 
-    def _set_headers(self, response_serializer: ResponseSerializer):
-        self._headers.setdefault("Content-Type", response_serializer.get_content_type())
+    def _set_headers(self, content_type: str):
+        self._headers.setdefault("Content-Type", content_type)
         self._headers.setdefault("Content-Length", len(self.content))
 
     @staticmethod

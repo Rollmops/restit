@@ -4,19 +4,22 @@ from marshmallow import Schema, fields
 
 
 class MarshmallowLearningTestCase(unittest.TestCase):
-    def test_attribute_doc_test(self):
+    def test_dump(self):
         class MySchema(Schema):
-            "Can you access me?"
-            field1 = fields.Integer()
-
-            """And me?
-            
-            I have a bigger docstring!
-            """
-            field2 = fields.String()
+            f1 = fields.Integer()
+            f2 = fields.String()
 
         my_schema = MySchema()
 
-        self.assertEqual("Can you access me?", my_schema.fields["field1"].parent.__doc__)
-        # no ... parent is the class itself ... so no chance to access attribute docs :-(
-        self.assertEqual("Can you access me?", my_schema.fields["field2"].parent.__doc__)
+        self.assertEqual({'f1': 2, 'f2': '3'}, my_schema.dump({"f1": "2", "f2": "3"}))
+        self.assertEqual('{"f1": 2}', my_schema.dumps({"f1": "2"}))
+
+    def test_load(self):
+        class MySchema(Schema):
+            f1 = fields.Integer()
+            f2 = fields.String()
+
+        my_schema = MySchema()
+
+        self.assertEqual({'f1': 2, 'f2': '3'}, my_schema.load({"f1": "2", "f2": "3"}))
+        self.assertEqual({'f1': 2, "f2": "3"}, my_schema.loads('{"f1": "2", "f2": "3"}'))

@@ -4,6 +4,8 @@ from typing import Tuple, AnyStr, Dict, Union, List
 
 from werkzeug.exceptions import MethodNotAllowed, BadRequest
 
+from restit.internal.request_body_properties import RequestBodyProperties
+from restit.internal.request_body_schema_deserializer import RequestBodySchemaDeserializer
 from restit.internal.resource_path import ResourcePath
 from restit.internal.type_converter.string_type_converter import StringTypeConverter
 from restit.path_parameter_decorator import PathParameter
@@ -72,9 +74,10 @@ class Resource:
 
     @staticmethod
     def _validate_request_body(method_object: object, request: Request) -> Request:
-        request_body_parameter = getattr(method_object, "__request_body_parameter__", None)
-        if request_body_parameter:
-            request.set_body_from_string(request_body_parameter.validate(request))
+        request_body_properties: RequestBodyProperties = \
+            getattr(method_object, "__request_body_properties__", None)
+        if request_body_properties:
+            RequestBodySchemaDeserializer.deserialize(request, request_body_properties)
 
         return request
 

@@ -1,5 +1,5 @@
 import unittest
-from typing import List
+from typing import List, Tuple
 
 from werkzeug.exceptions import NotAcceptable
 
@@ -52,11 +52,8 @@ class ResponseSerializerTestCase(unittest.TestCase):
             def get_media_type_strings(self) -> List[str]:
                 return ["my/type"]
 
-            def get_content_type(self) -> str:
-                return "my/type"
-
-            def serialize(self, response_input: str) -> bytes:
-                return "".join(reversed(response_input)).encode()
+            def serialize(self, response_input: str) -> Tuple[bytes, str]:
+                return "".join(reversed(response_input)).encode(), "my/type"
 
         Response.register_response_serializer(MyResponseSerializer())
         response = Response("Test")

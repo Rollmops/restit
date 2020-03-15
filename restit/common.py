@@ -31,3 +31,10 @@ def create_dict_from_assignment_syntax(request_input_string: str, group_delimite
             pair.split("=") for pair in request_input_string.strip(group_delimiter).split(group_delimiter)
         ]
     }
+
+
+def guess_text_content_subtype(content: bytes) -> str:
+    if b"<html>" in content or b"<title>" in content or b"<body>" in content:
+        return "text/html"
+
+    return "text/plain"

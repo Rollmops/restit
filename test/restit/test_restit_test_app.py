@@ -13,16 +13,16 @@ from restit.restit_test_app import RestitTestApp
 
 @request_mapping("/")
 class MyResource(Resource):
-    def get(self, request: Request) -> Response:
+    def get(self, request: Request, **kwargs) -> Response:
         return Response(request.get_request_body_as_type(dict))
 
-    def post(self, request: Request) -> Response:
+    def post(self, request: Request, **kwargs) -> Response:
         return Response(request.get_request_body_as_type(dict), 201)
 
-    def put(self, request: Request) -> Response:
+    def put(self, request: Request, **kwargs) -> Response:
         return Response(request.get_request_body_as_type(dict), 201)
 
-    def delete(self, request: Request) -> Response:
+    def delete(self, request: Request, **kwargs) -> Response:
         return Response(request.get_request_body_as_type(dict), 201)
 
 
@@ -39,7 +39,7 @@ class ResourceWithPathParams(Resource):
 
 @request_mapping("/resource_with_hyperlink")
 class ResourceWithHyperLink(Resource):
-    def get(self, request: Request) -> Response:
+    def get(self, request: Request, **kwargs) -> Response:
         return Response({
             "hyperlink_with_path_params": Hyperlink(ResourceWithPathParams).generate(request, id=10),
             "hyperlink": Hyperlink(MyResource).generate(request)
@@ -48,8 +48,14 @@ class ResourceWithHyperLink(Resource):
 
 @request_mapping("/pass_headers")
 class PassHeadersResource(Resource):
-    def get(self, request: Request) -> Response:
-        return Response(request.get_headers())
+    def get(self, request: Request, **kwargs) -> Response:
+        headers = request.get_headers()
+        return Response(
+            {
+                'Accept': headers["Accept"],
+                'Accept-Encoding': headers["Accept-Encoding"],
+                'Content-Type': headers["Content-Type"],
+            })
 
 
 class RestitTestAppTestCase(unittest.TestCase):
@@ -97,7 +103,7 @@ class RestitTestAppTestCase(unittest.TestCase):
             'Content-Encoding': 'utf-8',
             'Content-Length': 16,
             'Content-Type': 'application/json'
-        }, response._headers)
+        }, response.get_headers())
 
     def test_put(self):
         response = self.resit_test_app.put("/", json={"key": "value"})
@@ -147,7 +153,6 @@ class RestitTestAppTestCase(unittest.TestCase):
             'Accept': '*/*',
             'Accept-Encoding': 'gzip, deflate',
             'Content-Type': '*/*',
-            'Host': '127.0.0.1'
         }, response.json())
 
     def test_hyperlinks(self):

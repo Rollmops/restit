@@ -15,4 +15,4 @@ class Hyperlink:
                 self.resource_class.__request_mapping__, path_parameter
             )
 
-        return request.get_extended_request_info().host_url.rstrip("/") + "/" + request_mapping_with_values.lstrip("/")
+        return request.get_host_url().rstrip("/") + "/" + request_mapping_with_values.lstrip("/")

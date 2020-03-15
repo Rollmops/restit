@@ -53,79 +53,57 @@ class OpenApiSpecTestCase(unittest.TestCase):
     def test_generate_spec(self):
         self.maxDiff = None
         open_api_dict = self.open_api_documentation.generate_spec()
-        expected_open_api_dict = {
-            'openapi': '3.0.0',
-            'info': {
-                'title': 'First OpenApi Test',
-                'description': 'Super description',
-                'version': '1.2.3'
-            }, 'paths': {'/path': {'get': {'responses': {},
-                                           'parameters': [
-                                               {'name': 'param1',
-                                                'in': 'query',
-                                                'description': 'A query parameter',
-                                                'required': False,
-                                                'schema': {
-                                                    'type': 'integer',
-                                                    'default': 10}}],
-                                           'summary': 'This is a summary.',
-                                           'description': 'And here we go with a description'},
-                                   'post': {'responses': {},
-                                            'parameters': [],
-                                            'summary': None,
-                                            'description': None,
-                                            'requestBody': {
-                                                'description': 'A request body',
-                                                'required': True,
-                                                'content': {
-                                                    'application/json': {
-                                                        'schema': {
-                                                            'title': 'Schema title',
-                                                            'type': 'object',
-                                                            'properties': {
-                                                                'field2': {
-                                                                    'type': 'integer'},
-                                                                'field1': {
-                                                                    'type': 'string'}},
-                                                            'required': []}},
-                                                    'image/png': {
-                                                        'schema': {
-                                                            'type': 'string',
-                                                            'format': 'binary'}}}}},
-                                   'options': {'responses': {},
-                                               'parameters': [],
-                                               'summary': 'Identifying allowed request methods.',
-                                               'description': 'The HTTP OPTIONS method is used to describe the communication options for the target resource.'}},
-                         '/path/{id}/wuff/{id2}': {
-                             'get': {'responses': {}, 'parameters': [
-                                 {'name': 'id', 'in': 'path',
-                                  'required': True,
-                                  'description': None,
-                                  'schema': {'type': 'integer',
-                                             'default': 10}},
-                                 {'name': 'id2', 'in': 'path',
-                                  'required': True,
-                                  'description': None,
-                                  'schema': {'type': 'string'}}],
-                                     'summary': None,
-                                     'description': None},
-                             'options': {'responses': {},
-                                         'parameters': [{'name': 'id',
-                                                         'in': 'path',
-                                                         'required': True,
-                                                         'description': None,
-                                                         'schema': {
-                                                             'type': 'integer',
-                                                             'default': 10}},
-                                                        {'name': 'id2',
-                                                         'in': 'path',
-                                                         'required': True,
-                                                         'description': None,
-                                                         'schema': {
-                                                             'type': 'string'}}],
-                                         'summary': 'Identifying allowed request methods.',
-                                         'description': 'The HTTP OPTIONS method is used to describe the communication options for the target resource.'}}},
-            'components': {'schemas': {}}}
+        expected_open_api_dict = {'openapi': '3.0.0',
+                                  'info': {'title': 'First OpenApi Test', 'description': 'Super description',
+                                           'version': '1.2.3'}, 'paths': {'/path': {'get': {'responses': {},
+                                                                                            'parameters': [
+                                                                                                {'name': 'param1',
+                                                                                                 'in': 'query',
+                                                                                                 'description': 'A query parameter',
+                                                                                                 'required': False,
+                                                                                                 'schema': {
+                                                                                                     'type': 'integer',
+                                                                                                     'default': 10}}],
+                                                                                            'summary': 'This is a summary.',
+                                                                                            'description': 'And here we go with a description'},
+                                                                                    'post': {'responses': {},
+                                                                                             'parameters': [],
+                                                                                             'summary': None,
+                                                                                             'description': None},
+                                                                                    'options': {'responses': {},
+                                                                                                'parameters': [],
+                                                                                                'summary': 'Identifying allowed request methods.',
+                                                                                                'description': 'The HTTP OPTIONS method is used to describe the communication options for the target resource.'}},
+                                                                          '/path/{id}/wuff/{id2}': {
+                                                                              'get': {'responses': {}, 'parameters': [
+                                                                                  {'name': 'id', 'in': 'path',
+                                                                                   'required': True,
+                                                                                   'description': None,
+                                                                                   'schema': {'type': 'integer',
+                                                                                              'default': 10}},
+                                                                                  {'name': 'id2', 'in': 'path',
+                                                                                   'required': True,
+                                                                                   'description': None,
+                                                                                   'schema': {'type': 'string'}}],
+                                                                                      'summary': None,
+                                                                                      'description': None},
+                                                                              'options': {'responses': {},
+                                                                                          'parameters': [{'name': 'id',
+                                                                                                          'in': 'path',
+                                                                                                          'required': True,
+                                                                                                          'description': None,
+                                                                                                          'schema': {
+                                                                                                              'type': 'integer',
+                                                                                                              'default': 10}},
+                                                                                                         {'name': 'id2',
+                                                                                                          'in': 'path',
+                                                                                                          'required': True,
+                                                                                                          'description': None,
+                                                                                                          'schema': {
+                                                                                                              'type': 'string'}}],
+                                                                                          'summary': 'Identifying allowed request methods.',
+                                                                                          'description': 'The HTTP OPTIONS method is used to describe the communication options for the target resource.'}}},
+                                  'components': {'schemas': {}}}
         self.assertEqual(expected_open_api_dict, open_api_dict)
 
     def test_serve_open_api(self):
