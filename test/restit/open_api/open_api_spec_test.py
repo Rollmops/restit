@@ -38,8 +38,7 @@ EXPECTED_OPEN_API_DICT = {
                     'required': False,
                     'schema': {
                         'type': 'integer',
-                        'default': 10,
-                        'description': 'An integer field.\n\n    :param strict: If `True`, only integer types are valid.\n        Otherwise, any value castable to `int` is valid.\n    :param kwargs: The same keyword arguments that :class:`Number` receives.\n    '
+                        'description': 'An integer field.'
                     }
                 }],
                 'summary': 'This is a summary.',
@@ -53,8 +52,7 @@ EXPECTED_OPEN_API_DICT = {
                             'text/plain': {
                                 'schema': {
                                     'type': 'integer',
-                                    'default': 10,
-                                    'description': 'An integer field.\n\n    :param strict: If `True`, only integer types are valid.\n        Otherwise, any value castable to `int` is valid.\n    :param kwargs: The same keyword arguments that :class:`Number` receives.\n    '
+                                    'description': 'An integer field.'
                                 }
                             }
                         }
@@ -65,8 +63,7 @@ EXPECTED_OPEN_API_DICT = {
                             'text/plain': {
                                 'schema': {
                                     'type': 'integer',
-                                    'default': 10,
-                                    'description': 'An integer field.\n\n    :param strict: If `True`, only integer types are valid.\n        Otherwise, any value castable to `int` is valid.\n    :param kwargs: The same keyword arguments that :class:`Number` receives.\n    '
+                                    'description': 'An integer field.'
                                 }
                             }
                         }
@@ -81,13 +78,25 @@ EXPECTED_OPEN_API_DICT = {
                     'content': {
                         'application/json': {
                             'schema': {
-                                '$ref': '#/components/schemas/MyRequestBodySchema'
+                                'required': [],
+                                'type': 'object',
+                                'description': 'A bird with a flight speed exceeding that of an unladen swallow.\n    ',
+                                'properties': {
+                                    'field1': {
+                                        'type': 'string',
+                                        'description': 'A string field.'
+                                    },
+                                    'field2': {
+                                        'type': 'integer',
+                                        'description': 'An integer field.'
+                                    }
+                                }
                             }
                         },
                         'image/png': {
                             'schema': {
                                 'type': 'string',
-                                'description': 'Description for field1'
+                                'description': 'A string field.'
                             }
                         }
                     }
@@ -110,8 +119,7 @@ EXPECTED_OPEN_API_DICT = {
                     'description': '',
                     'schema': {
                         'type': 'integer',
-                        'default': 10,
-                        'description': 'An integer field.\n\n    :param strict: If `True`, only integer types are valid.\n        Otherwise, any value castable to `int` is valid.\n    :param kwargs: The same keyword arguments that :class:`Number` receives.\n    '
+                        'description': 'An integer field.'
                     }
                 }, {
                     'name': 'id2',
@@ -120,7 +128,7 @@ EXPECTED_OPEN_API_DICT = {
                     'description': '',
                     'schema': {
                         'type': 'string',
-                        'description': 'Description for field1'
+                        'description': 'A string field.'
                     }
                 }],
                 'summary': None,
@@ -135,8 +143,7 @@ EXPECTED_OPEN_API_DICT = {
                     'description': '',
                     'schema': {
                         'type': 'integer',
-                        'default': 10,
-                        'description': 'An integer field.\n\n    :param strict: If `True`, only integer types are valid.\n        Otherwise, any value castable to `int` is valid.\n    :param kwargs: The same keyword arguments that :class:`Number` receives.\n    '
+                        'description': 'An integer field.'
                     }
                 }, {
                     'name': 'id2',
@@ -145,7 +152,7 @@ EXPECTED_OPEN_API_DICT = {
                     'description': '',
                     'schema': {
                         'type': 'string',
-                        'description': 'Description for field1'
+                        'description': 'A string field.'
                     }
                 }],
                 'summary': 'Identifying allowed request methods.',
@@ -154,26 +161,10 @@ EXPECTED_OPEN_API_DICT = {
         }
     },
     'components': {
-        'schemas': {
-            'MyRequestBodySchema': {
-                'description': 'A bird with a flight speed exceeding that of an unladen swallow.\n    ',
-                'type': 'object',
-                'properties': {
-                    'field2': {
-                        'type': 'integer',
-                        'default': 10,
-                        'description': 'An integer field.\n\n    :param strict: If `True`, only integer types are valid.\n        Otherwise, any value castable to `int` is valid.\n    :param kwargs: The same keyword arguments that :class:`Number` receives.\n    '
-                    },
-                    'field1': {
-                        'type': 'string',
-                        'description': 'Description for field1'
-                    }
-                },
-                'required': []
-            }
-        }
+        'schemas': {}
     }
 }
+
 
 class MyRequestBodySchema(Schema):
     """A bird with a flight speed exceeding that of an unladen swallow.

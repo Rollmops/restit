@@ -2,11 +2,11 @@ import re
 from functools import lru_cache
 from typing import List, Tuple, Union, Match
 
-from restit.internal.open_api_schema_converter import \
-    OpenApiSchemaConverter
 from restit.internal.request_body_properties import RequestBodyProperties
 from restit.internal.response_status_parameter import ResponseStatusParameter
 from restit.open_api.info_object import InfoObject
+from restit.open_api.open_api_schema_converter import \
+    OpenApiSchemaConverter
 from restit.resource import PathParameter
 from restit.resource import Resource
 
@@ -90,7 +90,7 @@ class OpenApiDocumentation:
         return {
             content_type:
                 {
-                    "schema": OpenApiSchemaConverter.convert(schema, spec_structure)
+                    "schema": OpenApiSchemaConverter.convert(schema)
                 }
             for content_type, schema in content_types.items()
         }
@@ -103,9 +103,7 @@ class OpenApiDocumentation:
                 "in": "query",
                 "description": query_parameter.description,
                 "required": query_parameter.required,
-                "schema": OpenApiDocumentation._get_schema_from_type_and_default(
-                    query_parameter.field_type, query_parameter.default
-                )
+                "schema": OpenApiSchemaConverter.convert(query_parameter.field_type)
             }
             for query_parameter in getattr(method_object, "__query_parameters__", [])
         ])
@@ -126,21 +124,15 @@ class OpenApiDocumentation:
                 "in": "path",
                 "required": True,
                 "description": path_parameter.description,
-                "schema": OpenApiDocumentation._get_schema_from_type_and_default(path_parameter.field_type, None)
+                "schema": OpenApiSchemaConverter.convert_field(path_parameter.field_type)
 
             } for name, path_parameter in path_parameters.items()
         ])
 
     @staticmethod
-    def _get_schema_from_type_and_default(_type, default) -> dict:
-        schema = OpenApiSchemaConverter.convert(_type)
-        if default:
-            schema["default"] = default
-        return schema
-
-    @staticmethod
     def _infer_path_params_and_open_api_path_syntax(path: str) -> Tuple[str, List[PathParameter]]:
         path_parameter_list = []
+
         def _handle_path_parameter(match: Match) -> str:
             path_parameter_list.append(
                 PathParameter(match.group(1), "", eval(match.group(2)) if match.group(2) else str)
