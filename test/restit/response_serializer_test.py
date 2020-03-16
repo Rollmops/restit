@@ -1,5 +1,5 @@
 import unittest
-from typing import List, Tuple
+from typing import List, Tuple, Any, Union
 
 from werkzeug.exceptions import NotAcceptable
 
@@ -12,6 +12,7 @@ from restit.internal.default_response_serializer.str_fallback_response_serialize
     StringFallbackResponseSerializer
 from restit.internal.http_accept import HttpAccept
 from restit.internal.mime_type import MIMEType
+from restit.internal.response_status_parameter import ResponseStatusParameter
 from restit.response import Response
 from restit.response_serializer import ResponseSerializer
 
@@ -22,19 +23,19 @@ class ResponseSerializerTestCase(unittest.TestCase):
 
     def test_default_dict_to_json(self):
         response = Response({"key": "value"})
-        response.serialize_response_body(HttpAccept([MIMEType("application", "json")]))
+        response.validate_and_serialize_response_body(HttpAccept([MIMEType("application", "json")]))
 
         self.assertEqual(b'{"key": "value"}', response.content)
 
     def test_default_dict_to_text(self):
         response = Response({"key": "value"})
-        response.serialize_response_body(HttpAccept.from_accept_string("text/plain"))
+        response.validate_and_serialize_response_body(HttpAccept.from_accept_string("text/plain"))
 
         self.assertEqual(b'{"key": "value"}', response.content)
 
     def test_default_str_to_text(self):
         response = Response("Test")
-        response.serialize_response_body(HttpAccept.from_accept_string("text/plain"))
+        response.validate_and_serialize_response_body(HttpAccept.from_accept_string("text/plain"))
 
         self.assertEqual(b'Test', response.content)
 
@@ -42,7 +43,7 @@ class ResponseSerializerTestCase(unittest.TestCase):
         Response.clear_all_response_serializer()
         response = Response("Test")
         with self.assertRaises(NotAcceptable):
-            response.serialize_response_body(HttpAccept.from_accept_string("text/plain"))
+            response.validate_and_serialize_response_body(HttpAccept.from_accept_string("text/plain"))
 
     def test_register_response_serializer(self):
         class MyResponseSerializer(ResponseSerializer):
@@ -52,12 +53,14 @@ class ResponseSerializerTestCase(unittest.TestCase):
             def get_media_type_strings(self) -> List[str]:
                 return ["my/type"]
 
-            def serialize(self, response_input: str) -> Tuple[bytes, str]:
+            def validate_and_serialize(
+                    self, response_input: Any, response_status_parameter: Union[None, ResponseStatusParameter]
+            ) -> Tuple[bytes, str]:
                 return "".join(reversed(response_input)).encode(), "my/type"
 
         Response.register_response_serializer(MyResponseSerializer())
         response = Response("Test")
-        response.serialize_response_body(HttpAccept.from_accept_string("my/type"))
+        response.validate_and_serialize_response_body(HttpAccept.from_accept_string("my/type"))
 
         self.assertEqual(b'tseT', response.content)
 
@@ -70,7 +73,7 @@ class ResponseSerializerTestCase(unittest.TestCase):
         Response.register_response_serializer(DefaultDictTextResponseSerializer())
 
         response = Response({"key": "value"})
-        response.serialize_response_body(http_accept)
+        response.validate_and_serialize_response_body(http_accept)
 
         self.assertEqual(b'{"key": "value"}', response.content)
         self.assertEqual("application/json", response._headers["Content-Type"])
@@ -78,7 +81,7 @@ class ResponseSerializerTestCase(unittest.TestCase):
     def test_dict_fallback_response_serializer(self):
         Response.register_response_serializer(DictFallbackResponseSerializer())
         response = Response({"key": "value"})
-        response.serialize_response_body(HttpAccept.from_accept_string("wuff/miau"))
+        response.validate_and_serialize_response_body(HttpAccept.from_accept_string("wuff/miau"))
 
         self.assertEqual(b'{"key": "value"}', response.content)
         self.assertEqual("application/json", response._headers["Content-Type"])
@@ -86,7 +89,7 @@ class ResponseSerializerTestCase(unittest.TestCase):
     def test_string_fallback_response_serializer(self):
         Response.register_response_serializer(StringFallbackResponseSerializer())
         response = Response("huhu")
-        response.serialize_response_body(HttpAccept.from_accept_string("wuff/miau"))
+        response.validate_and_serialize_response_body(HttpAccept.from_accept_string("wuff/miau"))
 
         self.assertEqual(b'huhu', response.content)
         self.assertEqual("text/plain", response._headers["Content-Type"])

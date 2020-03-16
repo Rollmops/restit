@@ -142,7 +142,7 @@ class RestitApp:
                 request=request,
                 path_params=path_params
             )
-            response.serialize_response_body(request.get_http_accept_object())
+
         else:
             raise NotFound()
         return response

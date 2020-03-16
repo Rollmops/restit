@@ -1,6 +1,9 @@
-from typing import List, Tuple
+from typing import List, Tuple, Union
 
-from restit.common import guess_text_content_subtype
+from restit.common import guess_text_content_subtype_bytes
+from restit.internal.default_response_serializer.default_str_text_response_serializer import \
+    DefaultStrTextResponseSerializer
+from restit.internal.response_status_parameter import ResponseStatusParameter
 from restit.response_serializer import ResponseSerializer
 
 
@@ -12,5 +15,11 @@ class DefaultBytesTextResponseSerializer(ResponseSerializer):
     def get_response_data_type(self) -> type:
         return bytes
 
-    def serialize(self, response_input: bytes) -> Tuple[bytes, str]:
-        return response_input, guess_text_content_subtype(response_input)
+    def validate_and_serialize(
+            self, response_input: bytes, response_status_parameter: Union[None, ResponseStatusParameter]
+    ) -> Tuple[bytes, str]:
+        content_type = guess_text_content_subtype_bytes(response_input)
+        if self.find_schema(content_type, response_status_parameter):
+            raise DefaultStrTextResponseSerializer.SchemaNotSupportedForStringResponseBody()
+
+        return response_input, content_type

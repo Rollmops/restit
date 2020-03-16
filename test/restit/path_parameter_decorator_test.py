@@ -1,13 +1,15 @@
 import unittest
 
+from marshmallow import fields
+
 from restit import request_mapping, Request, Response, path_parameter, RestitApp, RestitTestApp
 from restit.path_parameter import PathParameter
 from restit.resource import Resource
 
 
 @request_mapping("/path/:id1/and/:id2/and/:id3")
-@path_parameter("id1", type=int, description="First path parameter")
-@path_parameter("id2", type=float, description="Second path parameter")
+@path_parameter("id1", field_type=fields.Integer(), description="First path parameter")
+@path_parameter("id2", field_type=fields.Float(), description="Second path parameter")
 @path_parameter("id3", description="Id3")
 class Resource1(Resource):
     def get(self, request: Request, **path_params) -> Response:
@@ -15,7 +17,7 @@ class Resource1(Resource):
 
 
 @request_mapping(
-    "/path/:id", path_parameters=[PathParameter("id", "Super path parameter", int)]
+    "/path/:id", path_parameters=[PathParameter("id", "Super path parameter", fields.Integer())]
 )
 class Resource2(Resource):
     def get(self, request: Request, **path_params) -> Response:
@@ -44,7 +46,11 @@ class PathParameterTestCase(unittest.TestCase):
             "<title>400 Bad Request</title>\n"
             "<h1>Bad Request</h1>\n"
             "<p>Path parameter value 'hans' is not matching 'PathParameter(name='id2', "
-            "description='Second path parameter', type=<class 'float'>)' "
-            "(could not convert string to float: 'hans')</p>\n",
+            "description='Second path parameter', field_type=<fields.Float(default=<marshmallow.missing>, "
+            "attribute=None, validate=None, required=False, load_only=False, dump_only=False, "
+            "missing=<marshmallow.missing>, allow_none=False, error_messages={'required': 'Missing data for "
+            "required field.', 'null': 'Field may not be null.', 'validator_failed': 'Invalid value.', 'invalid': "
+            "'Not a valid number.', 'too_large': 'Number too large.', 'special': 'Special numeric values "
+            "(nan or infinity) are not permitted.'})>)' (Not a valid number.)</p>\n",
             response.text
         )

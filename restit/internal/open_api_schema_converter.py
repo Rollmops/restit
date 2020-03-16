@@ -1,29 +1,29 @@
 from typing import Union, Type
-from uuid import UUID
 
 from marshmallow import Schema, fields
+from marshmallow.fields import Field
+
+from restit.bytes_field import BytesField
 
 
 class OpenApiSchemaConverter:
-    _TYPE_MAP = {
-        fields.Integer: "integer"
-    }
     _PYTHON_TYPE_SCHEMA_MAPPING = {
-        int: {"type": "integer", "default": None},
-        str: {"type": "string"},
-        UUID: {"type": "string", "format": "uuid"},
-        bytes: {"type": "string", "format": "binary"}
+        fields.Integer: {"type": "integer", "default": None},
+        fields.String: {"type": "string"},
+        fields.UUID: {"type": "string", "format": "uuid"},
+        BytesField: {"type": "string", "format": "binary"}
     }
 
     @staticmethod
-    def convert(schema: Union[Schema, Type], spec_structure: dict = None) -> dict:
-        if isinstance(schema, Schema):
-            schema_definition = OpenApiSchemaConverter._create_open_api_schema_from_marshmallow(schema, spec_structure)
+    def convert(schema_or_field: Union[Schema, Field], spec_structure: dict = None) -> dict:
+        if isinstance(schema_or_field, Schema):
+            schema_definition = OpenApiSchemaConverter._create_open_api_schema_from_marshmallow(
+                schema_or_field, spec_structure
+            )
+        elif isinstance(schema_or_field, Field):
+            schema_definition = OpenApiSchemaConverter._PYTHON_TYPE_SCHEMA_MAPPING[schema_or_field.__class__]
         else:
-            try:
-                schema_definition = OpenApiSchemaConverter._PYTHON_TYPE_SCHEMA_MAPPING[schema]
-            except KeyError:
-                raise Exception(f"Type {schema} is not supported as request body type")
+            raise Exception(f"Type {schema_or_field} is not supported as request body type")
         return schema_definition
 
     @staticmethod
@@ -32,10 +32,7 @@ class OpenApiSchemaConverter:
             "description": schema.__doc__,
             "type": "object",
             "properties": {
-                name: {
-                    "type": OpenApiSchemaConverter._TYPE_MAP.get(field.__class__, "string"),
-                    "description": field.__doc__.split("\n")[0]
-                }
+                name: OpenApiSchemaConverter._create_property_item(field.__class__, field.__doc__)
                 for name, field in schema.fields.items()
             },
             "required": [name for name, field in schema.fields.items() if field.required]
@@ -49,3 +46,9 @@ class OpenApiSchemaConverter:
             return schema_definition
 
         return schema_component_definition
+
+    @staticmethod
+    def _create_property_item(field_type: Type, description: str) -> dict:
+        property_item = OpenApiSchemaConverter._PYTHON_TYPE_SCHEMA_MAPPING[field_type]
+        property_item["description"] = description
+        return property_item

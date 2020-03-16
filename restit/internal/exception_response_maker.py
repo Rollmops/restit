@@ -29,7 +29,7 @@ class HttpExceptionResponseMaker:
         else:
             response = self.create_plain_text_response()
 
-        response.serialize_response_body(http_accept)
+        response.validate_and_serialize_response_body(http_accept, None)
         return response
 
     def create_html_response(self) -> Response:

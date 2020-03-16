@@ -33,8 +33,15 @@ def create_dict_from_assignment_syntax(request_input_string: str, group_delimite
     }
 
 
-def guess_text_content_subtype(content: bytes) -> str:
+def guess_text_content_subtype_bytes(content: bytes) -> str:
     if b"<html>" in content or b"<title>" in content or b"<body>" in content:
+        return "text/html"
+
+    return "text/plain"
+
+
+def guess_text_content_subtype_string(content: str) -> str:
+    if "<html>" in content or "<title>" in content or "<body>" in content:
         return "text/html"
 
     return "text/plain"

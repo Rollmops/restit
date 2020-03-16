@@ -24,7 +24,7 @@ class MyRequestBodySchema(Schema):
 
 @request_mapping("/path")
 class FirstResource(Resource):
-    @query_parameter("param1", description="A query parameter", type=int, required=False, default=10)
+    @query_parameter("param1", description="A query parameter", field_type=fields.Integer(), required=False, default=10)
     def get(self, request: Request, **path_params) -> Response:
         """This is a summary.
 
@@ -35,11 +35,11 @@ class FirstResource(Resource):
     @request_body(
         {
             "application/json": MyRequestBodySchema(),
-            "image/png": bytes
+            "image/png": fields.String()
         }, description="A request body"
     )
-    @response_status(200, "Everything worked fine", content_types={"text/plain": int})
-    @response_status(None, "Hmm...some default", content_types={"text/plain": int})
+    @response_status(200, "Everything worked fine", content_types={"text/plain": fields.Integer()})
+    @response_status(None, "Hmm...some default", content_types={"text/plain": fields.Integer()})
     def post(self, request: Request, **path_params) -> Response:
         return Response("123", 201)
 
@@ -95,7 +95,8 @@ class OpenApiSpecTestCase(unittest.TestCase):
                             'required': False,
                             'schema': {
                                 'type': 'integer',
-                                'default': 10
+                                'default': 10,
+                                'description': 'An integer field.\n\n    :param strict: If `True`, only integer types are valid.\n        Otherwise, any value castable to `int` is valid.\n    :param kwargs: The same keyword arguments that :class:`Number` receives.\n    '
                             }
                         }],
                         'summary': 'This is a summary.',
@@ -109,7 +110,8 @@ class OpenApiSpecTestCase(unittest.TestCase):
                                     'text/plain': {
                                         'schema': {
                                             'type': 'integer',
-                                            'default': 10
+                                            'default': 10,
+                                            'description': 'An integer field.\n\n    :param strict: If `True`, only integer types are valid.\n        Otherwise, any value castable to `int` is valid.\n    :param kwargs: The same keyword arguments that :class:`Number` receives.\n    '
                                         }
                                     }
                                 }
@@ -120,7 +122,8 @@ class OpenApiSpecTestCase(unittest.TestCase):
                                     'text/plain': {
                                         'schema': {
                                             'type': 'integer',
-                                            'default': 10
+                                            'default': 10,
+                                            'description': 'An integer field.\n\n    :param strict: If `True`, only integer types are valid.\n        Otherwise, any value castable to `int` is valid.\n    :param kwargs: The same keyword arguments that :class:`Number` receives.\n    '
                                         }
                                     }
                                 }
@@ -141,7 +144,7 @@ class OpenApiSpecTestCase(unittest.TestCase):
                                 'image/png': {
                                     'schema': {
                                         'type': 'string',
-                                        'format': 'binary'
+                                        'description': 'Description for field1'
                                     }
                                 }
                             }
@@ -164,7 +167,8 @@ class OpenApiSpecTestCase(unittest.TestCase):
                             'description': '',
                             'schema': {
                                 'type': 'integer',
-                                'default': 10
+                                'default': 10,
+                                'description': 'An integer field.\n\n    :param strict: If `True`, only integer types are valid.\n        Otherwise, any value castable to `int` is valid.\n    :param kwargs: The same keyword arguments that :class:`Number` receives.\n    '
                             }
                         }, {
                             'name': 'id2',
@@ -172,7 +176,8 @@ class OpenApiSpecTestCase(unittest.TestCase):
                             'required': True,
                             'description': '',
                             'schema': {
-                                'type': 'string'
+                                'type': 'string',
+                                'description': 'Description for field1'
                             }
                         }],
                         'summary': None,
@@ -187,7 +192,8 @@ class OpenApiSpecTestCase(unittest.TestCase):
                             'description': '',
                             'schema': {
                                 'type': 'integer',
-                                'default': 10
+                                'default': 10,
+                                'description': 'An integer field.\n\n    :param strict: If `True`, only integer types are valid.\n        Otherwise, any value castable to `int` is valid.\n    :param kwargs: The same keyword arguments that :class:`Number` receives.\n    '
                             }
                         }, {
                             'name': 'id2',
@@ -195,7 +201,8 @@ class OpenApiSpecTestCase(unittest.TestCase):
                             'required': True,
                             'description': '',
                             'schema': {
-                                'type': 'string'
+                                'type': 'string',
+                                'description': 'Description for field1'
                             }
                         }],
                         'summary': 'Identifying allowed request methods.',
@@ -211,7 +218,8 @@ class OpenApiSpecTestCase(unittest.TestCase):
                         'properties': {
                             'field2': {
                                 'type': 'integer',
-                                'description': 'An integer field.'
+                                'default': 10,
+                                'description': 'An integer field.\n\n    :param strict: If `True`, only integer types are valid.\n        Otherwise, any value castable to `int` is valid.\n    :param kwargs: The same keyword arguments that :class:`Number` receives.\n    '
                             },
                             'field1': {
                                 'type': 'string',

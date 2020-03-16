@@ -104,7 +104,7 @@ class OpenApiDocumentation:
                 "description": query_parameter.description,
                 "required": query_parameter.required,
                 "schema": OpenApiDocumentation._get_schema_from_type_and_default(
-                    query_parameter.type, query_parameter.default
+                    query_parameter.field_type, query_parameter.default
                 )
             }
             for query_parameter in getattr(method_object, "__query_parameters__", [])
@@ -126,7 +126,7 @@ class OpenApiDocumentation:
                 "in": "path",
                 "required": True,
                 "description": path_parameter.description,
-                "schema": OpenApiDocumentation._get_schema_from_type_and_default(path_parameter.type, None)
+                "schema": OpenApiDocumentation._get_schema_from_type_and_default(path_parameter.field_type, None)
 
             } for name, path_parameter in path_parameters.items()
         ])
@@ -141,7 +141,6 @@ class OpenApiDocumentation:
     @staticmethod
     def _infer_path_params_and_open_api_path_syntax(path: str) -> Tuple[str, List[PathParameter]]:
         path_parameter_list = []
-
         def _handle_path_parameter(match: Match) -> str:
             path_parameter_list.append(
                 PathParameter(match.group(1), "", eval(match.group(2)) if match.group(2) else str)

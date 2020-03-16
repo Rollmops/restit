@@ -14,6 +14,7 @@ from restit.internal.default_response_serializer.default_dict_text_response_seri
 from restit.internal.default_response_serializer.default_str_text_response_serializer import \
     DefaultStrTextResponseSerializer
 from restit.internal.http_accept import HttpAccept
+from restit.internal.response_status_parameter import ResponseStatusParameter
 from restit.response_serializer import ResponseSerializer
 
 _DEFAULT_RESPONSE_SERIALIZER = [
@@ -52,14 +53,18 @@ class Response:
     def restore_default_response_serializer():
         Response._RESPONSE_SERIALIZER = _DEFAULT_RESPONSE_SERIALIZER.copy()
 
-    def serialize_response_body(self, http_accept: HttpAccept):
+    def validate_and_serialize_response_body(
+            self, http_accept: HttpAccept, response_status_parameter: Union[None, ResponseStatusParameter] = None
+    ):
         matching_response_serializer_list = self._get_matching_response_serializer_for_media_type(http_accept)
         if not matching_response_serializer_list:
             raise NotAcceptable()
 
         for response_serializer in matching_response_serializer_list:
             if isinstance(self._response_body_input, response_serializer.get_response_data_type()):
-                self.content, content_type = response_serializer.serialize(self._response_body_input)
+                self.content, content_type = response_serializer.validate_and_serialize(
+                    self._response_body_input, response_status_parameter
+                )
                 self.text = self.content.decode(encoding=self.get_headers()["Content-Encoding"])
                 self._set_headers(content_type)
                 return

@@ -1,5 +1,7 @@
 import logging
-from typing import Type, List
+from typing import List
+
+from marshmallow.fields import Field, String
 
 from restit.path_parameter import PathParameter
 
@@ -15,9 +17,9 @@ def register_path_parameter(path_parameter: PathParameter, clazz):
 
 
 # noinspection PyShadowingBuiltins
-def path_parameter(name: str, description: str, type: Type = str):
+def path_parameter(name: str, description: str, field_type: Field = String()):
     def decorator(clazz):
-        _path_parameter = PathParameter(name, description, type)
+        _path_parameter = PathParameter(name, description, field_type)
         register_path_parameter(_path_parameter, clazz)
         return clazz
 

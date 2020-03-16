@@ -1,7 +1,8 @@
-import json
-from typing import List, Tuple
+from typing import List, Tuple, Union
 
-from restit.common import get_default_encoding
+from restit.internal.default_response_serializer.default_dict_json_response_serializer import \
+    DefaultDictJsonResponseSerializer
+from restit.internal.response_status_parameter import ResponseStatusParameter
 from restit.response_serializer import ResponseSerializer
 
 
@@ -13,5 +14,11 @@ class DefaultDictTextResponseSerializer(ResponseSerializer):
     def get_response_data_type(self) -> type:
         return dict
 
-    def serialize(self, response_input: dict) -> Tuple[bytes, str]:
-        return json.dumps(response_input).encode(encoding=get_default_encoding()), "text/plain"
+    def validate_and_serialize(
+            self, response_input: dict, response_status_parameter: Union[None, ResponseStatusParameter]
+    ) -> Tuple[bytes, str]:
+        response_in_bytes, _ = DefaultDictJsonResponseSerializer().validate_and_serialize(
+            response_input, response_status_parameter
+        )
+
+        return response_in_bytes, "text/plain"

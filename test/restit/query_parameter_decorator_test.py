@@ -1,6 +1,7 @@
 import unittest
-from typing import List
 from uuid import UUID
+
+from marshmallow import fields
 
 from restit import RestitApp, RestitTestApp, Request
 from restit.query_parameter_decorator import query_parameter
@@ -11,8 +12,8 @@ from restit.response import Response
 
 @request_mapping("/1")
 class QueryParametersResource(Resource):
-    @query_parameter("param1", description="First parameter", type=int)
-    @query_parameter("uuid", description="uuid parameter", type=UUID)
+    @query_parameter("param1", description="First parameter", field_type=fields.Integer())
+    @query_parameter("uuid", description="uuid parameter", field_type=fields.UUID())
     def get(self, request: Request) -> Response:
         assert isinstance(request.get_query_parameters()["uuid"], UUID)
 
@@ -26,7 +27,7 @@ class QueryParametersResource(Resource):
 
 @request_mapping("/2")
 class QueryParameterListResource(Resource):
-    @query_parameter("int_list", description="A list of ints", type=List[int])
+    @query_parameter("int_list", description="A list of ints", field_type=fields.List(fields.Integer()))
     def get(self, request: Request, **path_params) -> Response:
         return Response(request.get_query_parameters())
 

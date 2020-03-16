@@ -1,6 +1,9 @@
-from typing import Any, List, Tuple
+from typing import Any, List, Tuple, Union
+
+from marshmallow import Schema
 
 from restit.internal.http_accept import HttpAccept
+from restit.internal.response_status_parameter import ResponseStatusParameter
 
 
 class ResponseSerializer:
@@ -20,6 +23,24 @@ class ResponseSerializer:
     def get_response_data_type(self) -> type:
         raise NotImplemented()
 
-    def serialize(self, response_input: Any) -> Tuple[bytes, str]:
+    def validate_and_serialize(
+            self, response_input: Any, response_status_parameter: Union[None, ResponseStatusParameter]
+    ) -> Tuple[bytes, str]:
         """Returns a tuple of the serialized bytes and the content type"""
         raise NotImplemented()
+
+    @staticmethod
+    def find_schema(
+            content_type: str, response_status_parameter: Union[None, ResponseStatusParameter]
+    ) -> Union[None, Schema]:
+        if response_status_parameter is not None:
+            try:
+                return response_status_parameter.content_types[content_type]
+            except KeyError:
+                raise ResponseSerializer.ContentTypeNotExpectedForResponseStatusException(content_type)
+
+    class ContentTypeNotExpectedForResponseStatusException(Exception):
+        pass
+
+    class ResponseBodyValidationFailedException(Exception):
+        pass
