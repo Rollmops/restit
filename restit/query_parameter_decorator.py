@@ -1,23 +1,18 @@
 import logging
-import warnings
 from collections import namedtuple
-from typing import Any, List
+from typing import List
 
 from marshmallow.fields import Field, String
 
 LOGGER = logging.getLogger(__name__)
 
-QueryParameter = namedtuple("QueryParameter", ["name", "description", "field_type", "required", "default"])
+QueryParameter = namedtuple("QueryParameter", ["name", "description", "field_type"])
 
 
 # noinspection PyShadowingBuiltins
-def query_parameter(
-        name: str, description: str, field_type: Field = String, required: bool = True, default: Any = None
-):
+def query_parameter(name: str, description: str, field_type: Field = String):
     def decorator(func):
-        _query_parameter = QueryParameter(name, description, field_type, required, default)
-        if required and default is not None:
-            warnings.warn(f"Specified default value '{default}' for required query parameter {name}")
+        _query_parameter = QueryParameter(name, description, field_type)
         registered_query_parameters: List[QueryParameter] = getattr(func, "__query_parameters__", [])
         LOGGER.debug(
             "Registering query parameter %s for %s", _query_parameter, func.__name__

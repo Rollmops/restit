@@ -63,9 +63,7 @@ class OpenApiDocumentation:
             for response_status_parameter in response_status_parameters:  # type: ResponseStatusParameter
                 method_spec["responses"][response_status_parameter.status or "default"] = {
                     "description": response_status_parameter.description,
-                    "content": OpenApiDocumentation._create_content_field(
-                        response_status_parameter.content_types, spec_structure
-                    )
+                    "content": OpenApiDocumentation._create_content_field(response_status_parameter.content_types)
                 }
 
     @staticmethod
@@ -80,13 +78,11 @@ class OpenApiDocumentation:
             method_spec["requestBody"] = {
                 "description": request_body_parameter.description,
                 "required": request_body_parameter.required,
-                "content": OpenApiDocumentation._create_content_field(
-                    request_body_parameter.content_types, spec_structure
-                )
+                "content": OpenApiDocumentation._create_content_field(request_body_parameter.content_types)
             }
 
     @staticmethod
-    def _create_content_field(content_types: dict, spec_structure: dict):
+    def _create_content_field(content_types: dict):
         return {
             content_type:
                 {
@@ -102,7 +98,7 @@ class OpenApiDocumentation:
                 "name": query_parameter.name,
                 "in": "query",
                 "description": query_parameter.description,
-                "required": query_parameter.required,
+                "required": query_parameter.field_type.required,
                 "schema": OpenApiSchemaConverter.convert(query_parameter.field_type)
             }
             for query_parameter in getattr(method_object, "__query_parameters__", [])

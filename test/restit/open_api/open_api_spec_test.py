@@ -38,7 +38,8 @@ EXPECTED_OPEN_API_DICT = {
                     'required': False,
                     'schema': {
                         'type': 'integer',
-                        'description': 'An integer field.'
+                        'description': 'An integer field.',
+                        'default': 10
                     }
                 }],
                 'summary': 'This is a summary.',
@@ -52,7 +53,8 @@ EXPECTED_OPEN_API_DICT = {
                             'text/plain': {
                                 'schema': {
                                     'type': 'integer',
-                                    'description': 'An integer field.'
+                                    'description': 'An integer field.',
+                                    'default': 10
                                 }
                             }
                         }
@@ -63,7 +65,8 @@ EXPECTED_OPEN_API_DICT = {
                             'text/plain': {
                                 'schema': {
                                     'type': 'integer',
-                                    'description': 'An integer field.'
+                                    'description': 'An integer field.',
+                                    'default': 10
                                 }
                             }
                         }
@@ -78,17 +81,18 @@ EXPECTED_OPEN_API_DICT = {
                     'content': {
                         'application/json': {
                             'schema': {
-                                'required': [],
+                                'required': ['field1'],
                                 'type': 'object',
                                 'description': 'A bird with a flight speed exceeding that of an unladen swallow.\n    ',
                                 'properties': {
+                                    'field2': {
+                                        'type': 'integer',
+                                        'description': 'An integer field.',
+                                        'default': 10
+                                    },
                                     'field1': {
                                         'type': 'string',
                                         'description': 'A string field.'
-                                    },
-                                    'field2': {
-                                        'type': 'integer',
-                                        'description': 'An integer field.'
                                     }
                                 }
                             }
@@ -119,7 +123,8 @@ EXPECTED_OPEN_API_DICT = {
                     'description': '',
                     'schema': {
                         'type': 'integer',
-                        'description': 'An integer field.'
+                        'description': 'An integer field.',
+                        'default': 10
                     }
                 }, {
                     'name': 'id2',
@@ -143,7 +148,8 @@ EXPECTED_OPEN_API_DICT = {
                     'description': '',
                     'schema': {
                         'type': 'integer',
-                        'description': 'An integer field.'
+                        'description': 'An integer field.',
+                        'default': 10
                     }
                 }, {
                     'name': 'id2',
@@ -172,14 +178,14 @@ class MyRequestBodySchema(Schema):
 
     __reusable_open_api_component__ = True
 
-    field1 = fields.String()
+    field1 = fields.String(required=True)
     field1.__doc__ = "Description for field1"
     field2 = fields.Integer()
 
 
 @request_mapping("/path")
 class FirstResource(Resource):
-    @query_parameter("param1", description="A query parameter", field_type=fields.Integer(), required=False, default=10)
+    @query_parameter("param1", description="A query parameter", field_type=fields.Integer(default=10))
     def get(self, request: Request, **path_params) -> Response:
         """This is a summary.
 
@@ -190,8 +196,8 @@ class FirstResource(Resource):
     @request_body(
         {
             "application/json": MyRequestBodySchema(),
-            "image/png": fields.String()
-        }, description="A request body"
+            "image/png": fields.String(required=True)
+        }, description="A request body", required=True
     )
     @response_status(200, {"text/plain": fields.Integer()}, "Everything worked fine")
     @response_status(None, {"text/plain": fields.Integer()}, "Hmm...some default")

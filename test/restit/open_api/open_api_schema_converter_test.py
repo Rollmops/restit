@@ -7,7 +7,7 @@ from restit.open_api.open_api_schema_converter import OpenApiSchemaConverter
 
 class SimpleSchema(Schema):
     """My simple schema."""
-    field1 = fields.Integer(required=True)
+    field1 = fields.Integer(required=True, default=1)
     field1.__doc__ = "Doc of field1"
     field2 = fields.String()
     field3 = fields.UUID()
@@ -34,6 +34,7 @@ class OpenApiSchemaConverterTestCase(unittest.TestCase):
             'description': 'My simple schema.',
             'properties': {
                 'field1': {
+                    'default': 1,
                     'description': 'Doc of field1',
                     'type': 'integer'
                 },
@@ -61,6 +62,7 @@ class OpenApiSchemaConverterTestCase(unittest.TestCase):
                     'description': 'My simple schema.',
                     'properties': {
                         'field1': {
+                            'default': 1,
                             'description': 'Doc '
                                            'of '
                                            'field1',
@@ -120,6 +122,7 @@ class OpenApiSchemaConverterTestCase(unittest.TestCase):
                                            'schema.',
                             'properties': {
                                 'field1': {
+                                    'default': 1,
                                     'description': 'Doc '
                                                    'of '
                                                    'field1',

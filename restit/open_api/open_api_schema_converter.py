@@ -1,5 +1,6 @@
 from typing import Union
 
+import marshmallow
 from marshmallow import Schema, fields
 from marshmallow.fields import Field, Nested
 
@@ -63,6 +64,8 @@ class OpenApiSchemaConverter:
     def convert_field(field: Field) -> dict:
         field_schema = OpenApiSchemaConverter._SCHEMA_TYPE_MAPPING[field.__class__]
         field_schema["description"] = OpenApiSchemaConverter._get_first_doc_line(str(field.__doc__))
+        if field.default != marshmallow.missing:
+            field_schema["default"] = field.default
         return field_schema
 
     @staticmethod
