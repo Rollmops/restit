@@ -71,5 +71,5 @@ class ResponseSerializerService:
 
         raise Response.ResponseBodyTypeNotSupportedException(
             f"Unable to find response data serializer for {http_accept} and response data type "
-            f"{type(self._response_body_input)}"
+            f"{type(response.response_body_input)}"
         )

@@ -108,3 +108,10 @@ class ResponseSerializerTestCase(unittest.TestCase):
 
         self.assertEqual(b'huhu', response.content)
         self.assertEqual("text/plain", response._headers["Content-Type"])
+
+    def test_response_body_type_not_supported(self):
+        response = Response(1.0)
+        with self.assertRaises(Response.ResponseBodyTypeNotSupportedException):
+            ResponseSerializerService.validate_and_serialize_response_body(
+                response, HttpAccept.from_accept_string("application/json")
+            )

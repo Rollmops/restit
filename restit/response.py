@@ -1,6 +1,6 @@
 from http import HTTPStatus
 from json import loads
-from typing import Union
+from typing import Union, Any
 
 from restit.common import get_default_encoding
 
@@ -9,7 +9,7 @@ class Response:
 
     def __init__(
             self,
-            response_body: Union[str, dict, bytes],
+            response_body: Any,
             status_code: Union[int, HTTPStatus] = 200,
             headers: dict = None
     ):
