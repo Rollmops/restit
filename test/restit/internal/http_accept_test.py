@@ -54,3 +54,10 @@ class HttpAcceptTestCase(unittest.TestCase):
             ("text/*", MIMEType("text", "html")),
             http_accept.get_best_match(["text/*", "application/xml"])
         )
+
+    def test_str_hook(self):
+        http_accept = HttpAccept([MIMEType("text", "html")])
+
+        self.assertEqual(
+            "HttpAccept(['MIMEType(type=text, subtype=html, quality=1.0, details={})'])", str(http_accept)
+        )

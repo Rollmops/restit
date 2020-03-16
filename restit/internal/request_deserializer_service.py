@@ -33,10 +33,6 @@ class RequestDeserializerService:
         RequestDeserializerService._REQUEST_DESERIALIZER = _DEFAULT_REQUEST_DESERIALIZER.copy()
 
     @staticmethod
-    def is_body_deserializable_to_type(content_type: str, python_type: Type) -> bool:
-        return RequestDeserializerService._find_deserializer(content_type, python_type) is not None
-
-    @staticmethod
     def deserialize_request_body(body: bytes, content_type: str, python_type: Type, encoding: str) -> Any:
         request_deserializer = RequestDeserializerService._find_deserializer(content_type, python_type)
         if request_deserializer is None:

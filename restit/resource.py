@@ -1,5 +1,6 @@
 import ast
 import inspect
+import logging
 import re
 from typing import Tuple, AnyStr, Dict, Union, List
 
@@ -16,6 +17,8 @@ from restit.path_parameter_decorator import PathParameter
 from restit.query_parameter_decorator import QueryParameter
 from restit.request import Request
 from restit.response import Response
+
+LOGGER = logging.getLogger(__name__)
 
 
 class Resource:
@@ -87,6 +90,8 @@ class Resource:
             if response_status_parameter.status == status:
                 return response_status_parameter
 
+        LOGGER.warning("Response status code %d is not expected for %s", status, method_object)
+
     @staticmethod
     def _validate_request_body(method_object: object, request: Request) -> Request:
         request_body_properties: RequestBodyProperties = \
@@ -99,7 +104,7 @@ class Resource:
     @staticmethod
     def _process_query_parameters(method_object, request):
         for query_parameter in getattr(method_object, "__query_parameters__", []):  # type: QueryParameter
-            value: str = request.get_query_parameters().get(query_parameter.name)
+            value: str = request.get_query_parameters().get(query_parameter.name, )
             if value is None and query_parameter.required:
                 # ToDo message
                 raise BadRequest()

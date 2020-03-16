@@ -1,6 +1,7 @@
 import requests
 
 from restit import Hyperlink
+from restit.internal.default_favicon_resource import DefaultFaviconResource
 from restit.request import Request
 from restit.request_mapping_decorator import request_mapping
 from restit.resource import Resource
@@ -11,7 +12,7 @@ from test.base_test_server_test_case import BaseTestServerTestCase
 
 @request_mapping("/")
 class MyResource(Resource):
-    def get(self, request: Request) -> Response:
+    def get(self, request: Request, **kwargs) -> Response:
         return Response("Hallo")
 
 
@@ -22,7 +23,7 @@ class NoMethodsResource(Resource):
 
 @request_mapping("/miau")
 class MyResource2(Resource):
-    def get(self, request: Request) -> Response:
+    def get(self, request: Request, **kwargs) -> Response:
         return Response("wuff")
 
     def post(self, request: Request, **path_params) -> Response:
@@ -38,19 +39,13 @@ class ResourceWithPathParams(Resource):
 
 @request_mapping("/error")
 class ErrorResource(Resource):
-    def get(self, request: Request) -> Response:
+    def get(self, request: Request, **kwargs) -> Response:
         raise Exception("OH NOOOO")
-
-
-@request_mapping("/send-json")
-class SendJsonResource(Resource):
-    def get(self, request: Request) -> Response:
-        return Response({"key": "value"})
 
 
 @request_mapping("/resource_with_hyperlink")
 class ResourceWithHyperLink(Resource):
-    def get(self, request: Request) -> Response:
+    def get(self, request: Request, **kwargs) -> Response:
         return Response({
             "hyperlink_with_path_params": Hyperlink(ResourceWithPathParams).generate(request, id=10),
             "hyperlink": Hyperlink(MyResource).generate(request)
@@ -59,7 +54,7 @@ class ResourceWithHyperLink(Resource):
 
 @request_mapping("/resource_with_hyperlink_error")
 class ResourceWithHyperLinkError(Resource):
-    def get(self, request: Request) -> Response:
+    def get(self, request: Request, **kwargs) -> Response:
         return Response({
             "hyperlink_with_path_params": Hyperlink(ResourceWithPathParams).generate(request, not_there=10),
         })
@@ -74,9 +69,9 @@ class RestitAppTestCase(BaseTestServerTestCase):
             ResourceWithPathParams(),
             ErrorResource(),
             NoMethodsResource(),
-            SendJsonResource(),
             ResourceWithHyperLink(),
-            ResourceWithHyperLinkError()
+            ResourceWithHyperLinkError(),
+            DefaultFaviconResource()
         ]
         BaseTestServerTestCase.setUpClass()
 
@@ -162,3 +157,8 @@ class RestitAppTestCase(BaseTestServerTestCase):
             "{'not_there': 10}</p>\n",
             response.text
         )
+
+    def test_default_favicon(self):
+        response = requests.get(f"http://127.0.0.1:{self.port}/favicon.ico")
+        self.assertEqual(200, response.status_code)
+        self.assertEqual("", response.text)
