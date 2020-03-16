@@ -137,7 +137,7 @@ class RestitApp:
         if resource is not None:
             # noinspection PyBroadException
             # noinspection PyProtectedMember
-            response = resource._handle_request(
+            response = resource.handle_request(
                 request_method=request.get_request_method_name(),
                 request=request,
                 path_params=path_params

@@ -124,7 +124,8 @@ class RestitAppTestCase(BaseTestServerTestCase):
         )
 
     def test_internal_server_error_as_rfc7807_json(self):
-        response = requests.get(f"http://127.0.0.1:{self.port}/error", headers={'Accept': "application/json"})
+        response = requests.get(f"http://127.0.0.1:{self.port}/error",
+                                headers={'Accept': "application/json", "Accept-Charset": "utf-8"})
         self.assertEqual(500, response.status_code)
         self.assertEqual({
             'detail': 'OH NOOOO',

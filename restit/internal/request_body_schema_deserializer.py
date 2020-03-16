@@ -18,11 +18,10 @@ class RequestBodySchemaDeserializer:
                     f"Request body schema deserialization failed ({str(error)})"
                 )
         else:
-            body_as_string = request.get_request_body_as_type(str)
-            try:
-                request._body_type_cache[schema_or_type] = schema_or_type(body_as_string)
-            except Exception as error:
-                raise request_body_properties.validation_error_class(
-                    f"Request body schema deserialization failed ({str(error)})"
-                )
+            RequestBodySchemaDeserializer.UnsupportedRequestBodySchemaType(
+                f"Currently only schema type Schema is supported for request body validation"
+            )
         request.get_request_body_as_type.cache_clear()
+
+    class UnsupportedRequestBodySchemaType(Exception):
+        pass

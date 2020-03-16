@@ -32,7 +32,8 @@ class Request:
             "Accept": wsgi_environment.get("HTTP_ACCEPT", "*/*"),
             "Accept-Encoding": wsgi_environment.get("HTTP_ACCEPT_ENCODING", get_default_encoding()),
             "Content-Type": wsgi_environment["CONTENT_TYPE"],
-            "Content-Encoding": wsgi_environment.get("CONTENT_ENCODING")
+            "Content-Encoding": wsgi_environment.get("CONTENT_ENCODING"),
+            "Accept-Charset": wsgi_environment.get("HTTP_ACCEPT_CHARSET", get_default_encoding())
         }
 
     def _get_body_from_wsgi_environment(self, wsgi_environment: dict) -> bytes:
@@ -43,7 +44,8 @@ class Request:
         return self._body_type_cache.get(
             python_type,
             self._request_deserializer_service.deserialize_request_body(
-                self.get_body(), self.get_content_type(), python_type, self.get_encoding()
+                self.get_body(), self.get_content_type(), python_type,
+                self.get_headers().get("Accept-Charset", get_default_encoding())
             )
         )
 

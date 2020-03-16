@@ -1,6 +1,6 @@
 from io import BytesIO
 from json import dumps
-from typing import Union
+from typing import Union, Tuple
 from urllib.parse import urlparse
 from wsgiref.util import setup_testing_defaults
 
@@ -21,25 +21,31 @@ class RestitTestApp(RestitApp):
         )
         self._init()
 
-    def get(self, path: str, json: dict = None, data: dict = None, headers: dict = None) -> Response:
+    def get(self, path: str, json: dict = None, data: Union[dict, str, bytes] = None, headers: dict = None) -> Response:
         return self._get_response_for_method(path, json, data, headers, "GET")
 
-    def post(self, path: str, json: dict = None, data: dict = None, headers: dict = None) -> Response:
+    def post(
+            self, path: str, json: dict = None, data: Union[dict, str, bytes] = None, headers: dict = None) -> Response:
         return self._get_response_for_method(path, json, data, headers, "POST")
 
-    def put(self, path: str, json: dict = None, data: dict = None, headers: dict = None) -> Response:
+    def put(
+            self, path: str, json: dict = None, data: Union[dict, str, bytes] = None, headers: dict = None) -> Response:
         return self._get_response_for_method(path, json, data, headers, "PUT")
 
-    def delete(self, path: str, json: dict = None, data: dict = None, headers: dict = None) -> Response:
+    def delete(
+            self, path: str, json: dict = None, data: Union[dict, str, bytes] = None, headers: dict = None) -> Response:
         return self._get_response_for_method(path, json, data, headers, "DELETE")
 
-    def patch(self, path: str, json: dict = None, data: dict = None, headers: dict = None) -> Response:
+    def patch(
+            self, path: str, json: dict = None, data: Union[dict, str, bytes] = None, headers: dict = None) -> Response:
         return self._get_response_for_method(path, json, data, headers, "PATCH")
 
-    def options(self, path: str, json: dict = None, data: dict = None, headers: dict = None) -> Response:
+    def options(
+            self, path: str, json: dict = None, data: Union[dict, str, bytes] = None, headers: dict = None) -> Response:
         return self._get_response_for_method(path, json, data, headers, "OPTIONS")
 
-    def _get_response_for_method(self, path: str, json: dict, data: dict, headers: dict, method: str):
+    def _get_response_for_method(
+            self, path: str, json: dict, data: Union[dict, str, bytes], headers: dict, method: str):
         wsgi_environment = self._create_wsgi_environment(json, data, headers, path, method)
         response = self._get_response(wsgi_environment)
         return response
@@ -60,26 +66,38 @@ class RestitTestApp(RestitApp):
         parsed_path = urlparse(path)
         setup_testing_defaults(wsgi_environment)
         body_as_bytes = b""
+        wsgi_environment["HTTP_ACCEPT"] = header.get("Accept", "*/*")
+        wsgi_environment["HTTP_ACCEPT_CHARSET"] = header.get("Accept-Charset", get_default_encoding())
+        wsgi_environment["CONTENT_ENCODING"] = header.get("Content-Encoding", "gzip, deflate")
+        wsgi_environment["HTTP_ACCEPT_ENCODING"] = header.get("Accept-Encoding", "gzip, deflate")
+        content_type = "application/octet-stream"
+        accept_charset = header.get("Accept-Charset", get_default_encoding())
         if json is not None:
-            body_as_bytes = dumps(json).encode(encoding=get_default_encoding())
+            body_as_bytes = dumps(json).encode(encoding=accept_charset)
+            content_type = "application/json"
         elif data is not None:
-            body_as_bytes = "&".join([f"{key}={value}" for key, value in data.items()])
-            body_as_bytes = body_as_bytes.encode(encoding=get_default_encoding())
+            body_as_bytes, content_type = \
+                self._get_body_as_bytes_from_data_argument(data, accept_charset)
         wsgi_environment["REQUEST_METHOD"] = method
         wsgi_environment["PATH_INFO"] = parsed_path.path
         wsgi_environment["CONTENT_LENGTH"] = len(body_as_bytes)
         wsgi_environment["wsgi.input"] = BytesIO(body_as_bytes)
         wsgi_environment["QUERY_STRING"] = parsed_path.query
-        wsgi_environment["HTTP_ACCEPT"] = header.get("Accept", "*/*")
-        wsgi_environment["HTTP_ACCEPT_ENCODING"] = header.get("Accept-Encoding", "gzip, deflate")
-        wsgi_environment["CONTENT_TYPE"] = header.get("Content-Type", self._get_content_type(json, data))
+        wsgi_environment["CONTENT_TYPE"] = header.get("Content-Type", content_type)
         return wsgi_environment
 
     @staticmethod
-    def _get_content_type(json: Union[dict, None], data: Union[dict, None]):
-        if json is not None:
-            return "application/json"
-        elif data is not None:
-            return "application/x-www-form-urlencoded"
+    def _get_body_as_bytes_from_data_argument(
+            data: Union[dict, str, bytes], accept_charset: str) -> Tuple[bytes, str]:
+        if isinstance(data, dict):
+            body_as_bytes = "&".join([f"{key}={value}" for key, value in data.items()])
+            return body_as_bytes.encode(encoding=accept_charset), "application/x-www-form-urlencoded"
+        elif isinstance(data, str):
+            return data.encode(encoding=accept_charset), "text/plain"
+        elif isinstance(data, bytes):
+            return data, "text/plain"
         else:
-            return "*/*"
+            raise RestitTestApp.UnsupportedDataTypeException(type(data))
+
+    class UnsupportedDataTypeException(Exception):
+        pass

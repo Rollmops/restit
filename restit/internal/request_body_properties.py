@@ -1,6 +1,7 @@
 from typing import Dict, Union, Type
 
 from marshmallow import Schema, ValidationError
+from marshmallow.fields import Field
 from werkzeug.exceptions import UnprocessableEntity, UnsupportedMediaType
 
 from restit.request import Request
@@ -9,7 +10,7 @@ from restit.request import Request
 class RequestBodyProperties:
     def __init__(
             self,
-            content_types: Dict[str, Union[Schema, Type]],
+            content_types: Dict[str, Union[Schema, Field]],
             description: str,
             required: bool, validation_error_class=UnprocessableEntity
     ):

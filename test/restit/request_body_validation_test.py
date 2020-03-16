@@ -1,6 +1,7 @@
 import requests
 from marshmallow import Schema, fields
 
+from restit import RestitTestApp, RestitApp
 from restit.request import Request
 from restit.request_body_decorator import request_body
 from restit.request_mapping_decorator import request_mapping
@@ -42,3 +43,15 @@ class RequestBodyValidationTestCase(BaseTestServerTestCase):
             "<h1>Unprocessable Entity</h1>\n"
             "<p>Request body schema deserialization failed ({'param1': ['Not a valid integer.']})</p>\n", response.text
         )
+
+    def test_request_body_schema_type_not_supported(self):
+        @request_mapping("/dummy")
+        class DummyResource(Resource):
+
+            @request_body({"text/plain": str}, description="Not supported type")
+            def get(self, request: Request, **path_params) -> Response:
+                return Response("")
+
+        restit_test_app = RestitTestApp(RestitApp(resources=[DummyResource()]))
+        response = restit_test_app.get("/dummy", data="plain string")
+        self.assertEqual(200, response.get_status_code())

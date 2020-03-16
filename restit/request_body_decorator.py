@@ -1,7 +1,8 @@
 import logging
-from typing import Dict, Union, Type
+from typing import Dict, Union
 
 from marshmallow import Schema
+from marshmallow.fields import Field
 from werkzeug.exceptions import UnprocessableEntity
 
 from restit.internal.request_body_properties import RequestBodyProperties
@@ -10,7 +11,7 @@ LOGGER = logging.getLogger(__name__)
 
 
 def request_body(
-        content_types: Dict[str, Union[Schema, Type]],
+        content_types: Dict[str, Union[Schema, Field]],
         description: str,
         required: bool = True,
         validation_error_class=UnprocessableEntity

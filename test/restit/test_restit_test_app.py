@@ -55,6 +55,8 @@ class PassHeadersResource(Resource):
                 'Accept': headers["Accept"],
                 'Accept-Encoding': headers["Accept-Encoding"],
                 'Content-Type': headers["Content-Type"],
+                'Content-Encoding': headers["Content-Encoding"],
+                'Accept-Charset': headers["Accept-Charset"]
             })
 
 
@@ -147,12 +149,14 @@ class RestitTestAppTestCase(unittest.TestCase):
             self.assertEqual(405, self.resit_test_app.patch("/no_methods").get_status_code())
 
     def test_pass_headers(self):
-        response = self.resit_test_app.get("/pass_headers")
+        response = self.resit_test_app.get("/pass_headers", headers={"Accept-Charset": "utf-8"})
         self.assertEqual(200, response.get_status_code())
         self.assertEqual({
             'Accept': '*/*',
+            'Accept-Charset': 'utf-8',
             'Accept-Encoding': 'gzip, deflate',
-            'Content-Type': '*/*',
+            'Content-Encoding': 'gzip, deflate',
+            'Content-Type': 'application/octet-stream'
         }, response.json())
 
     def test_hyperlinks(self):

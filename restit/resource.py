@@ -67,7 +67,7 @@ class Resource:
     def head(self, request: Request, **path_params) -> Response:
         raise MethodNotAllowed()
 
-    def _handle_request(self, request_method: str, request: Request, path_params: Dict) -> Response:
+    def handle_request(self, request_method: str, request: Request, path_params: Dict) -> Response:
         method_object = getattr(self, request_method.lower())
         passed_path_parameters = self._collect_and_convert_path_parameters(path_params)
         self._process_query_parameters(method_object, request)
