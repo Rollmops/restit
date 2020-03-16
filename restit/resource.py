@@ -9,6 +9,7 @@ from werkzeug.exceptions import MethodNotAllowed, BadRequest
 from restit.internal.request_body_properties import RequestBodyProperties
 from restit.internal.request_body_schema_deserializer import RequestBodySchemaDeserializer
 from restit.internal.resource_path import ResourcePath
+from restit.internal.response_serializer_service import ResponseSerializerService
 from restit.internal.response_status_parameter import ResponseStatusParameter
 from restit.internal.type_converter.schema_or_field_deserializer import SchemaOrFieldDeserializer
 from restit.path_parameter_decorator import PathParameter
@@ -72,9 +73,11 @@ class Resource:
         passed_path_parameters = self._collect_and_convert_path_parameters(path_params)
         self._process_query_parameters(method_object, request)
         request = self._validate_request_body(method_object, request)
-        response = method_object(request, **passed_path_parameters)
+        response: Response = method_object(request, **passed_path_parameters)
         response_status_parameter = Resource._find_response_schema_by_status(response.get_status_code(), method_object)
-        response.validate_and_serialize_response_body(request.get_http_accept_object(), response_status_parameter)
+        ResponseSerializerService.validate_and_serialize_response_body(
+            response, request.get_http_accept_object(), response_status_parameter
+        )
         return response
 
     @staticmethod
@@ -103,7 +106,7 @@ class Resource:
 
             value = ast.literal_eval(value) if value.startswith("[") else value
             # noinspection PyProtectedMember
-            request._query_parameters[query_parameter.name] = SchemaOrFieldDeserializer.convert(
+            request._query_parameters[query_parameter.name] = SchemaOrFieldDeserializer.deserialize(
                 value, query_parameter.field_type
             )
 
@@ -117,7 +120,7 @@ class Resource:
                 )
             try:
                 path_params[path_parameter.name] = \
-                    SchemaOrFieldDeserializer.convert(path_parameter_value, path_parameter.field_type)
+                    SchemaOrFieldDeserializer.deserialize(path_parameter_value, path_parameter.field_type)
             except ValidationError as error:
                 raise BadRequest(
                     f"Path parameter value '{path_parameter_value}' is not matching '{path_parameter}' "

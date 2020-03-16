@@ -1,4 +1,5 @@
 from restit.internal.http_accept import HttpAccept
+from restit.internal.response_serializer_service import ResponseSerializerService
 from restit.response import Response
 from restit.rfc7807_http_problem import Rfc7807HttpProblem
 
@@ -29,7 +30,7 @@ class HttpExceptionResponseMaker:
         else:
             response = self.create_plain_text_response()
 
-        response.validate_and_serialize_response_body(http_accept, None)
+        ResponseSerializerService.validate_and_serialize_response_body(response, http_accept, None)
         return response
 
     def create_html_response(self) -> Response:

@@ -1,10 +1,8 @@
 from typing import Dict, Union, Type
 
-from marshmallow import Schema, ValidationError
+from marshmallow import Schema
 from marshmallow.fields import Field
 from werkzeug.exceptions import UnprocessableEntity, UnsupportedMediaType
-
-from restit.request import Request
 
 
 class RequestBodyProperties:
@@ -18,6 +16,7 @@ class RequestBodyProperties:
         self.description = description
         self.required = required
         self.validation_error_class = validation_error_class
+        self._check_request_properties_schema_type()
 
     def get_schema_for_content_type(self, content_type: str) -> Union[Schema, Type]:
         try:
@@ -25,12 +24,10 @@ class RequestBodyProperties:
         except KeyError:
             raise UnsupportedMediaType()
 
-    def validate(self, request: Request) -> str:
-        schema_or_type = self.get_schema_for_content_type(request.get_content_type())
-        try:
-            body_as_dict = request.get_request_body_as_type(dict)
-            return schema_or_type.dumps(body_as_dict)
-        except (ValidationError, ValueError) as error:
-            raise self.validation_error_class(
-                f"Request body validation failed ({str(error)})"
-            )
+    def _check_request_properties_schema_type(self):
+        for schema_or_field in self.content_types.values():
+            if not isinstance(schema_or_field, (Field, Schema)):
+                raise RequestBodyProperties.UnsupportedSchemaTypeException(type(schema_or_field))
+
+    class UnsupportedSchemaTypeException(Exception):
+        pass

@@ -1,7 +1,7 @@
 import requests
 from marshmallow import Schema, fields
 
-from restit import RestitTestApp, RestitApp
+from restit.internal.request_body_properties import RequestBodyProperties
 from restit.request import Request
 from restit.request_body_decorator import request_body
 from restit.request_mapping_decorator import request_mapping
@@ -41,17 +41,14 @@ class RequestBodyValidationTestCase(BaseTestServerTestCase):
         self.assertEqual(
             "<title>422 Unprocessable Entity</title>\n"
             "<h1>Unprocessable Entity</h1>\n"
-            "<p>Request body schema deserialization failed ({'param1': ['Not a valid integer.']})</p>\n", response.text
+            "<p>Request body schema deserialization failed (invalid literal for int() with base 10: 'hans')</p>\n",
+            response.text
         )
 
     def test_request_body_schema_type_not_supported(self):
-        @request_mapping("/dummy")
-        class DummyResource(Resource):
+        with self.assertRaises(RequestBodyProperties.UnsupportedSchemaTypeException):
+            RequestBodyProperties({"text/plain": str}, "", True)
 
-            @request_body({"text/plain": str}, description="Not supported type")
-            def get(self, request: Request, **path_params) -> Response:
-                return Response("")
-
-        restit_test_app = RestitTestApp(RestitApp(resources=[DummyResource()]))
-        response = restit_test_app.get("/dummy", data="plain string")
-        self.assertEqual(200, response.get_status_code())
+    def test_unsupported_media_type(self):
+        response = requests.post(f"http://127.0.0.1:{self.port}/miau", json={"param1": "hans", "param2": 222})
+        self.assertEqual(415, response.status_code)

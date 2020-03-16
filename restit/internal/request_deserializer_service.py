@@ -41,7 +41,7 @@ class RequestDeserializerService:
         request_deserializer = RequestDeserializerService._find_deserializer(content_type, python_type)
         if request_deserializer is None:
             raise RequestDeserializerService.NoRequestDeserializerFoundException(
-                f"Unable to find a request deserializer from content type {content_type} "
+                f"Unable to find a request deserializer for content type {content_type} "
                 f"to type {python_type}"
             )
         deserialized_value = request_deserializer.deserialize(body, encoding=encoding)

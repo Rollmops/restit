@@ -17,7 +17,7 @@ class RestitTestApp(RestitApp):
             resources=restit_app._resources,
             namespaces=restit_app._namespaces,
             debug=restit_app._debug,
-
+            raise_exceptions=restit_app._raise_exceptions
         )
         self._init()
 
