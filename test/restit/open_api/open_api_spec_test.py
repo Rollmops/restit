@@ -3,8 +3,9 @@ import unittest
 import requests
 from marshmallow import Schema, fields
 
-from restit import Resource, Response, Request, request_mapping, RestitApp, OpenApiDocumentation, query_parameter, \
+from restit import Resource, Response, Request, request_mapping, RestitApp, query_parameter, \
     request_body
+from restit.open_api import OpenApiDocumentation
 from restit.open_api.contact_object import ContactObject
 from restit.open_api.info_object import InfoObject
 from restit.open_api.license_object import LicenseObject

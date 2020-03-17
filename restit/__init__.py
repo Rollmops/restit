@@ -1,4 +1,3 @@
-from restit.open_api.open_api_documentation import OpenApiDocumentation
 from .development_server import DevelopmentServer
 from .hyperlink import Hyperlink
 from .namespace import Namespace

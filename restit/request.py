@@ -28,12 +28,15 @@ class Request:
 
     @staticmethod
     def _get_headers(wsgi_environment: dict) -> dict:
-        return {
+        header = {
             "Accept": wsgi_environment.get("HTTP_ACCEPT", "*/*"),
             "Accept-Encoding": wsgi_environment.get("HTTP_ACCEPT_ENCODING", get_default_encoding()),
-            "Content-Type": wsgi_environment["CONTENT_TYPE"],
+            "Content-Type": wsgi_environment.get("CONTENT_TYPE"),
             "Content-Encoding": wsgi_environment.get("CONTENT_ENCODING"),
             "Accept-Charset": wsgi_environment.get("HTTP_ACCEPT_CHARSET", get_default_encoding())
+        }
+        return {
+            key: value for key, value in header.items() if value is not None
         }
 
     def _get_body_from_wsgi_environment(self, wsgi_environment: dict) -> bytes:
