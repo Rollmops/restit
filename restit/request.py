@@ -1,105 +1,99 @@
 from functools import lru_cache
-from typing import Any, Type
+from io import BufferedReader
 from urllib.parse import quote
-
-import werkzeug
 
 from restit.common import create_dict_from_assignment_syntax, get_default_encoding
 from restit.internal.http_accept import HttpAccept
+from restit.internal.mime_type import MIMEType
 from restit.internal.request_deserializer_service import RequestDeserializerService
+from restit.internal.typed_body import TypedBody
 
 
 class Request:
     """https://www.python.org/dev/peps/pep-0333/"""
 
-    def __init__(self, wsgi_environment: dict):
+    def __init__(self, wsgi_environment: dict, path_params: dict):
         self._wsgi_environment = wsgi_environment
-        self._content_length = int(wsgi_environment.get("CONTENT_LENGTH", 0) or 0)
+        self._path_params = path_params
         self._query_string = wsgi_environment["QUERY_STRING"]
         self._path = wsgi_environment["PATH_INFO"]
         self._method_name = wsgi_environment["REQUEST_METHOD"]
 
         self._query_parameters: dict = create_dict_from_assignment_syntax(self._query_string)
         self._headers = self._get_headers(wsgi_environment)
-        self._body = None
+
+        self._typed_body = TypedBody(self.body, self.content_type)
 
         self._request_deserializer_service = RequestDeserializerService()
-        self._body_type_cache = {}
 
     @staticmethod
     def _get_headers(wsgi_environment: dict) -> dict:
         header = {
             "Accept": wsgi_environment.get("HTTP_ACCEPT", "*/*"),
-            "Accept-Encoding": wsgi_environment.get("HTTP_ACCEPT_ENCODING", get_default_encoding()),
+            "Accept-Encoding": wsgi_environment.get("HTTP_ACCEPT_ENCODING"),
             "Content-Type": wsgi_environment.get("CONTENT_TYPE"),
             "Content-Encoding": wsgi_environment.get("CONTENT_ENCODING"),
-            "Accept-Charset": wsgi_environment.get("HTTP_ACCEPT_CHARSET", get_default_encoding())
+            "Accept-Charset": wsgi_environment.get("HTTP_ACCEPT_CHARSET", get_default_encoding()),
+            "Content-Length": int(wsgi_environment.get("CONTENT_LENGTH", 0) or 0)
         }
         return {
             key: value for key, value in header.items() if value is not None
         }
 
-    def _get_body_from_wsgi_environment(self, wsgi_environment: dict) -> bytes:
-        return wsgi_environment["wsgi.input"].read(self._content_length)
-
     @lru_cache()
-    def get_request_body_as_type(self, python_type: Type) -> Any:
-        return self._body_type_cache.get(
-            python_type,
-            self._request_deserializer_service.deserialize_request_body(
-                self.get_body(), self.get_content_type(), python_type,
-                self.get_headers().get("Accept-Charset", get_default_encoding())
-            )
-        )
-
-    def is_body_deserializable_to_type(self, python_type: Type) -> bool:
-        return self._request_deserializer_service.is_body_deserializable_to_type(self.get_content_type(), python_type)
+    def _get_body_from_wsgi_environment(self, buffered_input: BufferedReader) -> bytes:
+        body = buffered_input.read(self.headers["Content-Length"])
+        return body
 
     def is_json(self) -> bool:
-        return self.get_content_type().lower() == "application/json"
+        return self.content_type.to_string() == "application/json"
 
-    def get_path(self) -> str:
+    @property
+    def path(self) -> str:
         return self._path
 
-    def get_request_method_name(self) -> str:
+    @property
+    def request_method_name(self) -> str:
         return self._method_name
 
-    def get_headers(self) -> dict:
+    @property
+    def headers(self) -> dict:
         return self._headers
 
-    def get_query_parameters(self) -> dict:
+    @property
+    def query_parameters(self) -> dict:
         return self._query_parameters
 
-    def get_query_string(self) -> str:
+    @property
+    def path_parameters(self) -> dict:
+        return self._path_params
+
+    @property
+    def query_string(self) -> str:
         return self._query_string
 
-    def get_encoding(self) -> str:
-        return self._headers["Content-Encoding"]
+    @property
+    def content_encoding(self) -> str:
+        return self._headers.get("Content-Encoding")
 
-    def get_content_type(self) -> str:
-        return self._headers["Content-Type"]
+    @property
+    def content_type(self) -> MIMEType:
+        return MIMEType.from_string(self._headers.get("Content-Type") or "text/plain")
 
-    def get_body(self) -> bytes:
-        if not self._body:
-            self._body = self._get_body_from_wsgi_environment(self._wsgi_environment)
-        return self._body
+    @property
+    def body(self) -> bytes:
+        return self._get_body_from_wsgi_environment(self._wsgi_environment["wsgi.input"])
 
-    def get_http_accept(self) -> str:
-        return self.get_headers()["Accept"]
+    @property
+    def typed_body(self) -> TypedBody:
+        return self._typed_body
 
-    @lru_cache(maxsize=1)
-    def get_http_accept_object(self) -> HttpAccept:
-        return HttpAccept.from_accept_string(self.get_http_accept())
+    @property
+    def http_accept_object(self) -> HttpAccept:
+        return HttpAccept.from_accept_string(self.headers.get("Accept", "*/*"))
 
-    def set_body_from_string(self, body: str):
-        self._body = body.encode(self.get_encoding())
-
-    @lru_cache(maxsize=1)
-    def get_werkzeug_request(self) -> werkzeug.wrappers.Request:
-        return werkzeug.wrappers.Request(self._wsgi_environment)
-
-    @lru_cache()
-    def get_host_url(self) -> str:
+    @property
+    def host_url(self) -> str:
         """https://www.python.org/dev/peps/pep-0333/#url-reconstruction"""
         url = self._wsgi_environment['wsgi.url_scheme'] + '://'
 
@@ -117,10 +111,10 @@ class Request:
 
         return url
 
-    @lru_cache()
-    def get_original_url(self) -> str:
+    @property
+    def original_url(self) -> str:
         """https://www.python.org/dev/peps/pep-0333/#url-reconstruction"""
-        url = self.get_host_url()
+        url = self.host_url
 
         url += quote(self._wsgi_environment.get('SCRIPT_NAME', ''))
         url += quote(self._wsgi_environment.get('PATH_INFO', ''))

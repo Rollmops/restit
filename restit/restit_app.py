@@ -93,11 +93,9 @@ class RestitApp:
         if not self._init_called:
             self._init()
 
-        request = Request(wsgi_environ)
-        resource, path_params = self._find_resource_for_url(request.get_path())
-
+        resource, path_params = self._find_resource_for_url(wsgi_environ["PATH_INFO"])
+        request = Request(wsgi_environ, path_params)
         response = self._create_response_and_handle_exceptions(path_params, request, resource)
-
         header_as_list = [(key, str(value)) for key, value in response.get_headers().items()]
         start_response(response.get_status_string(), header_as_list)
 
@@ -122,14 +120,14 @@ class RestitApp:
             exception_response_maker = HttpExceptionResponseMaker(
                 Rfc7807HttpProblem.from_http_exception(internal_exception)
             )
-            response = exception_response_maker.create_response(request.get_http_accept_object())
+            response = exception_response_maker.create_response(request.http_accept_object)
         return response
 
     @staticmethod
     def _create_rfc7807_response(request: Request, rfc7807_http_problem: Rfc7807HttpProblem) -> Response:
         LOGGER.info(str(rfc7807_http_problem))
         exception_response_maker = HttpExceptionResponseMaker(rfc7807_http_problem)
-        response = exception_response_maker.create_response(request.get_http_accept_object())
+        response = exception_response_maker.create_response(request.http_accept_object)
         return response
 
     @staticmethod
@@ -138,7 +136,7 @@ class RestitApp:
             # noinspection PyBroadException
             # noinspection PyProtectedMember
             response = resource.handle_request(
-                request_method=request.get_request_method_name(),
+                request_method=request.request_method_name,
                 request=request,
                 path_params=path_params
             )

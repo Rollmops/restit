@@ -16,12 +16,12 @@ class QueryParametersResource(Resource):
     @query_parameter("param1", description="First parameter", field_type=fields.Integer())
     @query_parameter("uuid", description="uuid parameter", field_type=fields.UUID())
     def get(self, request: Request) -> Response:
-        assert isinstance(request.get_query_parameters()["uuid"], UUID)
+        assert isinstance(request.query_parameters["uuid"], UUID)
 
         return Response(
             {
-                "param1": request.get_query_parameters()["param1"],
-                "uuid": str(request.get_query_parameters()["uuid"])
+                "param1": request.query_parameters["param1"],
+                "uuid": str(request.query_parameters["uuid"])
             }
         )
 
@@ -29,8 +29,8 @@ class QueryParametersResource(Resource):
 @request_mapping("/2")
 class QueryParameterListResource(Resource):
     @query_parameter("int_list", description="A list of ints", field_type=fields.List(fields.Integer()))
-    def get(self, request: Request, **path_params) -> Response:
-        return Response(request.get_query_parameters())
+    def get(self, request: Request) -> Response:
+        return Response(request.query_parameters)
 
 
 class QueryParameterTest(unittest.TestCase):

@@ -4,6 +4,8 @@ from marshmallow import Schema
 from marshmallow.fields import Field
 from werkzeug.exceptions import UnprocessableEntity, UnsupportedMediaType
 
+from restit.internal.mime_type import MIMEType
+
 
 class RequestBodyProperties:
     def __init__(
@@ -18,9 +20,9 @@ class RequestBodyProperties:
         self.validation_error_class = validation_error_class
         self._check_request_properties_schema_type()
 
-    def get_schema_for_content_type(self, content_type: str) -> Union[Schema, Type]:
+    def get_schema_for_content_type(self, content_type: MIMEType) -> Union[Schema, Type]:
         try:
-            return self.content_types[content_type]
+            return self.content_types[content_type.to_string()]
         except KeyError:
             raise UnsupportedMediaType()
 

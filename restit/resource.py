@@ -31,27 +31,27 @@ class Resource:
     def init(self):
         self._resource_path = ResourcePath(self.__request_mapping__)
 
-    def get(self, request: Request, **path_params) -> Response:
+    def get(self, request: Request) -> Response:
         raise MethodNotAllowed()
 
     # noinspection PyMethodMayBeStatic,PyUnusedLocal
-    def post(self, request: Request, **path_params) -> Response:
+    def post(self, request: Request) -> Response:
         raise MethodNotAllowed()
 
     # noinspection PyMethodMayBeStatic,PyUnusedLocal
-    def put(self, request: Request, **path_params) -> Response:
+    def put(self, request: Request) -> Response:
         raise MethodNotAllowed()
 
     # noinspection PyMethodMayBeStatic,PyUnusedLocal
-    def delete(self, request: Request, **path_params) -> Response:
+    def delete(self, request: Request) -> Response:
         raise MethodNotAllowed()
 
     # noinspection PyMethodMayBeStatic,PyUnusedLocal
-    def patch(self, request: Request, **path_params) -> Response:
+    def patch(self, request: Request) -> Response:
         raise MethodNotAllowed()
 
     # noinspection PyMethodMayBeStatic,PyUnusedLocal
-    def options(self, request: Request, **path_params) -> Response:
+    def options(self, request: Request) -> Response:
         """Identifying allowed request methods.
 
         The HTTP OPTIONS method is used to describe the communication options for the target resource.
@@ -60,26 +60,26 @@ class Resource:
         return Response("", 204, headers={"Allow": allow})
 
     # noinspection PyMethodMayBeStatic,PyUnusedLocal
-    def trace(self, request: Request, **path_params) -> Response:
+    def trace(self, request: Request) -> Response:
         raise MethodNotAllowed()
 
     # noinspection PyMethodMayBeStatic,PyUnusedLocal
-    def connect(self, request: Request, **path_params) -> Response:
+    def connect(self, request: Request) -> Response:
         raise MethodNotAllowed()
 
     # noinspection PyMethodMayBeStatic,PyUnusedLocal
-    def head(self, request: Request, **path_params) -> Response:
+    def head(self, request: Request) -> Response:
         raise MethodNotAllowed()
 
     def handle_request(self, request_method: str, request: Request, path_params: Dict) -> Response:
         method_object = getattr(self, request_method.lower())
-        passed_path_parameters = self._collect_and_convert_path_parameters(path_params)
+        request._path_params = self._collect_and_convert_path_parameters(path_params)
         self._process_query_parameters(method_object, request)
         request = self._validate_request_body(method_object, request)
-        response: Response = method_object(request, **passed_path_parameters)
+        response: Response = method_object(request)
         response_status_parameter = Resource._find_response_schema_by_status(response.get_status_code(), method_object)
         ResponseSerializerService.validate_and_serialize_response_body(
-            response, request.get_http_accept_object(), response_status_parameter
+            response, request.http_accept_object, response_status_parameter
         )
         return response
 
@@ -103,10 +103,10 @@ class Resource:
         return request
 
     @staticmethod
-    def _process_query_parameters(method_object, request):
+    def _process_query_parameters(method_object: object, request: Request):
         for query_parameter in getattr(method_object, "__query_parameters__", []):  # type: QueryParameter
-            value: str = request.get_query_parameters().get(query_parameter.name, )
-            if value is None and query_parameter.required:
+            value: str = request.query_parameters.get(query_parameter.name, )
+            if value is None and query_parameter.field_type.required:
                 # ToDo message
                 raise BadRequest()
 
@@ -116,7 +116,7 @@ class Resource:
                 value, query_parameter.field_type
             )
 
-    def _collect_and_convert_path_parameters(self, path_params: dict):
+    def _collect_and_convert_path_parameters(self, path_params: dict) -> dict:
         for path_parameter in getattr(self, "__path_parameters__", []):  # type: PathParameter
             try:
                 path_parameter_value = path_params[path_parameter.name]
@@ -141,7 +141,7 @@ class Resource:
             method_object = getattr(self, method_name)
             resource_method_code = inspect.getsource(method_object)
             match = re.match(
-                r"^.+def\s+\w+\(self,\s*request:\s*Request.+\)\s*->\s*Response:.+raise\s+MethodNotAllowed\(\).*$",
+                r"^.+def\s+\w+\(self,\s*request:\s*Request\s*\)\s*->\s*Response:.+raise\s+MethodNotAllowed\(\).*$",
                 resource_method_code, flags=re.DOTALL | re.IGNORECASE
             )
             if match is None:

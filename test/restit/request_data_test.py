@@ -11,22 +11,22 @@ from test.base_test_server_test_case import BaseTestServerTestCase
 
 @request_mapping("/")
 class RequestBodyResource(Resource):
-    def get(self, request: Request, **kwargs) -> Response:
+    def get(self, request: Request) -> Response:
         return Response({
-            "form": dict(request.get_werkzeug_request().form),
-            "data": request.get_werkzeug_request().data.decode(),
-            "query_string": request.get_werkzeug_request().query_string.decode(),
-            "query_parameters": request.get_query_parameters(),
-            "content_type": request.get_werkzeug_request().content_type
+            "body_dict": dict(request.typed_body[dict]),
+            "body": request.body.decode(),
+            "query_string": request.query_string,
+            "query_parameters": request.query_parameters,
+            "content_type": request.content_type.to_string()
         })
 
-    def post(self, request: Request, **kwargs) -> Response:
+    def post(self, request: Request) -> Response:
         return Response({
-            "form": dict(request.get_werkzeug_request().form),
-            "data": request.get_werkzeug_request().data.decode(),
-            "query_string": request.get_werkzeug_request().query_string.decode(),
-            "query_parameters": request.get_query_parameters(),
-            "content_type": request.get_werkzeug_request().content_type
+            "body_dict": request.typed_body[dict],
+            "body": request.body.decode(),
+            "query_string": request.query_string,
+            "query_parameters": request.query_parameters,
+            "content_type": request.content_type.to_string()
         }, HTTPStatus.CREATED)
 
 
@@ -42,8 +42,8 @@ class RestitAppTestCase(BaseTestServerTestCase):
 
         self.assertEqual(201, response.status_code)
         self.assertEqual({
-            'data': '{"key": "value"}',
-            'form': {},
+            'body': '{"key": "value"}',
+            'body_dict': {"key": "value"},
             'query_parameters': {},
             'query_string': '',
             'content_type': 'application/json'
@@ -55,8 +55,8 @@ class RestitAppTestCase(BaseTestServerTestCase):
 
         self.assertEqual(200, response.status_code)
         self.assertEqual({
-            'data': '{"key": "value"}',
-            'form': {},
+            'body': '{"key": "value"}',
+            'body_dict': {'key': 'value'},
             'query_parameters': {},
             'query_string': '',
             'content_type': 'application/json'
@@ -67,8 +67,8 @@ class RestitAppTestCase(BaseTestServerTestCase):
         response = requests.post(f"http://127.0.0.1:{port}/", data={"key": "value"})
         self.assertEqual(201, response.status_code)
         self.assertEqual({
-            'data': '',
-            'form': {'key': 'value'},
+            'body': 'key=value',
+            'body_dict': {'key': 'value'},
             'query_parameters': {},
             'query_string': '',
             'content_type': 'application/x-www-form-urlencoded'
@@ -78,8 +78,8 @@ class RestitAppTestCase(BaseTestServerTestCase):
         response = requests.get(f"http://127.0.0.1:{self.port}/", data={"key": "value"})
         self.assertEqual(200, response.status_code)
         self.assertEqual({
-            'data': '',
-            'form': {'key': 'value'},
+            'body': 'key=value',
+            'body_dict': {'key': 'value'},
             'query_parameters': {},
             'query_string': '',
             'content_type': 'application/x-www-form-urlencoded'
@@ -89,8 +89,8 @@ class RestitAppTestCase(BaseTestServerTestCase):
         response = requests.post(f"http://127.0.0.1:{self.port}/?key=value")
         self.assertEqual(201, response.status_code)
         self.assertEqual({
-            'data': '',
-            'form': {},
+            'body': '',
+            'body_dict': {},
             'query_parameters': {"key": "value"},
             'query_string': 'key=value',
             'content_type': 'text/plain'
@@ -100,8 +100,8 @@ class RestitAppTestCase(BaseTestServerTestCase):
         response = requests.get(f"http://127.0.0.1:{self.port}/?key=value")
         self.assertEqual(200, response.status_code)
         self.assertEqual({
-            'data': '',
-            'form': {},
+            'body': '',
+            'body_dict': {},
             'query_parameters': {"key": "value"},
             'query_string': 'key=value',
             'content_type': 'text/plain'

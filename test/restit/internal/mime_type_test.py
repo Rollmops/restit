@@ -63,3 +63,8 @@ class MIMETypeTestCase(unittest.TestCase):
 
         self.assertEqual("application/json", mime_type.to_string(with_details=False))
         self.assertEqual("application/json;v=b3;q=0.9", mime_type.to_string(with_details=True))
+
+    def test_with_charset(self):
+        mime_type = MIMEType.from_string("application/json; charset=utf-8")
+
+        self.assertEqual("utf-8", mime_type.charset)

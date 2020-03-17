@@ -24,3 +24,6 @@ class HttpAccept:
 
     def __str__(self):
         return f"HttpAccept({[str(m) for m in self.mime_types]})"
+
+    def __eq__(self, other: "HttpAccept") -> bool:
+        return self.mime_types == other.mime_types

@@ -14,16 +14,16 @@ from restit.restit_test_app import RestitTestApp
 @request_mapping("/")
 class MyResource(Resource):
     def get(self, request: Request, **kwargs) -> Response:
-        return Response(request.get_request_body_as_type(dict))
+        return Response(request.typed_body[dict])
 
     def post(self, request: Request, **kwargs) -> Response:
-        return Response(request.get_request_body_as_type(dict), 201)
+        return Response(request.typed_body[dict], 201)
 
     def put(self, request: Request, **kwargs) -> Response:
-        return Response(request.get_request_body_as_type(dict), 201)
+        return Response(request.typed_body[dict], 201)
 
     def delete(self, request: Request, **kwargs) -> Response:
-        return Response(request.get_request_body_as_type(dict), 201)
+        return Response(request.typed_body[dict], 201)
 
 
 @request_mapping("/no_methods")
@@ -49,7 +49,7 @@ class ResourceWithHyperLink(Resource):
 @request_mapping("/pass_headers")
 class PassHeadersResource(Resource):
     def get(self, request: Request, **kwargs) -> Response:
-        headers = request.get_headers()
+        headers = request.headers
         return Response(
             {
                 'Accept': headers["Accept"],

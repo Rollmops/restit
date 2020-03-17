@@ -19,7 +19,7 @@ class RequestBodySchema(Schema):
 class QueryParametersResource(Resource):
     @request_body({"application/x-www-form-urlencoded": RequestBodySchema()}, description="Huhu")
     def post(self, request: Request) -> Response:
-        return Response(request.get_request_body_as_type(dict))
+        return Response(request.typed_body[dict])
 
 
 class RequestBodyValidationTestCase(BaseTestServerTestCase):
@@ -47,6 +47,7 @@ class RequestBodyValidationTestCase(BaseTestServerTestCase):
 
     def test_request_body_schema_type_not_supported(self):
         with self.assertRaises(RequestBodyProperties.UnsupportedSchemaTypeException):
+            # noinspection PyTypeChecker
             RequestBodyProperties({"text/plain": str}, "", True)
 
     def test_unsupported_media_type(self):

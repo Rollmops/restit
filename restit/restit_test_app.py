@@ -50,9 +50,9 @@ class RestitTestApp(RestitApp):
         response = self._get_response(wsgi_environment)
         return response
 
-    def _get_response(self, wsgi_environment):
-        request = Request(wsgi_environment)
-        resource, path_params = self._find_resource_for_url(request.get_path())
+    def _get_response(self, wsgi_environment: dict):
+        resource, path_params = self._find_resource_for_url(wsgi_environment["PATH_INFO"])
+        request = Request(wsgi_environment, path_params)
         if self._raise_exceptions:
             return self._get_response_or_raise_not_found(path_params, request, resource)
         else:

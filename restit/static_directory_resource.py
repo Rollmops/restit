@@ -15,8 +15,8 @@ class StaticDirectoryResource(Resource):
         self.static_directory_path = static_directory_path
         self.entry_file = entry_file or "index.html"
 
-    def get(self, request: Request, **path_params) -> Response:
-        file_name = path_params["file_name"] or self.entry_file
+    def get(self, request: Request) -> Response:
+        file_name = request.path_parameters["file_name"] or self.entry_file
 
         file_path = os.path.join(self.static_directory_path, file_name)
         with open(file_path, "rb") as fp:

@@ -17,7 +17,7 @@ class MyResource(Resource):
 
     @response_status(200, {"application/json": MySchema()}, "Everything is ok")
     def get(self, request: Request, **path_params) -> Response:
-        request_body = request.get_request_body_as_type(dict)
+        request_body = request.typed_body[dict]
         return Response({"field1": "Hans", "field2": "10"}, status_code=request_body["status"])
 
 

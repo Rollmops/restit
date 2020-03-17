@@ -28,7 +28,7 @@ def create_dict_from_assignment_syntax(request_input_string: str, group_delimite
 
     return {
         key: escape(value) for key, value in [
-            pair.split("=") for pair in request_input_string.strip(group_delimiter).split(group_delimiter)
+            pair.split("=") for pair in request_input_string.strip(group_delimiter + " ").split(group_delimiter)
         ]
     }
 

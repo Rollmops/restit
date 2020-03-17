@@ -12,16 +12,16 @@ from restit.resource import Resource
 @path_parameter("id2", field_type=fields.Float(), description="Second path parameter")
 @path_parameter("id3", description="Id3")
 class Resource1(Resource):
-    def get(self, request: Request, **path_params) -> Response:
-        return Response(path_params)
+    def get(self, request: Request) -> Response:
+        return Response(request.path_parameters)
 
 
 @request_mapping(
     "/path/:id", path_parameters=[PathParameter("id", "Super path parameter", fields.Integer())]
 )
 class Resource2(Resource):
-    def get(self, request: Request, **path_params) -> Response:
-        return Response(path_params)
+    def get(self, request: Request) -> Response:
+        return Response(request.path_parameters)
 
 
 class PathParameterTestCase(unittest.TestCase):

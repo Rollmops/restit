@@ -8,7 +8,7 @@ from restit.static_file_response import StaticFileResponse
 @request_mapping("/static-response")
 class MyResource(Resource):
     def get(self, request: Request, **path_params) -> Response:
-        file_path = request.get_request_body_as_type(dict)["file_path"]
+        file_path = request.typed_body[dict]["file_path"]
         return StaticFileResponse(file_path)
 
 

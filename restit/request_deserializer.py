@@ -1,5 +1,7 @@
 from typing import Any, List, Type, Union
 
+from restit.internal.mime_type import MIMEType
+
 
 class RequestDeserializer:
     def get_content_type_list(self) -> Union[List[str], None]:
@@ -11,7 +13,12 @@ class RequestDeserializer:
     def get_deserialized_python_type(self) -> Type:
         raise NotImplemented()
 
-    def can_handle(self, content_type: str, python_type: Type) -> bool:
-        return \
-            (self.get_content_type_list() is None or content_type in self.get_content_type_list()) \
-            and python_type == self.get_deserialized_python_type()
+    def can_handle(self, content_type: MIMEType, python_type: Type) -> bool:
+        if self.get_content_type_list() is None:
+            return python_type == self.get_deserialized_python_type()
+
+        for content_type_string in self.get_content_type_list():
+            if content_type.matches_mime_type_string(content_type_string) and \
+                    python_type == self.get_deserialized_python_type():
+                return True
+        return False

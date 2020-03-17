@@ -1,17 +1,18 @@
 import re
 
-from restit.common import create_dict_from_assignment_syntax
+from restit.common import create_dict_from_assignment_syntax, get_default_encoding
 
 
 class MIMEType:
     _REGEX = re.compile(r"^([*a-zA-Z0-9_-]+)/([+*a-zA-Z0-9_-]+)(.+)?$")
 
     # noinspection PyShadowingBuiltins
-    def __init__(self, type: str, subtype: str, quality: float = 1.0, details: dict = None):
+    def __init__(self, type: str, subtype: str, quality: float = 1.0, details: dict = None, charset: str = None):
         self.type = type if type != "*" else None
         self.subtype = subtype if subtype != "*" else None
         self.quality = quality
         self.details = details or {}
+        self.charset = charset or get_default_encoding()
 
         if "q" not in self.details and quality != 1.0:
             self.details["q"] = str(quality)
@@ -31,7 +32,8 @@ class MIMEType:
             type=match.group(1),
             subtype=match.group(2),
             quality=float(details.get("q", 1)),
-            details=details
+            details=details,
+            charset=details.get("charset")
         )
 
     def matches_mime_type_string(self, mime_type_string: str) -> bool:
@@ -49,7 +51,11 @@ class MIMEType:
         return _to_string
 
     def __eq__(self, other: "MIMEType") -> bool:
-        return self.type == other.type and self.subtype == other.subtype and self.details == other.details
+        return \
+            self.type == other.type and \
+            self.subtype == other.subtype and \
+            self.details == other.details and \
+            self.charset == other.charset
 
     def __gt__(self, other: "MIMEType") -> bool:
         return self.quality > other.quality
