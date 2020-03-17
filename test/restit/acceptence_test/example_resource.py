@@ -1,4 +1,5 @@
 from marshmallow import Schema, fields
+from marshmallow.fields import Boolean
 
 from restit import Resource, request_mapping, Response, Request, query_parameter
 from restit.response_status_decorator import response_status
@@ -9,6 +10,7 @@ class TodosSchema(Schema):
     """A collection of todo names"""
 
     collection = fields.List(fields.String())
+    sort = fields.Boolean()
 
 
 @request_mapping("/")
@@ -22,11 +24,11 @@ class TodosResource(Resource):
         content_types={"application/json": TodosSchema()}
     )
     @query_parameter(
-        "sort", description="Flag if the todo list should be sorted", field_type=bool, default=False, required=False
+        "sort", description="Flag if the todo list should be sorted", field_type=Boolean(default=True)
     )
-    def get(self, request: Request, **path_params) -> Response:
+    def get(self, request: Request) -> Response:
         """Get a list of all todo ids"""
 
         todo_ids = self.repo.get_todo_ids()
 
-        return Response({"collection": todo_ids})
+        return Response({"collection": todo_ids, "sort": request.query_parameters["sort"]})

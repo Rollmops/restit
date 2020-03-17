@@ -12,7 +12,7 @@ from restit.internal.request_body_schema_deserializer import RequestBodySchemaDe
 from restit.internal.resource_path import ResourcePath
 from restit.internal.response_serializer_service import ResponseSerializerService
 from restit.internal.response_status_parameter import ResponseStatusParameter
-from restit.internal.type_converter.schema_or_field_deserializer import SchemaOrFieldDeserializer
+from restit.internal.schema_or_field_deserializer import SchemaOrFieldDeserializer
 from restit.path_parameter_decorator import PathParameter
 from restit.query_parameter_decorator import QueryParameter
 from restit.request import Request
@@ -110,7 +110,8 @@ class Resource:
                 # ToDo message
                 raise BadRequest()
 
-            value = ast.literal_eval(value) if value.startswith("[") else value
+            if value is not None:
+                value = ast.literal_eval(value) if value.startswith("[") else value
             # noinspection PyProtectedMember
             request._query_parameters[query_parameter.name] = SchemaOrFieldDeserializer.deserialize(
                 value, query_parameter.field_type

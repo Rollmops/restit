@@ -116,7 +116,9 @@ class RestitApp:
                 raise
             LOGGER.error(str(exception))
             LOGGER.error(traceback.format_exc())
-            internal_exception = InternalServerError(str(exception) if self._debug else "")
+            internal_exception = InternalServerError(
+                f"{exception}\n{traceback.format_exc()}" if self._debug else ""
+            )
             exception_response_maker = HttpExceptionResponseMaker(
                 Rfc7807HttpProblem.from_http_exception(internal_exception)
             )

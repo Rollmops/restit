@@ -2,7 +2,7 @@ from typing import List, Tuple, Union
 
 from restit.common import get_default_encoding, guess_text_content_subtype_string
 from restit.internal.response_status_parameter import ResponseStatusParameter
-from restit.internal.type_converter.schema_or_field_deserializer import SchemaOrFieldDeserializer
+from restit.internal.schema_or_field_deserializer import SchemaOrFieldDeserializer
 from restit.response_serializer import ResponseSerializer
 
 

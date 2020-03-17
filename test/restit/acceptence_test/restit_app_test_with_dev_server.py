@@ -1,6 +1,7 @@
 import unittest
 
-from restit import RestitApp, OpenApiDocumentation, Namespace
+from restit import RestitApp, Namespace
+from restit.open_api import OpenApiDocumentation
 from restit.open_api.info_object import InfoObject
 from test.restit.acceptence_test.example_resource import TodosResource
 from test.restit.acceptence_test.todo_repo import TodoRepo

@@ -111,10 +111,10 @@ class RestitAppTestCase(BaseTestServerTestCase):
     def test_internal_server_error(self):
         response = requests.get(f"http://127.0.0.1:{self.port}/error")
         self.assertEqual(500, response.status_code)
-        self.assertEqual(
+        self.assertIn(
             "<title>500 Internal Server Error</title>\n"
             "<h1>Internal Server Error</h1>\n"
-            "<p>OH NOOOO</p>\n",
+            "<p>OH NOOOO\n",
             response.text
         )
 
@@ -123,14 +123,8 @@ class RestitAppTestCase(BaseTestServerTestCase):
             f"http://127.0.0.1:{self.port}/error", headers={'Accept': "application/json", "Accept-Charset": "utf-8"}
         )
         self.assertEqual(500, response.status_code)
-        self.assertEqual({
-            'detail': 'OH NOOOO',
-            'instance': None,
-            'status': 500,
-            'title': 'Internal Server Error',
-            'type': 'about:blank'
-        }, response.json()
-        )
+        self.assertEqual("Internal Server Error", response.json()["title"])
+        self.assertEqual(500, response.json()["status"])
         self.assertEqual("application/problem+json", response.headers["Content-Type"])
 
     def test_missing_request_mapping(self):
@@ -151,12 +145,11 @@ class RestitAppTestCase(BaseTestServerTestCase):
     def test_hyperlink_path_param_not_found(self):
         response = requests.get(f"http://127.0.0.1:{self.port}/resource_with_hyperlink_error")
         self.assertEqual(500, response.status_code)
-        self.assertEqual(
+        self.assertIn(
             "<title>500 Internal Server Error</title>\n"
             "<h1>Internal Server Error</h1>\n"
             "<p>The path parameter id in request mapping '/miau/:id' was not found in the provided path parameters "
-            "{'not_there': 10}</p>\n",
-            response.text
+            "{'not_there': 10}\n", response.text
         )
 
     def test_default_favicon(self):

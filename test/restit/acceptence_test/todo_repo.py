@@ -12,5 +12,5 @@ class TodoRepo:
         return list(_TODOS.keys())
 
     @staticmethod
-    def find_by_name(name: str):
-        return _TODOS[name]
+    def find_by_id(_id: str):
+        return _TODOS[_id]

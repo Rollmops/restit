@@ -2,7 +2,7 @@ from marshmallow import ValidationError
 from marshmallow.fields import Field
 
 from restit.internal.request_body_properties import RequestBodyProperties
-from restit.internal.type_converter.schema_or_field_deserializer import SchemaOrFieldDeserializer
+from restit.internal.schema_or_field_deserializer import SchemaOrFieldDeserializer
 from restit.request import Request
 
 
