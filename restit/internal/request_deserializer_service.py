@@ -1,8 +1,6 @@
 from functools import lru_cache
 from typing import List, Type, Union, Any
 
-from restit.internal.default_request_deserializer.default_any_bytes_deserializer import DefaultAnyBytesDeserializer
-from restit.internal.default_request_deserializer.default_any_string_deserializer import DefaultAnyStringDeserializer
 from restit.internal.default_request_deserializer.default_application_json_dict_deserializer import \
     DefaultApplicationJsonDictDeserializer
 from restit.internal.default_request_deserializer.default_form_data_dict_deserializer import \
@@ -12,8 +10,6 @@ from restit.request_deserializer import RequestDeserializer
 _DEFAULT_REQUEST_DESERIALIZER = [
     DefaultApplicationJsonDictDeserializer(),
     DefaultFormDataDictDeserializer(),
-    DefaultAnyBytesDeserializer(),
-    DefaultAnyStringDeserializer()
 ]
 
 
