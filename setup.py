@@ -1,10 +1,9 @@
 from setuptools import setup, find_packages
 
-from restit import __version__
 
 setup(
     name="restit",
-    version=__version__,
+    version="0.1.0",
     packages=find_packages(),
     include_package_data=True,
     install_requires=[
