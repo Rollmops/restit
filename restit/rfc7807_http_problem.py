@@ -1,5 +1,3 @@
-import json
-
 from werkzeug.exceptions import HTTPException
 
 
@@ -29,4 +27,4 @@ class Rfc7807HttpProblem(Exception):
         }
 
     def __str__(self):
-        return json.dumps(self.to_json())
+        return f"{self.status} {self.title}: {self.detail} ({self.instance}, {self.type})"

@@ -19,16 +19,14 @@ class HttpExceptionResponseMaker:
         ]
         best_match = http_accept.get_best_match(supported_media_types)
         if best_match is None:
-            raise HttpExceptionResponseMaker.NoSupportedMIMETypesFoundException(http_accept.mime_types)
-
-        best_match = best_match[0]
-
-        if best_match in ["text/html", "application/xhtml+xml"]:
-            response = self.create_html_response()
-        elif best_match in ["application/json", "application/problem+json"]:
-            response = self.create_rfc7807_json_response()
-        else:
             response = self.create_plain_text_response()
+        else:
+            best_match = best_match[0]
+
+            if best_match in ["text/html", "application/xhtml+xml"]:
+                response = self.create_html_response()
+            else:
+                response = self.create_rfc7807_json_response()
 
         ResponseSerializerService.validate_and_serialize_response_body(response, http_accept, None)
         return response
@@ -62,6 +60,3 @@ class HttpExceptionResponseMaker:
             response_body=str(self.rfc7807_http_problem),
             status_code=self.rfc7807_http_problem.status
         )
-
-    class NoSupportedMIMETypesFoundException(Exception):
-        pass

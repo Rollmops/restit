@@ -10,6 +10,9 @@ from restit.internal.default_response_serializer.default_dict_text_response_seri
     DefaultDictTextResponseSerializer
 from restit.internal.default_response_serializer.default_str_text_response_serializer import \
     DefaultStrTextResponseSerializer
+from restit.internal.default_response_serializer.dict_fallback_response_serializer import DictFallbackResponseSerializer
+from restit.internal.default_response_serializer.str_fallback_response_serializer import \
+    StringFallbackResponseSerializer
 from restit.internal.http_accept import HttpAccept
 from restit.internal.response_status_parameter import ResponseStatusParameter
 from restit.response import Response
@@ -20,6 +23,8 @@ _DEFAULT_RESPONSE_SERIALIZER = [
     DefaultStrTextResponseSerializer(),
     DefaultBytesTextResponseSerializer(),
     DefaultDictTextResponseSerializer(),
+    DictFallbackResponseSerializer(),
+    StringFallbackResponseSerializer(),
 ]
 
 

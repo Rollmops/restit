@@ -4,8 +4,6 @@ import marshmallow
 from marshmallow import Schema, fields
 from marshmallow.fields import Field, Nested
 
-from restit.bytes_field import BytesField
-
 
 class OpenApiSchemaConverter:
     _SCHEMA_TYPE_MAPPING = {
@@ -13,7 +11,6 @@ class OpenApiSchemaConverter:
         fields.Float: {"type": "number", "format": "float"},
         fields.String: {"type": "string"},
         fields.UUID: {"type": "string", "format": "uuid"},
-        BytesField: {"type": "string", "format": "binary"},
         fields.Boolean: {"type": "boolean"},
         fields.Email: {"type": "string", "format": "email"},
         fields.Url: {"type": "string", "format": "uri"},

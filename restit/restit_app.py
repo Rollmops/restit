@@ -9,7 +9,7 @@ from werkzeug.exceptions import HTTPException, InternalServerError, NotFound
 
 from restit.development_server import DevelopmentServer
 from restit.internal.default_favicon_resource import DefaultFaviconResource
-from restit.internal.exception_response_maker import HttpExceptionResponseMaker
+from restit.internal.http_exception_response_maker import HttpExceptionResponseMaker
 from restit.namespace import Namespace
 from restit.open_api.open_api_documentation import OpenApiDocumentation
 from restit.open_api.open_api_resource import OpenApiResource

@@ -7,7 +7,7 @@ from restit.response_serializer import ResponseSerializer
 
 class DefaultStrTextResponseSerializer(ResponseSerializer):
     def get_media_type_strings(self) -> List[str]:
-        return ["text/plain"]
+        return ["text/*"]
 
     def get_response_data_type(self) -> type:
         return str
