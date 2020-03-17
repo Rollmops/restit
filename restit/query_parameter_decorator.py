@@ -1,16 +1,15 @@
 import logging
-from collections import namedtuple
 from typing import List
 
 from marshmallow.fields import Field, String
 
-LOGGER = logging.getLogger(__name__)
+from restit.internal.query_parameter import QueryParameter
 
-QueryParameter = namedtuple("QueryParameter", ["name", "description", "field_type"])
+LOGGER = logging.getLogger(__name__)
 
 
 # noinspection PyShadowingBuiltins
-def query_parameter(name: str, description: str, field_type: Field = String):
+def query_parameter(name: str, description: str, field_type: Field = String()):
     def decorator(func):
         _query_parameter = QueryParameter(name, description, field_type)
         registered_query_parameters: List[QueryParameter] = getattr(func, "__query_parameters__", [])

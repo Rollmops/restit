@@ -4,6 +4,7 @@ from uuid import UUID
 from marshmallow import fields
 
 from restit import RestitApp, RestitTestApp, Request
+from restit.internal.query_parameter import QueryParameter
 from restit.query_parameter_decorator import query_parameter
 from restit.request_mapping_decorator import request_mapping
 from restit.resource import Resource
@@ -49,3 +50,9 @@ class QueryParameterTest(unittest.TestCase):
         response = self.restit_test_app.get("/2?int_list=[1,2,3,4]")
         self.assertEqual(200, response.get_status_code())
         self.assertEqual({"int_list": [1, 2, 3, 4]}, response.json())
+
+    def test_unsupported_query_field_type(self):
+        with self.assertRaises(QueryParameter.UnsupportedQueryFieldTypeException):
+            @query_parameter("wrong", "I have a wrong field type", int)
+            def dummy():
+                pass
