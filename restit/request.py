@@ -2,7 +2,7 @@ from functools import lru_cache
 from io import BufferedReader
 from urllib.parse import quote
 
-from restit.common import create_dict_from_assignment_syntax, get_default_encoding
+from restit.common import create_dict_from_assignment_syntax
 from restit.internal.http_accept import HttpAccept
 from restit.internal.mime_type import MIMEType
 from restit.internal.request_deserializer_service import RequestDeserializerService
@@ -20,25 +20,25 @@ class Request:
         self._method_name = wsgi_environment["REQUEST_METHOD"]
 
         self._query_parameters: dict = create_dict_from_assignment_syntax(self._query_string)
-        self._headers = self._get_headers(wsgi_environment)
+        self._headers = self._create_headers()
 
         self._typed_body = TypedBody(self.body, self.content_type)
 
         self._request_deserializer_service = RequestDeserializerService()
 
-    @staticmethod
-    def _get_headers(wsgi_environment: dict) -> dict:
-        header = {
-            "Accept": wsgi_environment.get("HTTP_ACCEPT", "*/*"),
-            "Accept-Encoding": wsgi_environment.get("HTTP_ACCEPT_ENCODING"),
-            "Content-Type": wsgi_environment.get("CONTENT_TYPE"),
-            "Content-Encoding": wsgi_environment.get("CONTENT_ENCODING"),
-            "Accept-Charset": wsgi_environment.get("HTTP_ACCEPT_CHARSET", get_default_encoding()),
-            "Content-Length": int(wsgi_environment.get("CONTENT_LENGTH", 0) or 0)
+    def _create_headers(self):
+        headers = {
+            "Content-Type": self._wsgi_environment.get("CONTENT_TYPE"),
+            "Content-Length": int(self._wsgi_environment.get("CONTENT_LENGTH", 0) or 0),
+            "Content-Encoding": self._wsgi_environment.get("CONTENT_ENCODING"),
         }
-        return {
-            key: value for key, value in header.items() if value is not None
-        }
+
+        for key, value in self._wsgi_environment.items():
+            if key.startswith("HTTP_"):
+                header_key = key[5:].replace("_", "-").title()
+                headers[header_key] = value
+
+        return headers
 
     @lru_cache()
     def _get_body_from_wsgi_environment(self, buffered_input: BufferedReader) -> bytes:
