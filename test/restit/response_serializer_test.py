@@ -158,7 +158,11 @@ class ResponseSerializerTestCase(unittest.TestCase):
             ResponseStatusParameter(200, "", {"application/json": MySchema()})
         )
 
-        self.assertEqual('{"field1": 1, "field2": "hello"}', response.text)
-        self.assertEqual(b'{"field1": 1, "field2": "hello"}', response.content)
+        self.assertIn('"field1": 1', response.text)
+        self.assertIn('"field2": "hello"', response.text)
+        self.assertNotIn("not_expected", response.text)
+        self.assertIn(b'"field1": 1', response.content)
+        self.assertIn(b'"field2": "hello"', response.content)
+        self.assertNotIn(b"not_expected", response.content)
         self.assertEqual(200, response.get_status_code())
         self.assertEqual("application/json", response.get_headers()["Content-Type"])
