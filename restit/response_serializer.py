@@ -1,6 +1,7 @@
 from typing import Any, List, Tuple, Union
 
 from marshmallow import Schema
+from marshmallow.fields import Field
 
 from restit.internal.http_accept import HttpAccept
 from restit.internal.response_status_parameter import ResponseStatusParameter
@@ -32,7 +33,7 @@ class ResponseSerializer:
     @staticmethod
     def find_schema(
             content_type: str, response_status_parameter: Union[None, ResponseStatusParameter]
-    ) -> Union[None, Schema]:
+    ) -> Union[None, Schema, Field]:
         if response_status_parameter is not None:
             try:
                 return response_status_parameter.content_types[content_type]

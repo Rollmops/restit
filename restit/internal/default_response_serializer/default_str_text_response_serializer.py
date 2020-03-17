@@ -2,6 +2,7 @@ from typing import List, Tuple, Union
 
 from restit.common import get_default_encoding, guess_text_content_subtype_string
 from restit.internal.response_status_parameter import ResponseStatusParameter
+from restit.internal.type_converter.schema_or_field_deserializer import SchemaOrFieldDeserializer
 from restit.response_serializer import ResponseSerializer
 
 
@@ -16,8 +17,9 @@ class DefaultStrTextResponseSerializer(ResponseSerializer):
             self, response_input: str, response_status_parameter: Union[None, ResponseStatusParameter]
     ) -> Tuple[bytes, str]:
         content_type = guess_text_content_subtype_string(response_input)
-        if self.find_schema(content_type, response_status_parameter):
-            raise DefaultStrTextResponseSerializer.SchemaNotSupportedForStringResponseBody()
+        schema_or_field = self.find_schema(content_type, response_status_parameter)
+        if schema_or_field:
+            response_input = str(SchemaOrFieldDeserializer.deserialize(response_input, schema_or_field))
 
         return response_input.encode(encoding=get_default_encoding()), content_type
 

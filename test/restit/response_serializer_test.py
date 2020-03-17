@@ -1,6 +1,7 @@
 import unittest
 from typing import List, Tuple, Any, Union
 
+from marshmallow import fields, ValidationError, Schema
 from werkzeug.exceptions import NotAcceptable
 
 from restit.internal.default_response_serializer.default_dict_json_response_serializer import \
@@ -115,3 +116,49 @@ class ResponseSerializerTestCase(unittest.TestCase):
             ResponseSerializerService.validate_and_serialize_response_body(
                 response, HttpAccept.from_accept_string("application/json")
             )
+
+    def test_str_response_body_with_schema(self):
+        response = Response("1234")
+        ResponseSerializerService.validate_and_serialize_response_body(
+            response, HttpAccept.from_accept_string("text/plain"),
+            ResponseStatusParameter(200, "", {"text/plain": fields.Integer()})
+        )
+
+        self.assertEqual(b"1234", response.content)
+        self.assertEqual("1234", response.text)
+        self.assertEqual("text/plain", response.get_headers()["Content-Type"])
+
+    def test_bytes_response_body_with_schema(self):
+        response = Response(b"1234")
+        ResponseSerializerService.validate_and_serialize_response_body(
+            response, HttpAccept.from_accept_string("text/plain"),
+            ResponseStatusParameter(200, "", {"text/plain": fields.Integer()})
+        )
+
+        self.assertEqual(b"1234", response.content)
+        self.assertEqual("1234", response.text)
+        self.assertEqual("text/plain", response.get_headers()["Content-Type"])
+
+    def test_str_response_validation_failed(self):
+        response = Response("1234")
+        with self.assertRaises(ValidationError):
+            ResponseSerializerService.validate_and_serialize_response_body(
+                response, HttpAccept.from_accept_string("text/plain"),
+                ResponseStatusParameter(200, "", {"text/plain": fields.Email()})
+            )
+
+    def test_response_serializer_with_schema(self):
+        class MySchema(Schema):
+            field1 = fields.Integer()
+            field2 = fields.String()
+
+        response = Response({"field1": 1, "field2": "hello", "not_expected": "wuff"})
+        ResponseSerializerService.validate_and_serialize_response_body(
+            response, HttpAccept.from_accept_string("application/json"),
+            ResponseStatusParameter(200, "", {"application/json": MySchema()})
+        )
+
+        self.assertEqual('{"field1": 1, "field2": "hello"}', response.text)
+        self.assertEqual(b'{"field1": 1, "field2": "hello"}', response.content)
+        self.assertEqual(200, response.get_status_code())
+        self.assertEqual("application/json", response.get_headers()["Content-Type"])

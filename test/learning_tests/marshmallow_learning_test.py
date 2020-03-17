@@ -39,6 +39,11 @@ class MarshmallowLearningTestCase(unittest.TestCase):
 
         self.assertEqual(2, field.serialize("", None, lambda *args: "2"))
         self.assertEqual(2, field.serialize("", None, lambda *args: 2))
+
+        fields.Email().serialize("", None, lambda *args: "1234")
+        with self.assertRaises(ValidationError):
+            fields.Email().deserialize("1234")
+
         self.assertEqual(2, field.deserialize("2"))
         self.assertEqual(2, field.deserialize(2))
 

@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Union, Dict, Type
+from typing import Union, Dict
 
 from marshmallow import Schema
 from marshmallow.fields import Field
@@ -7,7 +7,7 @@ from marshmallow.fields import Field
 
 class ResponseStatusParameter:
     def __init__(
-            self, status: Union[int, HTTPStatus, None], description: str, content_types: Dict[str, Union[Schema, Type]]
+            self, status: Union[int, HTTPStatus, None], description: str, content_types: Dict[str, Union[Schema, Field]]
     ):
         self.status: int = status if isinstance(status, int) or status is None else status.value
         self.description = description
