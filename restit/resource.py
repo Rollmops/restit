@@ -5,8 +5,9 @@ import re
 from typing import Tuple, AnyStr, Dict, Union, List
 
 from marshmallow import ValidationError
-from werkzeug.exceptions import MethodNotAllowed, BadRequest
 
+from restit.exception import MethodNotAllowed
+from restit.exception.client_errors_4xx import BadRequest
 from restit.internal.request_body_properties import RequestBodyProperties
 from restit.internal.request_body_schema_deserializer import RequestBodySchemaDeserializer
 from restit.internal.resource_path import ResourcePath

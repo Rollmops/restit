@@ -2,8 +2,8 @@ import unittest
 from typing import List, Tuple, Any, Union
 
 from marshmallow import fields, ValidationError, Schema
-from werkzeug.exceptions import NotAcceptable
 
+from restit.exception import NotAcceptable
 from restit.internal.default_response_serializer.default_dict_json_response_serializer import \
     DefaultDictJsonResponseSerializer
 from restit.internal.default_response_serializer.default_dict_text_response_serializer import \

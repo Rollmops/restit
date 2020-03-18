@@ -67,12 +67,10 @@ class RequestBodyValidationTestCase(BaseTestServerTestCase):
     def test_request_body_validation_fails(self):
         response = requests.post(f"http://127.0.0.1:{self.port}/miau", data={"param1": "hans", "param2": 222})
         self.assertEqual(422, response.status_code)
-        self.assertEqual(
-            "<title>422 Unprocessable Entity</title>\n"
-            "<h1>Unprocessable Entity</h1>\n"
-            "<p>Request body schema deserialization failed ({'param1': ['Not a valid integer.']})</p>\n",
-            response.text
-        )
+        self.assertIn("<title>422 Unprocessable Entity</title>", response.text)
+        self.assertIn("<h1>Unprocessable Entity</h1>", response.text)
+        self.assertIn("Request body schema deserialization failed ({'param1': ['Not a valid integer.']})",
+                      response.text)
 
     def test_request_body_schema_type_not_supported(self):
         with self.assertRaises(RequestBodyProperties.UnsupportedSchemaTypeException):

@@ -1,17 +1,14 @@
+from restit.exception.http_error import HttpError
 from restit.internal.http_accept import HttpAccept
 from restit.internal.response_serializer_service import ResponseSerializerService
 from restit.response import Response
-from restit.rfc7807_http_problem import Rfc7807HttpProblem
 
 
-class HttpExceptionResponseMaker:
-    HTML_TEMPLATE = """<title>{code} {name}</title>
-<h1>{name}</h1>
-<p>{description}</p>
-"""
+class HttpErrorResponseMaker:
 
-    def __init__(self, rfc7807_http_problem: Rfc7807HttpProblem):
-        self.rfc7807_http_problem = rfc7807_http_problem
+    def __init__(self, http_error: HttpError, debug: bool = False):
+        self.http_error = http_error
+        self.debug = debug
 
     def create_response(self, http_accept: HttpAccept) -> Response:
         supported_media_types = [
@@ -32,14 +29,9 @@ class HttpExceptionResponseMaker:
         return response
 
     def create_html_response(self) -> Response:
-        html_text = HttpExceptionResponseMaker.HTML_TEMPLATE.format(
-            code=self.rfc7807_http_problem.status,
-            name=self.rfc7807_http_problem.title,
-            description=self.rfc7807_http_problem.detail
-        )
         response = Response(
-            response_body=html_text,
-            status_code=self.rfc7807_http_problem.status,
+            response_body=self.http_error.to_html(self.debug),
+            status_code=self.http_error.status_code,
             headers={"Content-Type": "text/html"}
         )
         return response
@@ -49,14 +41,14 @@ class HttpExceptionResponseMaker:
         https://tools.ietf.org/html/rfc7807#section-3.1
         """
         response = Response(
-            response_body=self.rfc7807_http_problem.to_json(),
-            status_code=self.rfc7807_http_problem.status,
+            response_body=self.http_error.to_rfc7807_json(),
+            status_code=self.http_error.status_code,
             headers={"Content-Type": "application/problem+json"}
         )
         return response
 
     def create_plain_text_response(self) -> Response:
         return Response(
-            response_body=str(self.rfc7807_http_problem),
-            status_code=self.rfc7807_http_problem.status
+            response_body=self.http_error.to_text(self.debug),
+            status_code=self.http_error.status_code
         )

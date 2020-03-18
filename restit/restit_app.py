@@ -4,19 +4,17 @@ from contextlib import contextmanager
 from functools import lru_cache
 from typing import Iterable, Callable, List, Tuple, Dict, Union
 
-# noinspection PyProtectedMember
-from werkzeug.exceptions import HTTPException, InternalServerError, NotFound
-
 from restit.development_server import DevelopmentServer
+from restit.exception import InternalServerError, NotFound
+from restit.exception.http_error import HttpError
 from restit.internal.default_favicon_resource import DefaultFaviconResource
-from restit.internal.http_exception_response_maker import HttpExceptionResponseMaker
+from restit.internal.http_error_response_maker import HttpErrorResponseMaker
 from restit.namespace import Namespace
 from restit.open_api.open_api_documentation import OpenApiDocumentation
 from restit.open_api.open_api_resource import OpenApiResource
 from restit.request import Request
 from restit.resource import Resource
 from restit.response import Response
-from restit.rfc7807_http_problem import Rfc7807HttpProblem
 
 LOGGER = logging.getLogger(__name__)
 
@@ -47,6 +45,9 @@ class RestitApp:
 
     def set_raise_on_exceptions(self, raise_on_exceptions: bool):
         self._raise_exceptions = raise_on_exceptions
+
+    def set_debug(self, debug: bool):
+        self._debug = debug
 
     def register_resources(self, resources: List[Resource]):
         self.__check_resource_request_mapping(resources)
@@ -106,29 +107,24 @@ class RestitApp:
     ) -> Response:
         try:
             response = self._get_response_or_raise_not_found(path_params, request, resource)
-        except HTTPException as exception:
-            rfc7807_http_problem = Rfc7807HttpProblem.from_http_exception(exception)
-            response = self._create_rfc7807_response(request, rfc7807_http_problem)
-        except Rfc7807HttpProblem as problem:
-            response = self._create_rfc7807_response(request, problem)
-        except Exception as exception:
+        except HttpError as error:
+            error.traceback = traceback.format_exc()
+            response = HttpErrorResponseMaker(error, self._debug).create_response(request.http_accept_object)
+        except Exception as error:
             if self._raise_exceptions:
                 raise
-            LOGGER.error(str(exception))
-            LOGGER.error(traceback.format_exc())
-            internal_exception = InternalServerError(
-                f"{exception}\n{traceback.format_exc()}" if self._debug else ""
-            )
-            exception_response_maker = HttpExceptionResponseMaker(
-                Rfc7807HttpProblem.from_http_exception(internal_exception)
-            )
-            response = exception_response_maker.create_response(request.http_accept_object)
+            LOGGER.error(str(error))
+            _traceback = traceback.format_exc()
+            LOGGER.error(_traceback)
+            internal_server_error = InternalServerError(description=repr(error), traceback=_traceback)
+            response = HttpErrorResponseMaker(
+                internal_server_error, self._debug
+            ).create_response(request.http_accept_object)
         return response
 
     @staticmethod
-    def _create_rfc7807_response(request: Request, rfc7807_http_problem: Rfc7807HttpProblem) -> Response:
-        LOGGER.info(str(rfc7807_http_problem))
-        exception_response_maker = HttpExceptionResponseMaker(rfc7807_http_problem)
+    def _create_http_exception_response(request: Request, http_exception: HttpError) -> Response:
+        exception_response_maker = HttpErrorResponseMaker(http_exception)
         response = exception_response_maker.create_response(request.http_accept_object)
         return response
 

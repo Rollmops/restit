@@ -111,12 +111,9 @@ class RestitAppTestCase(BaseTestServerTestCase):
     def test_internal_server_error(self):
         response = requests.get(f"http://127.0.0.1:{self.port}/error")
         self.assertEqual(500, response.status_code)
-        self.assertIn(
-            "<title>500 Internal Server Error</title>\n"
-            "<h1>Internal Server Error</h1>\n"
-            "<p>OH NOOOO\n",
-            response.text
-        )
+        self.assertIn("<title>500 Internal Server Error</title>", response.text)
+        self.assertIn("<h1>Internal Server Error</h1>", response.text)
+        self.assertIn("OH NOOOO", response.text)
 
     def test_internal_server_error_as_rfc7807_json(self):
         response = requests.get(
@@ -143,13 +140,15 @@ class RestitAppTestCase(BaseTestServerTestCase):
         }, response.json())
 
     def test_hyperlink_path_param_not_found(self):
+        self.restit_app.set_debug(False)
         response = requests.get(f"http://127.0.0.1:{self.port}/resource_with_hyperlink_error")
         self.assertEqual(500, response.status_code)
-        self.assertIn(
+        self.assertEqual(
             "<title>500 Internal Server Error</title>\n"
             "<h1>Internal Server Error</h1>\n"
-            "<p>The path parameter id in request mapping '/miau/:id' was not found in the provided path parameters "
-            "{'not_there': 10}\n", response.text
+            "<p>ExpectedPathParameterForRequestMappingNotFoundException(\"The path parameter id in request "
+            "mapping '/miau/:id' was not found in the provided path parameters {'not_there': 10}\")</p>\n",
+            response.text
         )
 
     def test_default_favicon(self):
