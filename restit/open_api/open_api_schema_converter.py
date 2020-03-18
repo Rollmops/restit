@@ -1,8 +1,9 @@
-from typing import Union
+from typing import Union, List, Pattern
 
 import marshmallow
 from marshmallow import Schema, fields
 from marshmallow.fields import Field, Nested
+from marshmallow.validate import Validator, Range, Length, Regexp
 
 
 class OpenApiSchemaConverter:
@@ -61,9 +62,25 @@ class OpenApiSchemaConverter:
     def convert_field(field: Field) -> dict:
         field_schema = OpenApiSchemaConverter._SCHEMA_TYPE_MAPPING[field.__class__]
         field_schema["description"] = OpenApiSchemaConverter._get_first_doc_line(str(field.__doc__))
+        OpenApiSchemaConverter._process_validators(field.validators, field_schema)
         if field.default != marshmallow.missing:
             field_schema["default"] = field.default
         return field_schema
+
+    @staticmethod
+    def _process_validators(validators: List[Validator], field_schema: dict):
+        for validator in validators:
+            if isinstance(validator, Range):
+                field_schema["minimum"] = validator.min
+                field_schema["maximum"] = validator.max
+                field_schema["exclusiveMinimum"] = not validator.min_inclusive
+                field_schema["exclusiveMaximum"] = not validator.max_inclusive
+            elif isinstance(validator, Length):
+                field_schema["minLength"] = validator.min
+                field_schema["maxLength"] = validator.max
+            elif isinstance(validator, Regexp):
+                field_schema["pattern"] = \
+                    validator.regex.pattern if isinstance(validator.regex, Pattern) else str(validator.regex)
 
     @staticmethod
     def _get_first_doc_line(doc: str) -> str:

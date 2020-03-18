@@ -1,15 +1,16 @@
 import unittest
 
 from marshmallow import Schema, fields
+from marshmallow.validate import Range, Regexp, Length
 
 from restit.open_api.open_api_schema_converter import OpenApiSchemaConverter
 
 
 class SimpleSchema(Schema):
     """My simple schema."""
-    field1 = fields.Integer(required=True, default=1)
+    field1 = fields.Integer(required=True, default=1, validate=[Range(min=1, max=10)])
     field1.__doc__ = "Doc of field1"
-    field2 = fields.String()
+    field2 = fields.String(validate=[Regexp(r"\w+"), Length(min=1, max=100)])
     field3 = fields.UUID()
 
 
@@ -36,10 +37,17 @@ class OpenApiSchemaConverterTestCase(unittest.TestCase):
                 'field1': {
                     'default': 1,
                     'description': 'Doc of field1',
+                    'exclusiveMaximum': False,
+                    'exclusiveMinimum': False,
+                    'maximum': 10,
+                    'minimum': 1,
                     'type': 'integer'
                 },
                 'field2': {
                     'description': 'A string field.',
+                    'maxLength': 100,
+                    'minLength': 1,
+                    'pattern': '\\w+',
                     'type': 'string'
                 },
                 'field3': {
@@ -66,12 +74,19 @@ class OpenApiSchemaConverterTestCase(unittest.TestCase):
                             'description': 'Doc '
                                            'of '
                                            'field1',
+                            'exclusiveMaximum': False,
+                            'exclusiveMinimum': False,
+                            'maximum': 10,
+                            'minimum': 1,
                             'type': 'integer'
                         },
                         'field2': {
                             'description': 'A '
                                            'string '
                                            'field.',
+                            'maxLength': 100,
+                            'minLength': 1,
+                            'pattern': '\\w+',
                             'type': 'string'
                         },
                         'field3': {
@@ -126,12 +141,19 @@ class OpenApiSchemaConverterTestCase(unittest.TestCase):
                                     'description': 'Doc '
                                                    'of '
                                                    'field1',
+                                    'exclusiveMaximum': False,
+                                    'exclusiveMinimum': False,
+                                    'maximum': 10,
+                                    'minimum': 1,
                                     'type': 'integer'
                                 },
                                 'field2': {
                                     'description': 'A '
                                                    'string '
                                                    'field.',
+                                    'maxLength': 100,
+                                    'minLength': 1,
+                                    'pattern': '\\w+',
                                     'type': 'string'
                                 },
                                 'field3': {

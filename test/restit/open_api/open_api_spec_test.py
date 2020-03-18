@@ -2,6 +2,7 @@ import unittest
 
 import requests
 from marshmallow import Schema, fields
+from marshmallow.validate import Regexp, Range
 
 from restit import Resource, Response, Request, request_mapping, RestitApp, query_parameter, \
     request_body
@@ -40,6 +41,10 @@ EXPECTED_OPEN_API_DICT = {
                     'schema': {
                         'type': 'integer',
                         'description': 'An integer field.',
+                        'minimum': 1,
+                        'maximum': 100,
+                        'exclusiveMinimum': False,
+                        'exclusiveMaximum': False,
                         'default': 10
                     }
                 }],
@@ -55,6 +60,10 @@ EXPECTED_OPEN_API_DICT = {
                                 'schema': {
                                     'type': 'integer',
                                     'description': 'An integer field.',
+                                    'minimum': 1,
+                                    'maximum': 100,
+                                    'exclusiveMinimum': False,
+                                    'exclusiveMaximum': False,
                                     'default': 10
                                 }
                             }
@@ -67,6 +76,10 @@ EXPECTED_OPEN_API_DICT = {
                                 'schema': {
                                     'type': 'integer',
                                     'description': 'An integer field.',
+                                    'minimum': 1,
+                                    'maximum': 100,
+                                    'exclusiveMinimum': False,
+                                    'exclusiveMaximum': False,
                                     'default': 10
                                 }
                             }
@@ -86,14 +99,21 @@ EXPECTED_OPEN_API_DICT = {
                                 'type': 'object',
                                 'description': 'A bird with a flight speed exceeding that of an unladen swallow.\n    ',
                                 'properties': {
+                                    'field1': {
+                                        'type': 'string',
+                                        'description': 'A string field.',
+                                        'pattern': '\\w+',
+                                        'minLength': 1,
+                                        'maxLength': 100
+                                    },
                                     'field2': {
                                         'type': 'integer',
                                         'description': 'An integer field.',
+                                        'minimum': 1,
+                                        'maximum': 100,
+                                        'exclusiveMinimum': False,
+                                        'exclusiveMaximum': False,
                                         'default': 10
-                                    },
-                                    'field1': {
-                                        'type': 'string',
-                                        'description': 'A string field.'
                                     }
                                 }
                             }
@@ -101,7 +121,10 @@ EXPECTED_OPEN_API_DICT = {
                         'image/png': {
                             'schema': {
                                 'type': 'string',
-                                'description': 'A string field.'
+                                'description': 'A string field.',
+                                'pattern': '\\w+',
+                                'minLength': 1,
+                                'maxLength': 100
                             }
                         }
                     }
@@ -125,6 +148,10 @@ EXPECTED_OPEN_API_DICT = {
                     'schema': {
                         'type': 'integer',
                         'description': 'An integer field.',
+                        'minimum': 1,
+                        'maximum': 100,
+                        'exclusiveMinimum': False,
+                        'exclusiveMaximum': False,
                         'default': 10
                     }
                 }, {
@@ -134,7 +161,10 @@ EXPECTED_OPEN_API_DICT = {
                     'description': '',
                     'schema': {
                         'type': 'string',
-                        'description': 'A string field.'
+                        'description': 'A string field.',
+                        'pattern': '\\w+',
+                        'minLength': 1,
+                        'maxLength': 100
                     }
                 }],
                 'summary': None,
@@ -150,6 +180,10 @@ EXPECTED_OPEN_API_DICT = {
                     'schema': {
                         'type': 'integer',
                         'description': 'An integer field.',
+                        'minimum': 1,
+                        'maximum': 100,
+                        'exclusiveMinimum': False,
+                        'exclusiveMaximum': False,
                         'default': 10
                     }
                 }, {
@@ -159,7 +193,10 @@ EXPECTED_OPEN_API_DICT = {
                     'description': '',
                     'schema': {
                         'type': 'string',
-                        'description': 'A string field.'
+                        'description': 'A string field.',
+                        'pattern': '\\w+',
+                        'minLength': 1,
+                        'maxLength': 100
                     }
                 }],
                 'summary': 'Identifying allowed request methods.',
@@ -179,9 +216,9 @@ class MyRequestBodySchema(Schema):
 
     __reusable_open_api_component__ = True
 
-    field1 = fields.String(required=True)
+    field1 = fields.String(required=True, validate=[Regexp("\w+")])
     field1.__doc__ = "Description for field1"
-    field2 = fields.Integer()
+    field2 = fields.Integer(validate=[Range(min=1, max=100)])
 
 
 @request_mapping("/path")
