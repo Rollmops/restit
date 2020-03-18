@@ -92,6 +92,8 @@ class Request:
 
     @property
     def deserialized_body(self):
+        if self._deserialized_body is None:
+            self.deserialized_body = self.typed_body[dict]
         return self._deserialized_body
 
     @deserialized_body.setter
