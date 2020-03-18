@@ -29,7 +29,7 @@ class SchemaWithNestedList(Schema):
 
 class OpenApiSchemaConverterTestCase(unittest.TestCase):
     def test_simple(self):
-        open_api_schema = OpenApiSchemaConverter.convert_schema(SimpleSchema())
+        open_api_schema = OpenApiSchemaConverter.convert_schema(SimpleSchema(), {})
 
         self.assertEqual({
             'description': 'My simple schema.',
@@ -61,7 +61,7 @@ class OpenApiSchemaConverterTestCase(unittest.TestCase):
         }, open_api_schema)
 
     def test_nested(self):
-        open_api_schema = OpenApiSchemaConverter.convert_schema(SchemaWithNested())
+        open_api_schema = OpenApiSchemaConverter.convert_schema(SchemaWithNested(), {})
 
         self.assertEqual({
             'description': 'I have a nested field',
@@ -106,7 +106,7 @@ class OpenApiSchemaConverterTestCase(unittest.TestCase):
         }, open_api_schema)
 
     def test_integer_list(self):
-        open_api_schema = OpenApiSchemaConverter.convert(SchemaWithIntegerList())
+        open_api_schema = OpenApiSchemaConverter.convert(SchemaWithIntegerList(), {})
         self.assertEqual({
             'description': None,
             'properties': {
@@ -123,7 +123,7 @@ class OpenApiSchemaConverterTestCase(unittest.TestCase):
         }, open_api_schema)
 
     def test_nested_list(self):
-        open_api_schema = OpenApiSchemaConverter.convert(SchemaWithNestedList())
+        open_api_schema = OpenApiSchemaConverter.convert(SchemaWithNestedList(), {})
 
         self.assertEqual({
             'description': None,

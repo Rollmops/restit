@@ -26,20 +26,20 @@ class OpenApiDocumentation:
                 resource.__class__.__name__ not in OpenApiDocumentation._IGNORE_RESOURCE_CLASS_NAMES:
             self._resources.append(resource)
 
-    @lru_cache(maxsize=1)
+    @lru_cache()
     def generate_spec(self) -> dict:
         self._resources.sort(key=lambda r: r.__request_mapping__)
-        spec_structure = self._generate_base_spec_structure()
-        self._generate_paths(spec_structure)
-        return spec_structure
+        root_spec = self._generate_root_spec()
+        self._generate_paths(root_spec)
+        return root_spec
 
-    def _generate_paths(self, spec_structure):
-        paths = spec_structure["paths"]
+    def _generate_paths(self, root_spec: dict):
+        paths = root_spec["paths"]
         for resource in self._resources:
             if resource.__request_mapping__:
-                self._add_resource(paths, resource, spec_structure)
+                self._add_resource(paths, resource, root_spec)
 
-    def _add_resource(self, paths: dict, resource: Resource, spec_structure: dict):
+    def _add_resource(self, paths: dict, resource: Resource, root_spec: dict):
         path, inferred_path_parameters = \
             self._infer_path_params_and_open_api_path_syntax(resource.__request_mapping__)
         paths[path] = {}
@@ -52,22 +52,24 @@ class OpenApiDocumentation:
             method_spec = paths[path][method_name]
             self._add_summary_and_description_to_method(method_spec, method_object)
             self._add_path_parameters(method_spec, resource, inferred_path_parameters)
-            self._add_query_parameters(method_spec, method_object)
-            self._add_request_body(method_spec, method_object, spec_structure)
-            self._add_responses(method_spec, method_object, spec_structure)
+            self._add_query_parameters(method_spec, method_object, root_spec)
+            self._add_request_body(method_spec, method_object, root_spec)
+            self._add_responses(method_spec, method_object, root_spec)
 
     @staticmethod
-    def _add_responses(method_spec: dict, method_object: object, spec_structure: dict):
+    def _add_responses(method_spec: dict, method_object: object, root_spec: dict):
         response_status_parameters = getattr(method_object, "__response_status_parameters__", None)
         if response_status_parameters:
             for response_status_parameter in response_status_parameters:  # type: ResponseStatusParameter
                 method_spec["responses"][response_status_parameter.status or "default"] = {
                     "description": response_status_parameter.description,
-                    "content": OpenApiDocumentation._create_content_field(response_status_parameter.content_types)
+                    "content": OpenApiDocumentation._create_content_field(
+                        response_status_parameter.content_types, root_spec
+                    )
                 }
 
     @staticmethod
-    def _add_request_body(method_spec: dict, method_object: object, spec_structure: dict):
+    def _add_request_body(method_spec: dict, method_object: object, root_spec: dict):
         request_body_parameter = getattr(
             method_object, "__request_body_properties__", None)  # type: RequestBodyProperties
         if request_body_parameter:
@@ -78,28 +80,28 @@ class OpenApiDocumentation:
             method_spec["requestBody"] = {
                 "description": request_body_parameter.description,
                 "required": request_body_parameter.required,
-                "content": OpenApiDocumentation._create_content_field(request_body_parameter.content_types)
+                "content": OpenApiDocumentation._create_content_field(request_body_parameter.content_types, root_spec)
             }
 
     @staticmethod
-    def _create_content_field(content_types: dict):
+    def _create_content_field(content_types: dict, root_spec: dict):
         return {
             content_type:
                 {
-                    "schema": OpenApiSchemaConverter.convert(schema)
+                    "schema": OpenApiSchemaConverter.convert(schema, root_spec)
                 }
             for content_type, schema in content_types.items()
         }
 
     @staticmethod
-    def _add_query_parameters(method_spec: dict, method_object: object):
+    def _add_query_parameters(method_spec: dict, method_object: object, root_spec: dict):
         method_spec["parameters"].extend([
             {
                 "name": query_parameter.name,
                 "in": "query",
                 "description": query_parameter.description,
                 "required": query_parameter.field_type.required,
-                "schema": OpenApiSchemaConverter.convert(query_parameter.field_type)
+                "schema": OpenApiSchemaConverter.convert(query_parameter.field_type, root_spec)
             }
             for query_parameter in getattr(method_object, "__query_parameters__", [])
         ])
@@ -158,7 +160,7 @@ class OpenApiDocumentation:
         allowed_methods_dict = {allowed: getattr(resource, allowed) for allowed in resource.get_allowed_methods()}
         return allowed_methods_dict
 
-    def _generate_base_spec_structure(self) -> dict:
+    def _generate_root_spec(self) -> dict:
         return {
             "openapi": OpenApiDocumentation._SPEC_VERSION,
             "info": self.info.to_dict(),

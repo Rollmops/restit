@@ -6,216 +6,17 @@ from marshmallow.validate import Regexp, Range
 
 from restit import Resource, Response, Request, request_mapping, RestitApp, query_parameter, \
     request_body
-from restit.open_api import OpenApiDocumentation
+from restit.open_api import OpenApiDocumentation, reusable_schema
 from restit.open_api.contact_object import ContactObject
 from restit.open_api.info_object import InfoObject
 from restit.open_api.license_object import LicenseObject
 from restit.response_status_decorator import response_status
 
-EXPECTED_OPEN_API_DICT = {
-    'openapi': '3.0.0',
-    'info': {
-        'title': 'First OpenApi Test',
-        'version': '1.2.3',
-        'description': 'Super description',
-        'termsOfService': 'http://example.com/terms/',
-        'contact': {
-            'name': 'API Support',
-            'url': 'http://www.example.com/support',
-            'email': 'support@example.com'
-        },
-        'license': {
-            'name': 'Apache 2.0',
-            'url': 'https://www.apache.org/licenses/LICENSE-2.0.html'
-        }
-    },
-    'paths': {
-        '/path': {
-            'get': {
-                'responses': {},
-                'parameters': [{
-                    'name': 'param1',
-                    'in': 'query',
-                    'description': 'A query parameter',
-                    'required': False,
-                    'schema': {
-                        'type': 'integer',
-                        'description': 'An integer field.',
-                        'minimum': 1,
-                        'maximum': 100,
-                        'exclusiveMinimum': False,
-                        'exclusiveMaximum': False,
-                        'default': 10
-                    }
-                }],
-                'summary': 'This is a summary.',
-                'description': 'And here we go with a description'
-            },
-            'post': {
-                'responses': {
-                    'default': {
-                        'description': 'Hmm...some default',
-                        'content': {
-                            'text/plain': {
-                                'schema': {
-                                    'type': 'integer',
-                                    'description': 'An integer field.',
-                                    'minimum': 1,
-                                    'maximum': 100,
-                                    'exclusiveMinimum': False,
-                                    'exclusiveMaximum': False,
-                                    'default': 10
-                                }
-                            }
-                        }
-                    },
-                    200: {
-                        'description': 'Everything worked fine',
-                        'content': {
-                            'text/plain': {
-                                'schema': {
-                                    'type': 'integer',
-                                    'description': 'An integer field.',
-                                    'minimum': 1,
-                                    'maximum': 100,
-                                    'exclusiveMinimum': False,
-                                    'exclusiveMaximum': False,
-                                    'default': 10
-                                }
-                            }
-                        }
-                    }
-                },
-                'parameters': [],
-                'summary': None,
-                'description': None,
-                'requestBody': {
-                    'description': 'A request body',
-                    'required': True,
-                    'content': {
-                        'application/json': {
-                            'schema': {
-                                'required': ['field1'],
-                                'type': 'object',
-                                'description': 'A bird with a flight speed exceeding that of an unladen swallow.\n    ',
-                                'properties': {
-                                    'field1': {
-                                        'type': 'string',
-                                        'description': 'A string field.',
-                                        'pattern': '\\w+',
-                                        'minLength': 1,
-                                        'maxLength': 100
-                                    },
-                                    'field2': {
-                                        'type': 'integer',
-                                        'description': 'An integer field.',
-                                        'minimum': 1,
-                                        'maximum': 100,
-                                        'exclusiveMinimum': False,
-                                        'exclusiveMaximum': False,
-                                        'default': 10
-                                    }
-                                }
-                            }
-                        },
-                        'image/png': {
-                            'schema': {
-                                'type': 'string',
-                                'description': 'A string field.',
-                                'pattern': '\\w+',
-                                'minLength': 1,
-                                'maxLength': 100
-                            }
-                        }
-                    }
-                }
-            },
-            'options': {
-                'responses': {},
-                'parameters': [],
-                'summary': 'Identifying allowed request methods.',
-                'description': 'The HTTP OPTIONS method is used to describe the communication options for the target resource.'
-            }
-        },
-        '/path/{id}/wuff/{id2}': {
-            'get': {
-                'responses': {},
-                'parameters': [{
-                    'name': 'id',
-                    'in': 'path',
-                    'required': True,
-                    'description': '',
-                    'schema': {
-                        'type': 'integer',
-                        'description': 'An integer field.',
-                        'minimum': 1,
-                        'maximum': 100,
-                        'exclusiveMinimum': False,
-                        'exclusiveMaximum': False,
-                        'default': 10
-                    }
-                }, {
-                    'name': 'id2',
-                    'in': 'path',
-                    'required': True,
-                    'description': '',
-                    'schema': {
-                        'type': 'string',
-                        'description': 'A string field.',
-                        'pattern': '\\w+',
-                        'minLength': 1,
-                        'maxLength': 100
-                    }
-                }],
-                'summary': None,
-                'description': None
-            },
-            'options': {
-                'responses': {},
-                'parameters': [{
-                    'name': 'id',
-                    'in': 'path',
-                    'required': True,
-                    'description': '',
-                    'schema': {
-                        'type': 'integer',
-                        'description': 'An integer field.',
-                        'minimum': 1,
-                        'maximum': 100,
-                        'exclusiveMinimum': False,
-                        'exclusiveMaximum': False,
-                        'default': 10
-                    }
-                }, {
-                    'name': 'id2',
-                    'in': 'path',
-                    'required': True,
-                    'description': '',
-                    'schema': {
-                        'type': 'string',
-                        'description': 'A string field.',
-                        'pattern': '\\w+',
-                        'minLength': 1,
-                        'maxLength': 100
-                    }
-                }],
-                'summary': 'Identifying allowed request methods.',
-                'description': 'The HTTP OPTIONS method is used to describe the communication options for the target resource.'
-            }
-        }
-    },
-    'components': {
-        'schemas': {}
-    }
-}
 
-
+@reusable_schema
 class MyRequestBodySchema(Schema):
     """A bird with a flight speed exceeding that of an unladen swallow.
     """
-
-    __reusable_open_api_component__ = True
-
     field1 = fields.String(required=True, validate=[Regexp("\w+")])
     field1.__doc__ = "Description for field1"
     field2 = fields.Integer(validate=[Range(min=1, max=100)])
@@ -267,7 +68,173 @@ class OpenApiSpecTestCase(unittest.TestCase):
         self.maxDiff = None
         open_api_dict = self.open_api_documentation.generate_spec()
 
-        self.assertEqual(EXPECTED_OPEN_API_DICT, open_api_dict)
+        self.assertEqual({
+            'schemas': {
+                'MyRequestBodySchema': {
+                    'required': ['field1'],
+                    'type': 'object',
+                    'description': 'A bird with a flight speed exceeding that of an unladen swallow.\n    ',
+                    'properties': {
+                        'field2': {
+                            'type': 'integer',
+                            'description': 'An integer field.',
+                            'minimum': 1,
+                            'maximum': 100,
+                            'exclusiveMinimum': False,
+                            'exclusiveMaximum': False
+                        },
+                        'field1': {
+                            'description': 'Description '
+                                           'for '
+                                           'field1',
+                            'pattern': '\\w+',
+                            'type': 'string'
+                        }
+                    }
+                }
+            }
+        }, open_api_dict["components"])
+
+        self.assertEqual({
+            'title': 'First OpenApi Test',
+            'version': '1.2.3',
+            'description': 'Super description',
+            'termsOfService': 'http://example.com/terms/',
+            'contact': {
+                'name': 'API Support',
+                'url': 'http://www.example.com/support',
+                'email': 'support@example.com'
+            },
+            'license': {
+                'name': 'Apache 2.0',
+                'url': 'https://www.apache.org/licenses/LICENSE-2.0.html'
+            }
+        }, open_api_dict["info"])
+        self.assertEqual("3.0.0", open_api_dict["openapi"])
+
+        paths_path = open_api_dict["paths"]["/path"]
+        self.assertEqual({
+            'responses': {},
+            'parameters': [{
+                'name': 'param1',
+                'in': 'query',
+                'description': 'A query parameter',
+                'required': False,
+                'schema': {
+                    'default': 10,
+                    'type': 'integer',
+                    'description': 'An integer field.',
+                }
+            }],
+            'summary': 'This is a summary.',
+            'description': 'And here we go with a description'
+        }, paths_path["get"])
+
+        self.assertEqual({
+            'responses': {
+                'default': {
+                    'description': 'Hmm...some default',
+                    'content': {
+                        'text/plain': {
+                            'schema': {
+                                'type': 'integer',
+                                'description': 'An integer field.'
+                            }
+                        }
+                    }
+                },
+                200: {
+                    'description': 'Everything worked fine',
+                    'content': {
+                        'text/plain': {
+                            'schema': {
+                                'type': 'integer',
+                                'description': 'An integer field.'
+                            }
+                        }
+                    }
+                }
+            },
+            'parameters': [],
+            'summary': None,
+            'description': None,
+            'requestBody': {
+                'description': 'A request body',
+                'required': True,
+                'content': {
+                    'application/json': {
+                        'schema': {
+                            '$ref': '#/components/schemas/MyRequestBodySchema'
+                        }
+                    },
+                    'image/png': {
+                        'schema': {
+                            'type': 'string',
+                            'description': 'A string field.'
+                        }
+                    }
+                }
+            }
+        }, paths_path["post"])
+
+        self.assertEqual({
+            'responses': {},
+            'parameters': [],
+            'summary': 'Identifying allowed request methods.',
+            'description': 'The HTTP OPTIONS method is used to describe the communication options for the target resource.'
+        }, paths_path["options"])
+
+        path_with_params = open_api_dict["paths"]["/path/{id}/wuff/{id2}"]
+
+        self.assertIn({
+            'name': 'id',
+            'in': 'path',
+            'required': True,
+            'description': '',
+            'schema': {
+                'type': 'integer',
+                'description': 'An integer field.'
+            }
+        }, path_with_params["get"]["parameters"])
+
+        self.assertIn({
+            'name': 'id2',
+            'in': 'path',
+            'required': True,
+            'description': '',
+            'schema': {
+                'type': 'string',
+                'description': 'A string field.'
+            }
+        }, path_with_params["get"]["parameters"])
+
+        self.assertIn({
+            'name': 'id',
+            'in': 'path',
+            'required': True,
+            'description': '',
+            'schema': {
+                'type': 'integer',
+                'description': 'An integer field.'
+            }
+        }, path_with_params["options"]["parameters"])
+
+        self.assertIn({
+            'name': 'id2',
+            'in': 'path',
+            'required': True,
+            'description': '',
+            'schema': {
+                'type': 'string',
+                'description': 'A string field.'
+            }
+        }, path_with_params["options"]["parameters"])
+
+        self.assertEqual('Identifying allowed request methods.', path_with_params["options"]["summary"])
+        self.assertEqual(
+            'The HTTP OPTIONS method is used to describe the communication options for the target resource.',
+            path_with_params["options"]["description"]
+        )
 
     def test_serve_open_api(self):
         restit_app = RestitApp(
