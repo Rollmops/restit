@@ -8,7 +8,7 @@ class SchemaOrFieldDeserializer:
     @staticmethod
     def deserialize(value, field_or_schema: Union[Type, Schema, Field]) -> Any:
         if isinstance(field_or_schema, Schema):
-            return field_or_schema.dump(value)
+            return field_or_schema.load(value)
         if isinstance(field_or_schema, Field):
             return SchemaOrFieldDeserializer._deserialize_field(value, field_or_schema)
         else:

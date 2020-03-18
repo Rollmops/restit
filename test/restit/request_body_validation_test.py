@@ -1,5 +1,5 @@
 import requests
-from marshmallow import Schema, fields
+from marshmallow import Schema, fields, post_load
 
 from restit.internal.request_body_properties import RequestBodyProperties
 from restit.request import Request
@@ -10,9 +10,24 @@ from restit.response import Response
 from test.base_test_server_test_case import BaseTestServerTestCase
 
 
+class SchemaClass:
+    def __init__(self, param1: int, param2: str):
+        self.param1 = param1
+        self.param2 = param2
+
+
 class RequestBodySchema(Schema):
     param1 = fields.Int(required=True)
     param2 = fields.Str(required=True)
+
+
+class RequestBodyObjectSchema(Schema):
+    param1 = fields.Int(required=True)
+    param2 = fields.Str(required=True)
+
+    @post_load
+    def create_object(self, data, **kwargs) -> SchemaClass:
+        return SchemaClass(**data)
 
 
 @request_mapping("/miau")
@@ -22,11 +37,25 @@ class QueryParametersResource(Resource):
         return Response(request.deserialized_body)
 
 
+@request_mapping("/request-with-object")
+class RequestWithObjectResource(Resource):
+    @request_body({"application/json": RequestBodyObjectSchema()}, "")
+    def post(self, request: Request) -> Response:
+        schema_object: SchemaClass = request.deserialized_body
+        return Response(
+            {
+                "param1": schema_object.param1,
+                "param2": schema_object.param2
+            }
+        )
+
+
 class RequestBodyValidationTestCase(BaseTestServerTestCase):
     @classmethod
     def setUpClass(cls) -> None:
         BaseTestServerTestCase.resources = [
-            QueryParametersResource()
+            QueryParametersResource(),
+            RequestWithObjectResource()
         ]
         BaseTestServerTestCase.setUpClass()
 
@@ -41,7 +70,7 @@ class RequestBodyValidationTestCase(BaseTestServerTestCase):
         self.assertEqual(
             "<title>422 Unprocessable Entity</title>\n"
             "<h1>Unprocessable Entity</h1>\n"
-            "<p>Request body schema deserialization failed (invalid literal for int() with base 10: 'hans')</p>\n",
+            "<p>Request body schema deserialization failed ({'param1': ['Not a valid integer.']})</p>\n",
             response.text
         )
 
@@ -53,3 +82,9 @@ class RequestBodyValidationTestCase(BaseTestServerTestCase):
     def test_unsupported_media_type(self):
         response = requests.post(f"http://127.0.0.1:{self.port}/miau", json={"param1": "hans", "param2": 222})
         self.assertEqual(415, response.status_code)
+
+    def test_request_body_object(self):
+        response = requests.post(
+            f"http://127.0.0.1:{self.port}/request-with-object", json={"param1": "312", "param2": "hans"}
+        )
+        self.assertEqual(200, response.status_code)
