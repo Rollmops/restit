@@ -3,8 +3,8 @@ from typing import Dict, Union
 
 from marshmallow import Schema
 from marshmallow.fields import Field
-from werkzeug.exceptions import UnprocessableEntity
 
+from restit.exception import UnprocessableEntity
 from restit.internal.request_body_properties import RequestBodyProperties
 
 LOGGER = logging.getLogger(__name__)

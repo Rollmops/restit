@@ -8,7 +8,6 @@ setup(
     include_package_data=True,
     install_requires=[
         "marshmallow",
-        "werkzeug"
     ],
     classifiers=[
         # How mature is this project? Common values are

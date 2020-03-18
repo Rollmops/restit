@@ -2,8 +2,8 @@ from typing import Dict, Union, Type
 
 from marshmallow import Schema
 from marshmallow.fields import Field
-from werkzeug.exceptions import UnprocessableEntity, UnsupportedMediaType
 
+from restit.exception import UnprocessableEntity, UnsupportedMediaType
 from restit.internal.mime_type import MIMEType
 
 

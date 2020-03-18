@@ -1,8 +1,7 @@
 import unittest
 
-from werkzeug.exceptions import MethodNotAllowed
-
 from restit import Hyperlink
+from restit.exception import MethodNotAllowed
 from restit.request import Request
 from restit.request_mapping_decorator import request_mapping
 from restit.resource import Resource

@@ -1,7 +1,6 @@
 from typing import List, Union
 
-from werkzeug.exceptions import NotAcceptable
-
+from restit.exception import NotAcceptable
 from restit.internal.default_response_serializer.default_bytes_text_response_serializer import \
     DefaultBytesTextResponseSerializer
 from restit.internal.default_response_serializer.default_dict_json_response_serializer import \
