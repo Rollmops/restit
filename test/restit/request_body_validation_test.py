@@ -19,7 +19,7 @@ class RequestBodySchema(Schema):
 class QueryParametersResource(Resource):
     @request_body({"application/x-www-form-urlencoded": RequestBodySchema()}, description="Huhu")
     def post(self, request: Request) -> Response:
-        return Response(request.typed_body[dict])
+        return Response(request.deserialized_body)
 
 
 class RequestBodyValidationTestCase(BaseTestServerTestCase):

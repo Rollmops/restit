@@ -1,5 +1,6 @@
 from functools import lru_cache
 from io import BufferedReader
+from typing import Any
 from urllib.parse import quote
 
 from restit.common import create_dict_from_assignment_syntax
@@ -23,6 +24,7 @@ class Request:
         self._headers = self._create_headers()
 
         self._typed_body = TypedBody(self.body, self.content_type)
+        self._deserialized_body = None
 
         self._request_deserializer_service = RequestDeserializerService()
 
@@ -89,6 +91,17 @@ class Request:
         return self._typed_body
 
     @property
+    def deserialized_body(self):
+        return self._deserialized_body
+
+    @deserialized_body.setter
+    def deserialized_body(self, body: Any):
+        if self._deserialized_body is None:
+            self._deserialized_body = body
+        else:
+            raise Request.DeserializedBodyAlreadySetException()
+
+    @property
     def http_accept_object(self) -> HttpAccept:
         return HttpAccept.from_accept_string(self.headers.get("Accept", "*/*"))
 
@@ -122,3 +135,6 @@ class Request:
             url += '?' + self._wsgi_environment['QUERY_STRING']
 
         return url
+
+    class DeserializedBodyAlreadySetException(Exception):
+        pass

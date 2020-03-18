@@ -14,6 +14,8 @@ class MarshmallowLearningTestCase(unittest.TestCase):
         self.assertEqual({'f1': 2, 'f2': '3'}, my_schema.dump({"f1": "2", "f2": "3"}))
         self.assertEqual('{"f1": 2}', my_schema.dumps({"f1": "2"}))
 
+        self.assertEqual({}, my_schema.dump('{"f1": 2, "f2": "3"}'))
+
     def test_load(self):
         class MySchema(Schema):
             f1 = fields.Integer()
@@ -52,3 +54,4 @@ class MarshmallowLearningTestCase(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             field.serialize("", None, lambda *args: "31sadsad")
+

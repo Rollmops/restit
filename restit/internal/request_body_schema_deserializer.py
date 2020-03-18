@@ -13,7 +13,7 @@ class RequestBodySchemaDeserializer:
         _type = str if isinstance(schema_or_field, Field) else dict
         body = request.typed_body[_type]
         try:
-            request.typed_body.cache[_type] = SchemaOrFieldDeserializer.deserialize(body, schema_or_field)
+            request.deserialized_body = SchemaOrFieldDeserializer.deserialize(body, schema_or_field)
         except (ValidationError, ValueError) as error:
             raise request_body_properties.validation_error_class(
                 f"Request body schema deserialization failed ({str(error)})"
