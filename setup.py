@@ -1,11 +1,28 @@
+import os
+import re
+
 from setuptools import setup, find_packages
 
+with open(
+        os.path.join(os.path.dirname(__file__), "restit", "__init__.py")
+) as v_file:
+    VERSION = (
+        re.compile(r""".*__version__ = ["'](.*?)['"]""", re.S)
+            .match(v_file.read())
+            .group(1)
+    )
+
+with open(os.path.join(os.path.dirname(__file__), "README.rst")) as r_file:
+    readme = r_file.read()
 
 setup(
     name="restit",
-    version="0.2.0",
+    author="Erik Tuerke",
+    url="https://restit.readthedocs.io/en/latest/",
+    version=VERSION,
     packages=find_packages(),
     include_package_data=True,
+    long_description=readme,
     install_requires=[
         "marshmallow",
     ],
