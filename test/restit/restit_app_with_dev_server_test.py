@@ -146,8 +146,8 @@ class RestitAppTestCase(BaseTestServerTestCase):
         self.assertEqual(
             "<title>500 Internal Server Error</title>\n"
             "<h1>Internal Server Error</h1>\n"
-            "<p>ExpectedPathParameterForRequestMappingNotFoundException(\"The path parameter id in request "
-            "mapping '/miau/:id' was not found in the provided path parameters {'not_there': 10}\")</p>\n",
+            "<p>ExpectedPathParameterForRequestMappingNotFoundException: The path parameter id in request "
+            "mapping '/miau/:id' was not found in the provided path parameters {'not_there': 10}</p>\n",
             response.text
         )
 

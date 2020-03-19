@@ -116,7 +116,9 @@ class RestitApp:
             LOGGER.error(str(error))
             _traceback = traceback.format_exc()
             LOGGER.error(_traceback)
-            internal_server_error = InternalServerError(description=repr(error), traceback=_traceback)
+            internal_server_error = InternalServerError(
+                description=f"{error.__class__.__name__}: {error}", traceback=_traceback
+            )
             response = HttpErrorResponseMaker(
                 internal_server_error, self._debug
             ).create_response(request.http_accept_object)
