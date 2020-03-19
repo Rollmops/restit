@@ -13,4 +13,4 @@ from .restit_test_app import RestitTestApp
 from .static_directory_resource import StaticDirectoryResource
 from .static_file_response import StaticFileResponse
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
