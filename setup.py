@@ -22,6 +22,7 @@ setup(
     version=VERSION,
     packages=find_packages(),
     include_package_data=True,
+    description="HTTP REST library including OOP-readiness and Open-API generation",
     long_description=readme,
     install_requires=[
         "marshmallow",
