@@ -21,7 +21,7 @@ class RequestTestCase(unittest.TestCase):
         self.assertEqual(HttpAccept.from_accept_string("*/*"), request.http_accept_object)
         self.assertEqual("/path", request.path)
         self.assertEqual({"param": "value", "param2": "value2"}, request.query_parameters)
-        self.assertEqual("http://localhost:8080", request.host_url)
+        self.assertEqual("http://localhost:8080", request.host)
         self.assertEqual("http://localhost:8080/path?param=value&param2=value2", request.original_url)
         self.assertEqual("GET", request.request_method_name)
 

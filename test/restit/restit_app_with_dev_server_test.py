@@ -139,6 +139,28 @@ class RestitAppTestCase(BaseTestServerTestCase):
             "hyperlink": f"http://127.0.0.1:{self.port}/"
         }, response.json())
 
+    def test_hyperlink_with_x_forwarded(self):
+        response = requests.get(
+            f"http://127.0.0.1:{self.port}/resource_with_hyperlink",
+            headers={"X-Forwarded-Host": "my.server.com:8080", "X-Forwarded-Proto": "https"}
+        )
+        self.assertEqual(200, response.status_code)
+        self.assertEqual({
+            "hyperlink_with_path_params": 'https://my.server.com:8080/miau/10',
+            "hyperlink": 'https://my.server.com:8080/'
+        }, response.json())
+
+    def test_hyperlink_with_forwarded(self):
+        response = requests.get(
+            f"http://127.0.0.1:{self.port}/resource_with_hyperlink",
+            headers={"Forwarded": "for=123.0.2.33; host=my.server.com:8080;proto=https"}
+        )
+        self.assertEqual(200, response.status_code)
+        self.assertEqual({
+            "hyperlink_with_path_params": 'https://my.server.com:8080/miau/10',
+            "hyperlink": 'https://my.server.com:8080/'
+        }, response.json())
+
     def test_hyperlink_path_param_not_found(self):
         self.restit_app.set_debug(False)
         response = requests.get(f"http://127.0.0.1:{self.port}/resource_with_hyperlink_error")

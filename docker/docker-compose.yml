@@ -1,0 +1,28 @@
+version: "3"
+services:
+    app:
+        container_name: restit-app
+        build:
+            context: .
+            dockerfile: restit.dockerfile
+        networks:
+            - my-network
+
+    nginx:
+        container_name: nginx
+        build:
+            context: .
+            dockerfile: nginx.dockerfile
+        volumes:
+            - "./nginx.conf:/etc/nginx/nginx.conf"
+        ports:
+            - "8080:80"
+        depends_on:
+            - app
+        networks:
+            - my-network
+
+networks:
+    my-network:
+        driver: bridge
+

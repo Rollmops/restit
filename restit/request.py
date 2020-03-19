@@ -4,6 +4,7 @@ from typing import Any
 from urllib.parse import quote
 
 from restit.common import create_dict_from_assignment_syntax
+from restit.internal.forwarded_header import ForwardedHeader
 from restit.internal.http_accept import HttpAccept
 from restit.internal.mime_type import MIMEType
 from restit.internal.request_deserializer_service import RequestDeserializerService
@@ -22,6 +23,8 @@ class Request:
 
         self._query_parameters: dict = create_dict_from_assignment_syntax(self._query_string)
         self._headers = self._create_headers()
+
+        self._forwarded = ForwardedHeader.from_headers(self._headers)
 
         self._typed_body = TypedBody(self.body, self.content_type)
         self._deserialized_body = None
@@ -75,6 +78,22 @@ class Request:
         return self._query_string
 
     @property
+    @lru_cache()
+    def host(self) -> str:
+        host = self.forwarded.host or self._headers.get("Host")
+        if host is None:
+            host = (self.forwarded.server or self._wsgi_environment["SERVER_NAME"])
+            port = self._wsgi_environment['SERVER_PORT']
+            if port != 443 and port != 80:
+                host += f":{port}"
+
+        return self.protocol + "://" + host
+
+    @property
+    def protocol(self) -> str:
+        return self.forwarded.proto or self._wsgi_environment['wsgi.url_scheme']
+
+    @property
     def content_encoding(self) -> str:
         return self._headers.get("Content-Encoding")
 
@@ -89,6 +108,10 @@ class Request:
     @property
     def typed_body(self) -> TypedBody:
         return self._typed_body
+
+    @property
+    def forwarded(self) -> ForwardedHeader:
+        return self._forwarded
 
     @property
     def deserialized_body(self):
@@ -108,28 +131,9 @@ class Request:
         return HttpAccept.from_accept_string(self.headers.get("Accept", "*/*"))
 
     @property
-    def host_url(self) -> str:
-        """https://www.python.org/dev/peps/pep-0333/#url-reconstruction"""
-        url = self._wsgi_environment['wsgi.url_scheme'] + '://'
-
-        if self._wsgi_environment.get('HTTP_HOST'):
-            url += self._wsgi_environment['HTTP_HOST']
-        else:
-            url += self._wsgi_environment['SERVER_NAME']
-
-            if self._wsgi_environment['wsgi.url_scheme'] == 'https':
-                if self._wsgi_environment['SERVER_PORT'] != '443':
-                    url += ':' + self._wsgi_environment['SERVER_PORT']
-            else:
-                if self._wsgi_environment['SERVER_PORT'] != '80':
-                    url += ':' + self._wsgi_environment['SERVER_PORT']
-
-        return url
-
-    @property
     def original_url(self) -> str:
         """https://www.python.org/dev/peps/pep-0333/#url-reconstruction"""
-        url = self.host_url
+        url = self.host
 
         url += quote(self._wsgi_environment.get('SCRIPT_NAME', ''))
         url += quote(self._wsgi_environment.get('PATH_INFO', ''))
