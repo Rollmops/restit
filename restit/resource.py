@@ -155,5 +155,12 @@ class Resource:
         assert self._resource_path
         return self._resource_path.get_match(url)
 
+    @staticmethod
+    def sort_resources(resources: List["Resource"]) -> List["Resource"]:
+        def key_function(resource: Resource):
+            return resource.__request_mapping__.count("/"), resource.__request_mapping__.count(":") * -1
+
+        return sorted(resources, key=key_function, reverse=True)
+
     class PathParameterNotFoundException(Exception):
         pass
