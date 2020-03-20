@@ -17,7 +17,7 @@ from restit.response_status_decorator import response_status
 class MyRequestBodySchema(Schema):
     """A bird with a flight speed exceeding that of an unladen swallow.
     """
-    field1 = fields.String(required=True, validate=[Regexp("\w+")])
+    field1 = fields.String(required=True, validate=[Regexp(r"\w+")])
     field1.__doc__ = "Description for field1"
     field2 = fields.Integer(validate=[Range(min=1, max=100)])
 
