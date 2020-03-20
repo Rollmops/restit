@@ -9,6 +9,7 @@ LOGGER = logging.getLogger(__name__)
 
 
 def request_mapping(path: str, path_parameters: List[PathParameter] = None):
+    """Documentation for request_mapping"""
     path_parameters = path_parameters or []
 
     def wrapper(clazz: Type[Resource]):

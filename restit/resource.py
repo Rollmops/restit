@@ -23,6 +23,8 @@ LOGGER = logging.getLogger(__name__)
 
 
 class Resource:
+    """Documentation resource"""
+
     __request_mapping__ = None
     _METHOD_NAMES = ["get", "post", "put", "delete", "patch", "options", "trace", "connect", "head"]
 

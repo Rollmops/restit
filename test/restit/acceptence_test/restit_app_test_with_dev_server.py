@@ -17,7 +17,7 @@ class RestitAppWithDevSeverTestCase(unittest.TestCase):
             namespaces=[todo_namespace],
             open_api_documentation=OpenApiDocumentation(
                 info=InfoObject(title="Sample TODO Api", version="1.0.0", description="Demonstrate the RestIt library"),
-                path="/todos/api"
+                path="/todos/api.rst"
             ), debug=True
         )
 

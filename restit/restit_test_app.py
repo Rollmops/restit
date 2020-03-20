@@ -16,8 +16,8 @@ class RestitTestApp(RestitApp):
         super().__init__(
             resources=restit_app._resources,
             namespaces=restit_app._namespaces,
-            debug=restit_app._debug,
-            raise_exceptions=restit_app._raise_exceptions
+            debug=restit_app.debug,
+            raise_exceptions=restit_app.raise_exceptions
         )
         self._init()
 
@@ -53,7 +53,7 @@ class RestitTestApp(RestitApp):
     def _get_response(self, wsgi_environment: dict):
         resource, path_params = self._find_resource_for_url(wsgi_environment["PATH_INFO"])
         request = Request(wsgi_environment, path_params)
-        if self._raise_exceptions:
+        if self.raise_exceptions:
             return self._get_response_or_raise_not_found(path_params, request, resource)
         else:
             return self._create_response_and_handle_exceptions(path_params, request, resource)

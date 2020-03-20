@@ -5,7 +5,7 @@ from functools import lru_cache
 from typing import Iterable, Callable, List, Tuple, Dict, Union
 
 from restit.development_server import DevelopmentServer
-from restit.exception import InternalServerError, NotFound
+from restit.exception import InternalServerError, NotFound, MissingRequestMappingException
 from restit.exception.http_error import HttpError
 from restit.internal.default_favicon_resource import DefaultFaviconResource
 from restit.internal.http_error_response_maker import HttpErrorResponseMaker
@@ -20,6 +20,20 @@ LOGGER = logging.getLogger(__name__)
 
 
 class RestitApp:
+    """This class represents your *REST* application and is used to glue everything together.
+
+    Since it is a `WSGI <https://www.python.org/dev/peps/pep-0333/>`_-Application, its instance can be passed to servers
+    like `Gunicorn <https://gunicorn.org/>`_.
+
+    :param resources: A list of :class:`Resource` instances
+    :param namespaces: A list of :class:`Namespace` instances
+    :param debug: If set to `True`, you will get a detailed *HTML* stacktrace if an error is raised inside your application
+    :param raise_exceptions: If set to `True`, exceptions will not cause error responses but will raise an error
+    :param open_api_documentation: An instance of :class:`OpenApiDocumentation`. If not set, no
+           `OpenApi <https://swagger.io/docs/specification/about/>`_ documenation will be generated.
+
+    """
+
     def __init__(
             self, resources: List[Resource] = None,
             namespaces: List[Namespace] = None,
@@ -28,10 +42,10 @@ class RestitApp:
             open_api_documentation: OpenApiDocumentation = None
 
     ):
-        self._debug = debug
         self._namespaces: List[Namespace] = []
         self._resources: List[Resource] = []
-        self._raise_exceptions = raise_exceptions
+        self.debug = debug
+        self.raise_exceptions = raise_exceptions
         self._open_api_documentation = open_api_documentation
         self.register_namespaces(namespaces or [])
         self.register_resources(resources or [])
@@ -41,15 +55,22 @@ class RestitApp:
         self._init_called = False
 
     def set_open_api_documentation(self, open_api_documentation: OpenApiDocumentation):
+        """Set an instance of :class:`OpenApiDocumentation`.
+
+        If not set, no `OpenApi <https://swagger.io/docs/specification/about/>`_ documenation will be generated.
+
+        Can also be set in the constructor.
+
+        """
+
         self._open_api_documentation = open_api_documentation
 
-    def set_raise_on_exceptions(self, raise_on_exceptions: bool):
-        self._raise_exceptions = raise_on_exceptions
-
-    def set_debug(self, debug: bool):
-        self._debug = debug
-
     def register_resources(self, resources: List[Resource]):
+        """Register an instance of :class:`Resource` to your application.
+
+        A list of resource instances can also be set in the constructor.
+        """
+
         self.__check_resource_request_mapping(resources)
         self._resources.extend(resources)
         self._resources = Resource.sort_resources(self._resources)
@@ -59,15 +80,68 @@ class RestitApp:
             self.register_resources(namespace.get_adapted_resources())
 
     def start_development_server(self, host: str = None, port: int = 5000, blocking: bool = True) -> int:
+        """This function starts a development server
+
+        .. warning::
+
+           Do not use the developer server in production!
+
+        :param host: The host name, defaults to 127.0.0.1
+        :type host: str
+        :param port: The port number. If set to 0, the OS will assign a free port number for you. The port number will
+            then be returned by that function, defaults to 5000
+        :type port: int
+        :param blocking: If set to `True`, the function will block. Otherwise, the server will run in a thread and can
+            be stopped by calling :func:`stop_development_server`.
+        :type blocking: bool
+        :return: The port the development server is running on
+        :rtype: int
+        """
+
         self.__development_server = DevelopmentServer(self, host, port)
         self.__development_server.start(blocking=blocking)
         return self.__development_server.server.server_port
 
-    def stop_development_server(self):
+    def stop_development_server(self) -> None:
+        """Stops the development server if started in non blocking mode."""
         self.__development_server.stop()
 
     @contextmanager
     def start_development_server_in_context(self, host: str = None, port: int = 5000) -> int:
+        """Starts a development server in a context.
+
+        Example:
+
+        .. code:: python
+
+            import requests
+
+            from restit import RestitApp, Request, Response, Resource, request_mapping
+
+
+            @request_mapping("/path")
+            class MyResource(Resource):
+                def get(self, request: Request) -> Response:
+                    return Response("Hello")
+
+
+            my_restit_app = RestitApp(resources=[MyResource()])
+
+            with my_restit_app.start_development_server_in_context(port=0) as port:
+                response = requests.get(f"http://127.0.0.1:{port}/path")
+                assert response.status_code == 200
+                assert response.text == "Hello"
+
+            # here the development server has stopped
+
+
+        :param host: The host name, defaults to 127.0.0.1
+        :type host: str
+        :param port: The port number. If set to 0, the OS will assign a free port number for you. The port number will
+            then be returned by that function, defaults to 5000
+        :return: The port the development server is running on
+        :rtype: int
+        """
         self.__development_server = DevelopmentServer(self, host, port)
         with self.__development_server.start_in_context() as port:
             yield port
@@ -76,7 +150,7 @@ class RestitApp:
     def __check_resource_request_mapping(resources):
         for resource in resources:
             if resource.__request_mapping__ is None:
-                raise RestitApp.MissingRequestMappingException(
+                raise MissingRequestMappingException(
                     f"The resource class {resource.__class__.__name__} does not appear to have a @request_mapping(...)"
                 )
 
@@ -109,9 +183,9 @@ class RestitApp:
             response = self._get_response_or_raise_not_found(path_params, request, resource)
         except HttpError as error:
             error.traceback = traceback.format_exc()
-            response = HttpErrorResponseMaker(error, self._debug).create_response(request.http_accept_object)
+            response = HttpErrorResponseMaker(error, self.debug).create_response(request.http_accept_object)
         except Exception as error:
-            if self._raise_exceptions:
+            if self.raise_exceptions:
                 raise
             LOGGER.error(str(error))
             _traceback = traceback.format_exc()
@@ -120,7 +194,7 @@ class RestitApp:
                 description=f"{error.__class__.__name__}: {error}", traceback=_traceback
             )
             response = HttpErrorResponseMaker(
-                internal_server_error, self._debug
+                internal_server_error, self.debug
             ).create_response(request.http_accept_object)
         return response
 
@@ -154,6 +228,3 @@ class RestitApp:
                 return resource, path_params
 
         return None, None
-
-    class MissingRequestMappingException(Exception):
-        pass

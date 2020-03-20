@@ -177,13 +177,6 @@ class OpenApiSpecTestCase(unittest.TestCase):
             }
         }, paths_path["post"])
 
-        self.assertEqual({
-            'responses': {},
-            'parameters': [],
-            'summary': 'Identifying allowed request methods.',
-            'description': 'The HTTP OPTIONS method is used to describe the communication options for the target resource.'
-        }, paths_path["options"])
-
         path_with_params = open_api_dict["paths"]["/path/{id}/wuff/{id2}"]
 
         self.assertIn({
@@ -208,34 +201,6 @@ class OpenApiSpecTestCase(unittest.TestCase):
             }
         }, path_with_params["get"]["parameters"])
 
-        self.assertIn({
-            'name': 'id',
-            'in': 'path',
-            'required': True,
-            'description': '',
-            'schema': {
-                'type': 'integer',
-                'description': 'An integer field.'
-            }
-        }, path_with_params["options"]["parameters"])
-
-        self.assertIn({
-            'name': 'id2',
-            'in': 'path',
-            'required': True,
-            'description': '',
-            'schema': {
-                'type': 'string',
-                'description': 'A string field.'
-            }
-        }, path_with_params["options"]["parameters"])
-
-        self.assertEqual('Identifying allowed request methods.', path_with_params["options"]["summary"])
-        self.assertEqual(
-            'The HTTP OPTIONS method is used to describe the communication options for the target resource.',
-            path_with_params["options"]["description"]
-        )
-
     def test_serve_open_api(self):
         restit_app = RestitApp(
             resources=[
@@ -249,10 +214,10 @@ class OpenApiSpecTestCase(unittest.TestCase):
         # restit_app.start_development_server()
 
         with restit_app.start_development_server_in_context(port=0) as port:
-            response = requests.get(f"http://127.0.0.1:{port}/api/")
+            response = requests.get(f"http://127.0.0.1:{port}/api.rst/")
             self.assertEqual(200, response.status_code)
             self.assertIn("text/html", response.headers["Content-Type"])
             self.assertIn("<title>Swagger UI</title>", response.text)
 
-            response = requests.get(f"http://127.0.0.1:{port}/api/swagger.json")
+            response = requests.get(f"http://127.0.0.1:{port}/api.rst/swagger.json")
             self.assertEqual(200, response.status_code)

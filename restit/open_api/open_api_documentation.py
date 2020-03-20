@@ -15,7 +15,7 @@ class OpenApiDocumentation:
     _IGNORE_RESOURCE_CLASS_NAMES = ["DefaultFaviconResource", "OpenApiResource"]
     _SPEC_VERSION = "3.0.0"
 
-    def __init__(self, info: InfoObject, path: str = "/api"):
+    def __init__(self, info: InfoObject, path: str = "/api.rst"):
         self.info = info
         self.path = path
         self._resources: List[Resource] = []
@@ -73,10 +73,6 @@ class OpenApiDocumentation:
         request_body_parameter = getattr(
             method_object, "__request_body_properties__", None)  # type: RequestBodyProperties
         if request_body_parameter:
-            # ToDo allow creating global schema under components
-            # spec_structure["components"]["schemas"][request_body_parameter.schema.__class__.__name__] = \
-            #    MarshmallowToOpenApiSchemaConverter.convert(request_body_parameter.schema)
-
             method_spec["requestBody"] = {
                 "description": request_body_parameter.description,
                 "required": request_body_parameter.required,
@@ -157,7 +153,10 @@ class OpenApiDocumentation:
 
     @staticmethod
     def _get_allowed_resource_methods(resource: Resource) -> dict:
-        allowed_methods_dict = {allowed: getattr(resource, allowed) for allowed in resource.get_allowed_methods()}
+        allowed_methods_dict = {
+            allowed: getattr(resource, allowed) for allowed in resource.get_allowed_methods()
+            if allowed not in ["options", "head"]
+        }
         return allowed_methods_dict
 
     def _generate_root_spec(self) -> dict:

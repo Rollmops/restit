@@ -8,3 +8,7 @@ from .redirection_messages_3xx import Found, MovedPermanently, MultipleChoice, N
     TemporaryRedirect, UseProxy
 from .server_errors_5xx import InternalServerError, NotImplemented, HTTPVersionNotSupported, ServiceUnavailable, \
     BadGateway, GatewayTimeout, NetworkAuthenticationRequired, VariantAlsoNegotiates, VariantAlsoNegotiates507
+
+
+class MissingRequestMappingException(Exception):
+    pass

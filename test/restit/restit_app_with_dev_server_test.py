@@ -1,6 +1,7 @@
 import requests
 
 from restit import Hyperlink
+from restit.exception import MissingRequestMappingException
 from restit.internal.default_favicon_resource import DefaultFaviconResource
 from restit.request import Request
 from restit.request_mapping_decorator import request_mapping
@@ -129,7 +130,7 @@ class RestitAppTestCase(BaseTestServerTestCase):
         class ResourceWithoutRequestMapping(Resource):
             pass
 
-        with self.assertRaises(RestitApp.MissingRequestMappingException):
+        with self.assertRaises(MissingRequestMappingException):
             RestitApp(resources=[ResourceWithoutRequestMapping()])
 
     def test_hyperlink(self):
@@ -166,7 +167,7 @@ class RestitAppTestCase(BaseTestServerTestCase):
         }, response.json())
 
     def test_hyperlink_path_param_not_found(self):
-        self.restit_app.set_debug(False)
+        self.restit_app.debug = False
         response = requests.get(f"http://127.0.0.1:{self.port}/resource_with_hyperlink_error")
         self.assertEqual(500, response.status_code)
         self.assertEqual(
