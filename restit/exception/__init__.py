@@ -12,3 +12,7 @@ from .server_errors_5xx import InternalServerError, NotImplemented, HTTPVersionN
 
 class MissingRequestMappingException(Exception):
     pass
+
+
+class PathIsNotStartingWithSlashException(Exception):
+    pass

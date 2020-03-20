@@ -1,6 +1,7 @@
 from .development_server import DevelopmentServer
 from .hyperlink import Hyperlink
 from .namespace import Namespace
+from .path_parameter import PathParameter
 from .path_parameter_decorator import path_parameter
 from .query_parameter_decorator import query_parameter
 from .request import Request

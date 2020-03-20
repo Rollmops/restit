@@ -23,7 +23,21 @@ LOGGER = logging.getLogger(__name__)
 
 
 class Resource:
-    """Documentation resource"""
+    """Base class you have to inherit from when implementing your resource.
+
+    It provides the interface for all `HTTP request methods <https://developer.mozilla.org/de/docs/Web/HTTP/Methods>`_
+    and implicit implementation for the `OPTIONS <https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/OPTIONS>`_
+    method.
+
+    If an *HTTP* method is not implemented but requested by the client, a :class:`~restit.exception.MethodNotAllowed`
+    error will be raised leading to a `405 <https://developer.mozilla.org/de/docs/Web/HTTP/Status/405>`_
+    response status code on the client.
+
+    .. note::
+
+        You have to map your resource with an *URI* using the :func:`request_mapping` decorator.
+
+    """
 
     __request_mapping__ = None
     _METHOD_NAMES = ["get", "post", "put", "delete", "patch", "options", "trace", "connect", "head"]

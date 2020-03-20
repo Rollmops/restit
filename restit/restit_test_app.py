@@ -67,7 +67,6 @@ class RestitTestApp(RestitApp):
         setup_testing_defaults(wsgi_environment)
         body_as_bytes = b""
         wsgi_environment["HTTP_ACCEPT"] = header.get("Accept", "*/*")
-        wsgi_environment["HTTP_ACCEPT_CHARSET"] = header.get("Accept-Charset", get_default_encoding())
         wsgi_environment["CONTENT_ENCODING"] = header.get("Content-Encoding", "gzip, deflate")
         wsgi_environment["HTTP_ACCEPT_ENCODING"] = header.get("Accept-Encoding", "gzip, deflate")
         content_type = "application/octet-stream"
@@ -84,7 +83,14 @@ class RestitTestApp(RestitApp):
         wsgi_environment["wsgi.input"] = BytesIO(body_as_bytes)
         wsgi_environment["QUERY_STRING"] = parsed_path.query
         wsgi_environment["CONTENT_TYPE"] = header.get("Content-Type", content_type)
+        self._set_header_values(wsgi_environment, header)
         return wsgi_environment
+
+    @staticmethod
+    def _set_header_values(wsgi_environment: dict, headers: dict):
+        for key, value in headers.items():
+            wsgi_key = "HTTP_" + key.upper().replace("-", "_")
+            wsgi_environment.setdefault(wsgi_key, value)
 
     @staticmethod
     def _get_body_as_bytes_from_data_argument(
