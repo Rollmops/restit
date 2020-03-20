@@ -40,8 +40,8 @@ class ResourceWithPathParams(Resource):
 class ResourceWithHyperLink(Resource):
     def get(self, request: Request, **kwargs) -> Response:
         return Response({
-            "hyperlink_with_path_params": Hyperlink(ResourceWithPathParams).generate(request, id=10),
-            "hyperlink": Hyperlink(MyResource).generate(request)
+            "hyperlink_with_path_params": Hyperlink(ResourceWithPathParams, request).generate(id=10),
+            "hyperlink": Hyperlink(MyResource, request).generate()
         })
 
 

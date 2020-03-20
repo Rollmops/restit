@@ -47,8 +47,9 @@ class ErrorResource(Resource):
 class ResourceWithHyperLink(Resource):
     def get(self, request: Request) -> Response:
         return Response({
-            "hyperlink_with_path_params": Hyperlink(ResourceWithPathParams).generate(request, id=10),
-            "hyperlink": Hyperlink(MyResource).generate(request)
+            "hyperlink_with_path_params": Hyperlink(ResourceWithPathParams, request).generate(id=10),
+            "hyperlink": Hyperlink(MyResource, request).generate(),
+            "hyperlink_with_path": Hyperlink("/path/to/hyperlink/:id", request).generate(id=10)
         })
 
 
@@ -56,7 +57,7 @@ class ResourceWithHyperLink(Resource):
 class ResourceWithHyperLinkError(Resource):
     def get(self, request: Request) -> Response:
         return Response({
-            "hyperlink_with_path_params": Hyperlink(ResourceWithPathParams).generate(request, not_there=10),
+            "hyperlink_with_path_params": Hyperlink(ResourceWithPathParams, request).generate(not_there=10),
         })
 
 
@@ -136,6 +137,7 @@ class RestitAppTestCase(BaseTestServerTestCase):
         self.assertEqual(200, response.status_code)
         self.assertEqual({
             "hyperlink_with_path_params": f"http://127.0.0.1:{self.port}/miau/10",
+            'hyperlink_with_path': f'http://127.0.0.1:{self.port}/path/to/hyperlink/10',
             "hyperlink": f"http://127.0.0.1:{self.port}/"
         }, response.json())
 
@@ -147,6 +149,7 @@ class RestitAppTestCase(BaseTestServerTestCase):
         self.assertEqual(200, response.status_code)
         self.assertEqual({
             "hyperlink_with_path_params": 'https://my.server.com:8080/miau/10',
+            'hyperlink_with_path': 'https://my.server.com:8080/path/to/hyperlink/10',
             "hyperlink": 'https://my.server.com:8080/'
         }, response.json())
 
@@ -158,6 +161,7 @@ class RestitAppTestCase(BaseTestServerTestCase):
         self.assertEqual(200, response.status_code)
         self.assertEqual({
             "hyperlink_with_path_params": 'https://my.server.com:8080/miau/10',
+            'hyperlink_with_path': 'https://my.server.com:8080/path/to/hyperlink/10',
             "hyperlink": 'https://my.server.com:8080/'
         }, response.json())
 
