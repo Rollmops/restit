@@ -16,7 +16,7 @@ from restit.internal.mime_type import MIMEType
 from restit.internal.response_serializer_service import ResponseSerializerService
 from restit.internal.response_status_parameter import ResponseStatusParameter
 from restit.response import Response
-from restit.response_serializer import ResponseSerializer
+from restit.response_serializer import ResponseSerializer, CanHandleResultType
 
 
 class ResponseSerializerTestCase(unittest.TestCase):
@@ -64,14 +64,18 @@ class ResponseSerializerTestCase(unittest.TestCase):
                 return ["my/type"]
 
             def validate_and_serialize(
-                    self, response_input: Any, response_status_parameter: Union[None, ResponseStatusParameter]
+                    self,
+                    response_input: Any,
+                    response_status_parameter: Union[None, ResponseStatusParameter],
+                    can_handle_result: CanHandleResultType
             ) -> Tuple[bytes, str]:
-                return "".join(reversed(response_input)).encode(), "my/type"
+                assert can_handle_result.mime_type.charset == "ascii"
+                return "".join(reversed(response_input)).encode(encoding=can_handle_result.mime_type.charset), "my/type"
 
         ResponseSerializerService.register_response_serializer(MyResponseSerializer())
         response = Response("Test")
         ResponseSerializerService.validate_and_serialize_response_body(
-            response, HttpAccept.from_accept_string("my/type")
+            response, HttpAccept.from_accept_string("my/type; charset=ascii")
         )
 
         self.assertEqual(b'tseT', response.content)

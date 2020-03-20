@@ -1,4 +1,4 @@
-from typing import List, Union
+from typing import List, Union, Tuple
 
 from restit.exception import NotAcceptable
 from restit.internal.default_response_serializer.default_bytes_text_response_serializer import \
@@ -15,7 +15,7 @@ from restit.internal.default_response_serializer.str_fallback_response_serialize
 from restit.internal.http_accept import HttpAccept
 from restit.internal.response_status_parameter import ResponseStatusParameter
 from restit.response import Response
-from restit.response_serializer import ResponseSerializer
+from restit.response_serializer import ResponseSerializer, CanHandleResultType
 
 _DEFAULT_RESPONSE_SERIALIZER = [
     DefaultDictJsonResponseSerializer(),
@@ -43,14 +43,15 @@ class ResponseSerializerService:
         ResponseSerializerService._RESPONSE_SERIALIZER = _DEFAULT_RESPONSE_SERIALIZER.copy()
 
     @staticmethod
-    def get_matching_response_serializer_for_media_type(http_accept: HttpAccept) -> List[ResponseSerializer]:
-        matching_response_serializer = [
-            response_serializer
-            for response_serializer in ResponseSerializerService._RESPONSE_SERIALIZER
-            if response_serializer.can_handle_incoming_media_type(http_accept)
-        ]
+    def get_matching_response_serializer_for_media_type(
+            http_accept: HttpAccept) -> List[Tuple[ResponseSerializer, CanHandleResultType]]:
+        response_serializer_matches = []
+        for response_serializer in ResponseSerializerService._RESPONSE_SERIALIZER:
+            can_handle_result = response_serializer.can_handle_incoming_media_type(http_accept)
+            if can_handle_result is not None:
+                response_serializer_matches.append((response_serializer, can_handle_result))
 
-        return sorted(matching_response_serializer, key=lambda s: s.priority, reverse=True)
+        return sorted(response_serializer_matches, key=lambda c: c[1].mime_type.quality, reverse=True)
 
     @staticmethod
     def validate_and_serialize_response_body(
@@ -63,10 +64,10 @@ class ResponseSerializerService:
         if not matching_response_serializer_list:
             raise NotAcceptable()
 
-        for response_serializer in matching_response_serializer_list:
+        for response_serializer, can_handle_result in matching_response_serializer_list:
             if isinstance(response.response_body_input, response_serializer.get_response_data_type()):
                 response.content, content_type = response_serializer.validate_and_serialize(
-                    response.response_body_input, response_status_parameter
+                    response.response_body_input, response_status_parameter, can_handle_result
                 )
                 # Todo encoding from incoming accept charset
                 response.text = response.content.decode()
