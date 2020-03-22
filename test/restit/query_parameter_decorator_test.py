@@ -43,12 +43,12 @@ class QueryParameterTest(unittest.TestCase):
 
     def test_query_parameter(self):
         response = self.restit_test_app.get("/1?param1=3&uuid=08695ead-392a-40ab-99fa-2fe64c3b48b4")
-        self.assertEqual(200, response.get_status_code())
+        self.assertEqual(200, response.status_code)
         self.assertEqual({"param1": 3, "uuid": '08695ead-392a-40ab-99fa-2fe64c3b48b4'}, response.json())
 
     def test_query_parameter_list(self):
         response = self.restit_test_app.get("/2?int_list=[1,2,3,4]")
-        self.assertEqual(200, response.get_status_code())
+        self.assertEqual(200, response.status_code)
         self.assertEqual({"int_list": [1, 2, 3, 4]}, response.json())
 
     def test_unsupported_query_field_type(self):

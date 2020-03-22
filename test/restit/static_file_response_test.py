@@ -22,14 +22,14 @@ class StaticFileResourceTestCase(unittest.TestCase):
         m = mock_open(read_data=b"Huhu from file")
         with patch("restit.static_file_response.open", m):
             response = self.rest_test_app.get("/static-response?", json={"file_path": "/some/file/path.txt"})
-            self.assertEqual(200, response.get_status_code())
-            self.assertEqual("text/plain", response.get_headers()["Content-Type"])
+            self.assertEqual(200, response.status_code)
+            self.assertEqual("text/plain", response.headers["Content-Type"])
             self.assertEqual("Huhu from file", response.text)
 
     def test_html_file(self):
         m = mock_open(read_data=b"<title>dummy html</title>")
         with patch("restit.static_file_response.open", m):
             response = self.rest_test_app.get("/static-response?", json={"file_path": "/some/file/path.html"})
-            self.assertEqual(200, response.get_status_code())
-            self.assertEqual("text/html", response.get_headers()["Content-Type"])
+            self.assertEqual(200, response.status_code)
+            self.assertEqual("text/html", response.headers["Content-Type"])
             self.assertEqual("<title>dummy html</title>", response.text)

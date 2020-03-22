@@ -24,20 +24,20 @@ class Response:
         self._headers.setdefault("Content-Type", content_type)
         self._headers.setdefault("Content-Length", len(self.content))
 
-    def get_status_string(self) -> str:
-        return f"{self._status.value} {self._status.name}"
-
-    def get_status_code(self) -> int:
+    @property
+    def status_code(self) -> int:
         return self._status.value
 
+    @property
+    def status_string(self) -> str:
+        return f"{self._status.value} {self._status.name}"
+
     def json(self, **kwargs) -> dict:
-        return loads(self.content.decode(encoding=self.get_headers()["Content-Encoding"]), **kwargs)
+        return loads(self.content.decode(encoding=self.headers["Content-Encoding"]), **kwargs)
 
-    def get_headers(self) -> dict:
+    @property
+    def headers(self) -> dict:
         return self._headers
-
-    def get_content_type(self, fallback: str = None) -> str:
-        return self._headers.get("Content-Type", fallback or "application/octet-stream")
 
     class ResponseBodyTypeNotSupportedException(Exception):
         pass

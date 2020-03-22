@@ -27,12 +27,12 @@ class ResponseStatusParameterTestCase(unittest.TestCase):
 
     def test_status_supported(self):
         response = self.restit_test_app.get("/", json={"status": 200})
-        self.assertEqual(200, response.get_status_code())
+        self.assertEqual(200, response.status_code)
         self.assertEqual({'field1': 'Hans', 'field2': 10}, response.json())
 
     def test_status_unsupported(self):
         with self.assertLogs(level=logging.WARNING) as logs:
             response = self.restit_test_app.get("/", json={"status": 201})
-            self.assertEqual(201, response.get_status_code())
+            self.assertEqual(201, response.status_code)
 
             self.assertIn("WARNING:restit.resource:Response status code 201 is not expected for ", logs.output[0])

@@ -171,8 +171,8 @@ class RestitApp:
         resource, path_params = self._find_resource_for_url(wsgi_environ["PATH_INFO"])
         request = Request(wsgi_environ, path_params)
         response = self._create_response_and_handle_exceptions(path_params, request, resource)
-        header_as_list = [(key, str(value)) for key, value in response.get_headers().items()]
-        start_response(response.get_status_string(), header_as_list)
+        header_as_list = [(key, str(value)) for key, value in response.headers.items()]
+        start_response(response.status_string, header_as_list)
 
         return [response.content]
 

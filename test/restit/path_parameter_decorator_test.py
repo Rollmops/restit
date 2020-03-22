@@ -31,17 +31,17 @@ class PathParameterTestCase(unittest.TestCase):
 
     def test_path_parameters(self):
         response = self.restit_test_app.get("/path/1/and/10/and/20")
-        self.assertEqual(200, response.get_status_code())
+        self.assertEqual(200, response.status_code)
         self.assertEqual({'id1': 1, 'id2': 10.0, 'id3': '20'}, response.json())
 
     def test_path_parameters_alternative_declaration(self):
         response = self.restit_test_app.get("/path/1")
-        self.assertEqual(200, response.get_status_code())
+        self.assertEqual(200, response.status_code)
         self.assertEqual({'id': 1}, response.json())
 
     def test_conversion_exception(self):
         response = self.restit_test_app.get("/path/1/and/hans/and/20")
-        self.assertEqual(400, response.get_status_code())
+        self.assertEqual(400, response.status_code)
         self.assertEqual(
             "<title>400 Bad Request</title>\n"
             "<h1>Bad Request</h1>\n"

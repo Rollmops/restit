@@ -94,7 +94,7 @@ class Resource:
         self._process_query_parameters(method_object, request)
         request = self._validate_request_body(method_object, request)
         response: Response = method_object(request)
-        response_status_parameter = Resource._find_response_schema_by_status(response.get_status_code(), method_object)
+        response_status_parameter = Resource._find_response_schema_by_status(response.status_code, method_object)
         ResponseSerializerService.validate_and_serialize_response_body(
             response, request.http_accept_object, response_status_parameter
         )

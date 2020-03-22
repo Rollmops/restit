@@ -130,7 +130,7 @@ class ResponseSerializerTestCase(unittest.TestCase):
 
         self.assertEqual(b"1234", response.content)
         self.assertEqual("1234", response.text)
-        self.assertEqual("text/plain", response.get_headers()["Content-Type"])
+        self.assertEqual("text/plain", response.headers["Content-Type"])
 
     def test_bytes_response_body_with_schema(self):
         response = Response(b"1234")
@@ -141,7 +141,7 @@ class ResponseSerializerTestCase(unittest.TestCase):
 
         self.assertEqual(b"1234", response.content)
         self.assertEqual("1234", response.text)
-        self.assertEqual("text/plain", response.get_headers()["Content-Type"])
+        self.assertEqual("text/plain", response.headers["Content-Type"])
 
     def test_str_response_validation_failed(self):
         response = Response("1234")
@@ -168,5 +168,5 @@ class ResponseSerializerTestCase(unittest.TestCase):
         self.assertIn(b'"field1": 1', response.content)
         self.assertIn(b'"field2": "hello"', response.content)
         self.assertNotIn(b"not_expected", response.content)
-        self.assertEqual(200, response.get_status_code())
-        self.assertEqual("application/json", response.get_headers()["Content-Type"])
+        self.assertEqual(200, response.status_code)
+        self.assertEqual("application/json", response.headers["Content-Type"])

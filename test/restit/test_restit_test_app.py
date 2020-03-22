@@ -72,7 +72,7 @@ class RestitTestAppTestCase(unittest.TestCase):
 
     def test_get_json_body(self):
         response = self.resit_test_app.get("/", json={"key": "value"})
-        self.assertEqual(200, response.get_status_code())
+        self.assertEqual(200, response.status_code)
         self.assertEqual({"key": "value"}, response.json())
         self.assertEqual('{"key": "value"}', response.text)
         self.assertEqual(b'{"key": "value"}', response.content)
@@ -84,7 +84,7 @@ class RestitTestAppTestCase(unittest.TestCase):
 
     def test_get_data_body(self):
         response = self.resit_test_app.get("/", data={"key": "value", "key2": "value2"})
-        self.assertEqual(200, response.get_status_code())
+        self.assertEqual(200, response.status_code)
         self.assertEqual({'key': 'value', 'key2': 'value2'}, response.json())
         self.assertEqual('{"key": "value", "key2": "value2"}', response.text)
         self.assertEqual(b'{"key": "value", "key2": "value2"}', response.content)
@@ -96,7 +96,7 @@ class RestitTestAppTestCase(unittest.TestCase):
 
     def test_post(self):
         response = self.resit_test_app.post("/", json={"key": "value"})
-        self.assertEqual(201, response.get_status_code())
+        self.assertEqual(201, response.status_code)
         self.assertEqual({'key': 'value'}, response.json())
         self.assertEqual('{"key": "value"}', response.text)
         self.assertEqual(b'{"key": "value"}', response.content)
@@ -104,11 +104,11 @@ class RestitTestAppTestCase(unittest.TestCase):
             'Content-Encoding': 'utf-8',
             'Content-Length': 16,
             'Content-Type': 'application/json'
-        }, response.get_headers())
+        }, response.headers)
 
     def test_put(self):
         response = self.resit_test_app.put("/", json={"key": "value"})
-        self.assertEqual(201, response.get_status_code())
+        self.assertEqual(201, response.status_code)
         self.assertEqual({'key': 'value'}, response.json())
         self.assertEqual('{"key": "value"}', response.text)
         self.assertEqual(b'{"key": "value"}', response.content)
@@ -120,7 +120,7 @@ class RestitTestAppTestCase(unittest.TestCase):
 
     def test_delete(self):
         response = self.resit_test_app.delete("/", json={"key": "value"})
-        self.assertEqual(201, response.get_status_code())
+        self.assertEqual(201, response.status_code)
         self.assertEqual({'key': 'value'}, response.json())
         self.assertEqual('{"key": "value"}', response.text)
         self.assertEqual(b'{"key": "value"}', response.content)
@@ -131,25 +131,25 @@ class RestitTestAppTestCase(unittest.TestCase):
         }, response._headers)
 
     def test_no_method(self):
-        self.assertEqual(405, self.resit_test_app.get("/no_methods").get_status_code())
-        self.assertEqual(405, self.resit_test_app.post("/no_methods").get_status_code())
-        self.assertEqual(405, self.resit_test_app.put("/no_methods").get_status_code())
-        self.assertEqual(405, self.resit_test_app.delete("/no_methods").get_status_code())
-        self.assertEqual(405, self.resit_test_app.patch("/no_methods").get_status_code())
-        self.assertEqual(204, self.resit_test_app.options("/no_methods").get_status_code())
+        self.assertEqual(405, self.resit_test_app.get("/no_methods").status_code)
+        self.assertEqual(405, self.resit_test_app.post("/no_methods").status_code)
+        self.assertEqual(405, self.resit_test_app.put("/no_methods").status_code)
+        self.assertEqual(405, self.resit_test_app.delete("/no_methods").status_code)
+        self.assertEqual(405, self.resit_test_app.patch("/no_methods").status_code)
+        self.assertEqual(204, self.resit_test_app.options("/no_methods").status_code)
 
     def test_raise_if_enabled(self):
         self.resit_test_app.raise_exceptions = True
         with self.assertRaises(MethodNotAllowed):
-            self.assertEqual(405, self.resit_test_app.get("/no_methods").get_status_code())
-            self.assertEqual(405, self.resit_test_app.post("/no_methods").get_status_code())
-            self.assertEqual(405, self.resit_test_app.put("/no_methods").get_status_code())
-            self.assertEqual(405, self.resit_test_app.delete("/no_methods").get_status_code())
-            self.assertEqual(405, self.resit_test_app.patch("/no_methods").get_status_code())
+            self.assertEqual(405, self.resit_test_app.get("/no_methods").status_code)
+            self.assertEqual(405, self.resit_test_app.post("/no_methods").status_code)
+            self.assertEqual(405, self.resit_test_app.put("/no_methods").status_code)
+            self.assertEqual(405, self.resit_test_app.delete("/no_methods").status_code)
+            self.assertEqual(405, self.resit_test_app.patch("/no_methods").status_code)
 
     def test_pass_headers(self):
         response = self.resit_test_app.get("/pass_headers", headers={"Accept-Charset": "utf-8"})
-        self.assertEqual(200, response.get_status_code())
+        self.assertEqual(200, response.status_code)
         self.assertEqual({
             'Accept': '*/*',
             'Accept-Charset': 'utf-8',
@@ -161,7 +161,7 @@ class RestitTestAppTestCase(unittest.TestCase):
     def test_hyperlinks(self):
         response = self.resit_test_app.get("/resource_with_hyperlink")
 
-        self.assertEqual(200, response.get_status_code())
+        self.assertEqual(200, response.status_code)
         self.assertEqual({
             'hyperlink': 'http://127.0.0.1/',
             'hyperlink_with_path_params': 'http://127.0.0.1/miau/10'

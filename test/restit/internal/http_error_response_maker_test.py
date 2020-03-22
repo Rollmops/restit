@@ -14,7 +14,7 @@ class HttpExceptionResponseMakerTestCase(unittest.TestCase):
     def test_make_application_json_error(self):
         response = self.response_maker.create_response(HttpAccept.from_accept_string("application/json"))
 
-        self.assertEqual(500, response.get_status_code())
+        self.assertEqual(500, response.status_code)
         self.assertEqual({
             'detail': 'Something is not working',
             'instance': None,
@@ -26,7 +26,7 @@ class HttpExceptionResponseMakerTestCase(unittest.TestCase):
     def test_make_html_response_no_debug(self):
         response = self.response_maker.create_response(HttpAccept.from_accept_string("text/html"))
 
-        self.assertEqual(500, response.get_status_code())
+        self.assertEqual(500, response.status_code)
         self.assertIn("<title>500 Internal Server Error</title>", response.text)
         self.assertIn("<h1>Internal Server Error</h1>", response.text)
         self.assertIn("<p>Something is not working</p>", response.text)
@@ -36,7 +36,7 @@ class HttpExceptionResponseMakerTestCase(unittest.TestCase):
             InternalServerError("Something is not working", traceback="traceback"), debug=True
         ).create_response(HttpAccept.from_accept_string("text/html"))
 
-        self.assertEqual(500, response.get_status_code())
+        self.assertEqual(500, response.status_code)
         self.assertIn("<title>500 Internal Server Error</title>", response.text)
         self.assertIn("<h1>Internal Server Error</h1>", response.text)
         self.assertIn("Something is not working", response.text)
@@ -44,7 +44,7 @@ class HttpExceptionResponseMakerTestCase(unittest.TestCase):
 
     def test_fallback_text_error_response(self):
         response = self.response_maker.create_response(HttpAccept.from_accept_string("unknown/muh"))
-        self.assertEqual(500, response.get_status_code())
+        self.assertEqual(500, response.status_code)
         self.assertEqual(
             "500 Internal Server Error: Something is not working", response.text
         )
