@@ -162,6 +162,7 @@ class RestitApp:
             resource.init()
             if self._open_api_documentation:
                 self._open_api_documentation.register_resource(resource)
+        self._resources = Resource.sort_resources(self._resources)
         self._init_called = True
 
     def __call__(self, wsgi_environ: dict, start_response: Callable) -> Iterable:

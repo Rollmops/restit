@@ -214,10 +214,10 @@ class OpenApiSpecTestCase(unittest.TestCase):
         # restit_app.start_development_server()
 
         with restit_app.start_development_server_in_context(port=0) as port:
-            response = requests.get(f"http://127.0.0.1:{port}/api.rst/")
+            response = requests.get(f"http://127.0.0.1:{port}/api/")
             self.assertEqual(200, response.status_code)
             self.assertIn("text/html", response.headers["Content-Type"])
             self.assertIn("<title>Swagger UI</title>", response.text)
 
-            response = requests.get(f"http://127.0.0.1:{port}/api.rst/swagger.json")
+            response = requests.get(f"http://127.0.0.1:{port}/api/swagger.json")
             self.assertEqual(200, response.status_code)
