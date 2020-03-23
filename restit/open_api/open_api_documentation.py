@@ -15,7 +15,7 @@ class OpenApiDocumentation:
     _IGNORE_RESOURCE_CLASS_NAMES = ["DefaultFaviconResource", "OpenApiResource"]
     _SPEC_VERSION = "3.0.0"
 
-    def __init__(self, info: InfoObject, path: str = "/api.rst"):
+    def __init__(self, info: InfoObject, path: str = "/api"):
         self.info = info
         self.path = path
         self._resources: List[Resource] = []
