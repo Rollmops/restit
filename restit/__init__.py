@@ -12,6 +12,7 @@ from .response import Response
 from .response_status_decorator import response_status
 from .restit_app import RestItApp
 from .restit_test_app import RestItTestApp
+from .rfc7807_schema import RFC7807Schema
 from .static_directory_resource import StaticDirectoryResource
 from .static_file_response import StaticFileResponse
 

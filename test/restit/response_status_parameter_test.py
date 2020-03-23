@@ -5,6 +5,7 @@ from marshmallow import Schema, fields
 
 from restit import Resource, Request, Response, RestItTestApp, RestItApp, request_mapping
 from restit.response_status_decorator import response_status
+from restit.rfc7807_schema import RFC7807Schema
 
 
 class MySchema(Schema):
@@ -16,6 +17,7 @@ class MySchema(Schema):
 class MyResource(Resource):
 
     @response_status(200, {"application/json": MySchema()}, "Everything is ok")
+    @response_status(404, {"application/json": RFC7807Schema()}, "Something was not found")
     def get(self, request: Request, **path_params) -> Response:
         request_body = request.typed_body[dict]
         return Response({"field1": "Hans", "field2": "10"}, status_code=request_body["status"])
