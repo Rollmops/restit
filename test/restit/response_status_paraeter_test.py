@@ -3,7 +3,7 @@ import unittest
 
 from marshmallow import Schema, fields
 
-from restit import Resource, Request, Response, RestitTestApp, RestitApp, request_mapping
+from restit import Resource, Request, Response, RestItTestApp, RestItApp, request_mapping
 from restit.response_status_decorator import response_status
 
 
@@ -23,7 +23,7 @@ class MyResource(Resource):
 
 class ResponseStatusParameterTestCase(unittest.TestCase):
     def setUp(self) -> None:
-        self.restit_test_app = RestitTestApp(RestitApp(resources=[MyResource()]))
+        self.restit_test_app = RestItTestApp(RestItApp(resources=[MyResource()]))
 
     def test_status_supported(self):
         response = self.restit_test_app.get("/", json={"status": 200})

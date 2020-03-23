@@ -19,7 +19,7 @@ from restit.response import Response
 LOGGER = logging.getLogger(__name__)
 
 
-class RestitApp:
+class RestItApp:
     """This class represents your *REST* application and is used to glue everything together.
 
     Since it is a `WSGI <https://www.python.org/dev/peps/pep-0333/>`_-Application, its instance can be passed to servers

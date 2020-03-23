@@ -7,7 +7,7 @@ from restit.request import Request
 from restit.request_mapping_decorator import request_mapping
 from restit.resource import Resource
 from restit.response import Response
-from restit.restit_app import RestitApp
+from restit.restit_app import RestItApp
 from test.start_server_with_wsgi_app import start_server_with_wsgi_app
 
 
@@ -28,7 +28,7 @@ class NamespaceTestCase(unittest.TestCase):
         namespace = Namespace("/huhu", resources=[MyResource()])
         namespace.register_resources([MyResource2()])
 
-        restit_app = RestitApp(namespaces=[namespace])
+        restit_app = RestItApp(namespaces=[namespace])
 
         with start_server_with_wsgi_app(restit_app) as port:
             response = requests.get(f"http://127.0.0.1:{port}/huhu/subpath")

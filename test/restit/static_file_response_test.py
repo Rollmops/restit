@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import patch, mock_open
 
-from restit import RestitTestApp, RestitApp, Resource, Response, Request, request_mapping
+from restit import RestItTestApp, RestItApp, Resource, Response, Request, request_mapping
 from restit.static_file_response import StaticFileResponse
 
 
@@ -14,7 +14,7 @@ class MyResource(Resource):
 
 class StaticFileResourceTestCase(unittest.TestCase):
     def setUp(self) -> None:
-        self.rest_test_app = RestitTestApp(RestitApp(
+        self.rest_test_app = RestItTestApp(RestItApp(
             resources=[MyResource()]
         ))
 

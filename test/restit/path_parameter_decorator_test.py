@@ -2,7 +2,7 @@ import unittest
 
 from marshmallow import fields
 
-from restit import request_mapping, Request, Response, path_parameter, RestitApp, RestitTestApp
+from restit import request_mapping, Request, Response, path_parameter, RestItApp, RestItTestApp
 from restit.path_parameter import PathParameter
 from restit.resource import Resource
 
@@ -26,8 +26,8 @@ class Resource2(Resource):
 
 class PathParameterTestCase(unittest.TestCase):
     def setUp(self) -> None:
-        restit_app = RestitApp(resources=[Resource1(), Resource2()])
-        self.restit_test_app = RestitTestApp(restit_app)
+        restit_app = RestItApp(resources=[Resource1(), Resource2()])
+        self.restit_test_app = RestItTestApp(restit_app)
 
     def test_path_parameters(self):
         response = self.restit_test_app.get("/path/1/and/10/and/20")

@@ -1,6 +1,6 @@
 import unittest
 
-from restit import RestitApp, Namespace
+from restit import RestItApp, Namespace
 from restit.open_api import OpenApiDocumentation
 from restit.open_api.info_object import InfoObject
 from test.restit.acceptence_test.example_resource import TodosResource
@@ -13,7 +13,7 @@ class RestitAppWithDevSeverTestCase(unittest.TestCase):
 
         todo_namespace = Namespace("/todos", resources=[TodosResource(repo)])
 
-        self.restit_app = RestitApp(
+        self.restit_app = RestItApp(
             namespaces=[todo_namespace],
             open_api_documentation=OpenApiDocumentation(
                 info=InfoObject(title="Sample TODO Api", version="1.0.0", description="Demonstrate the RestIt library"),

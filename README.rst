@@ -33,7 +33,7 @@ Quick example
 
 .. code-block:: python
 
-    from restit import Request, request_mapping, Resource, Response, RestitApp
+    from restit import Request, request_mapping, Resource, Response, RestItApp
 
 
     @request_mapping("/")
@@ -42,7 +42,7 @@ Quick example
             return Response("Hello from index.")
 
 
-    app = RestitApp(resources=[IndexResource()])
+    app = RestItApp(resources=[IndexResource()])
 
 
     if __name__ == "__main__":

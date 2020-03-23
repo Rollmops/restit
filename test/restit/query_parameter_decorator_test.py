@@ -3,7 +3,7 @@ from uuid import UUID
 
 from marshmallow import fields
 
-from restit import RestitApp, RestitTestApp, Request
+from restit import RestItApp, RestItTestApp, Request
 from restit.internal.query_parameter import QueryParameter
 from restit.query_parameter_decorator import query_parameter
 from restit.request_mapping_decorator import request_mapping
@@ -35,11 +35,11 @@ class QueryParameterListResource(Resource):
 
 class QueryParameterTest(unittest.TestCase):
     def setUp(self) -> None:
-        restit_app = RestitApp(resources=[
+        restit_app = RestItApp(resources=[
             QueryParametersResource(),
             QueryParameterListResource()
         ])
-        self.restit_test_app = RestitTestApp(restit_app)
+        self.restit_test_app = RestItTestApp(restit_app)
 
     def test_query_parameter(self):
         response = self.restit_test_app.get("/1?param1=3&uuid=08695ead-392a-40ab-99fa-2fe64c3b48b4")

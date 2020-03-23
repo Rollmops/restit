@@ -10,8 +10,8 @@ from .request_mapping_decorator import request_mapping
 from .resource import Resource
 from .response import Response
 from .response_status_decorator import response_status
-from .restit_app import RestitApp
-from .restit_test_app import RestitTestApp
+from .restit_app import RestItApp
+from .restit_test_app import RestItTestApp
 from .static_directory_resource import StaticDirectoryResource
 from .static_file_response import StaticFileResponse
 

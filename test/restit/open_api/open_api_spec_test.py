@@ -4,7 +4,7 @@ import requests
 from marshmallow import Schema, fields
 from marshmallow.validate import Regexp, Range
 
-from restit import Resource, Response, Request, request_mapping, RestitApp, query_parameter, \
+from restit import Resource, Response, Request, request_mapping, RestItApp, query_parameter, \
     request_body
 from restit.open_api import OpenApiDocumentation, reusable_schema
 from restit.open_api.contact_object import ContactObject
@@ -202,7 +202,7 @@ class OpenApiSpecTestCase(unittest.TestCase):
         }, path_with_params["get"]["parameters"])
 
     def test_serve_open_api(self):
-        restit_app = RestitApp(
+        restit_app = RestItApp(
             resources=[
                 FirstResource(),
                 SecondResource()

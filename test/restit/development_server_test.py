@@ -7,7 +7,7 @@ from restit.request import Request
 from restit.request_mapping_decorator import request_mapping
 from restit.resource import Resource
 from restit.response import Response
-from restit.restit_app import RestitApp
+from restit.restit_app import RestItApp
 
 
 @request_mapping("/")
@@ -18,7 +18,7 @@ class MyResource(Resource):
 
 class DevelopmentServerTestCase(unittest.TestCase):
     def setUp(self) -> None:
-        self.restit_app = RestitApp(resources=[MyResource()])
+        self.restit_app = RestItApp(resources=[MyResource()])
         self.development_server = DevelopmentServer(self.restit_app)
 
     def test_start_in_context(self):

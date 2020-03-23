@@ -1,4 +1,4 @@
-from restit import Resource, Response, Request, RestitApp, request_mapping
+from restit import Resource, Response, Request, RestItApp, request_mapping
 
 
 @request_mapping("/")
@@ -7,4 +7,4 @@ class MyFirstResource(Resource):
         return Response(request.headers)
 
 
-app = RestitApp(resources=[MyFirstResource()], debug=True)
+app = RestItApp(resources=[MyFirstResource()], debug=True)

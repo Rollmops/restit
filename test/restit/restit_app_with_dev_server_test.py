@@ -7,7 +7,7 @@ from restit.request import Request
 from restit.request_mapping_decorator import request_mapping
 from restit.resource import Resource
 from restit.response import Response
-from restit.restit_app import RestitApp
+from restit.restit_app import RestItApp
 from test.base_test_server_test_case import BaseTestServerTestCase
 
 
@@ -131,7 +131,7 @@ class RestitAppTestCase(BaseTestServerTestCase):
             pass
 
         with self.assertRaises(MissingRequestMappingException):
-            RestitApp(resources=[ResourceWithoutRequestMapping()])
+            RestItApp(resources=[ResourceWithoutRequestMapping()])
 
     def test_hyperlink(self):
         response = requests.get(f"http://127.0.0.1:{self.port}/resource_with_hyperlink")

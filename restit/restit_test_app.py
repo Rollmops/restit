@@ -7,12 +7,12 @@ from wsgiref.util import setup_testing_defaults
 from restit.common import get_default_encoding
 from restit.request import Request
 from restit.response import Response
-from restit.restit_app import RestitApp
+from restit.restit_app import RestItApp
 
 
-class RestitTestApp(RestitApp):
+class RestItTestApp(RestItApp):
 
-    def __init__(self, restit_app: RestitApp):
+    def __init__(self, restit_app: RestItApp):
         super().__init__(
             resources=restit_app._resources,
             namespaces=restit_app._namespaces,
@@ -103,7 +103,7 @@ class RestitTestApp(RestitApp):
         elif isinstance(data, bytes):
             return data, "text/plain"
         else:
-            raise RestitTestApp.UnsupportedDataTypeException(type(data))
+            raise RestItTestApp.UnsupportedDataTypeException(type(data))
 
     class UnsupportedDataTypeException(Exception):
         pass

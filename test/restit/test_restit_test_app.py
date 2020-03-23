@@ -6,8 +6,8 @@ from restit.request import Request
 from restit.request_mapping_decorator import request_mapping
 from restit.resource import Resource
 from restit.response import Response
-from restit.restit_app import RestitApp
-from restit.restit_test_app import RestitTestApp
+from restit.restit_app import RestItApp
+from restit.restit_test_app import RestItTestApp
 
 
 @request_mapping("/")
@@ -61,14 +61,14 @@ class PassHeadersResource(Resource):
 
 class RestitTestAppTestCase(unittest.TestCase):
     def setUp(self) -> None:
-        resit_app = RestitApp(resources=[
+        resit_app = RestItApp(resources=[
             MyResource(),
             NoMethodsResource(),
             PassHeadersResource(),
             ResourceWithHyperLink(),
             ResourceWithPathParams()
         ])
-        self.resit_test_app = RestitTestApp(resit_app)
+        self.resit_test_app = RestItTestApp(resit_app)
 
     def test_get_json_body(self):
         response = self.resit_test_app.get("/", json={"key": "value"})
