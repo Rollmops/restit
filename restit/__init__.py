@@ -9,6 +9,7 @@ from .request_body_decorator import request_body
 from .request_mapping_decorator import request_mapping
 from .resource import Resource
 from .response import Response
+from .response_status_decorator import response_status
 from .restit_app import RestitApp
 from .restit_test_app import RestitTestApp
 from .static_directory_resource import StaticDirectoryResource
