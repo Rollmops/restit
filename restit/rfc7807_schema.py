@@ -15,17 +15,17 @@ class RFC7807Schema(Schema):
     """
 
     type = fields.String(default="about:blank")
-    type.__doc__ = "A URI reference [RFC3986] that identifies the" \
-                   "problem type.  This specification encourages that, when" \
-                   "dereferenced, it provide human-readable documentation for the" \
-                   "problem type (e.g., using HTML [W3C.REC-html5-20141028]).  When" \
-                   "this member is not present, its value is assumed to be" \
+    type.__doc__ = "A URI reference [RFC3986] that identifies the " \
+                   "problem type.  This specification encourages that, when " \
+                   "dereferenced, it provide human-readable documentation for the " \
+                   "problem type (e.g., using HTML [W3C.REC-html5-20141028]).  When " \
+                   "this member is not present, its value is assumed to be " \
                    "'about:blank'."
 
     title = fields.String()
-    title.__doc__ = "A short, human-readable summary of the problem" \
-                    "type.  It SHOULD NOT change from occurrence to occurrence of the" \
-                    "problem, except for purposes of localization (e.g., using" \
+    title.__doc__ = "A short, human-readable summary of the problem " \
+                    "type.  It SHOULD NOT change from occurrence to occurrence of the " \
+                    "problem, except for purposes of localization (e.g., using " \
                     "proactive content negotiation; see [RFC7231]"
 
     status = fields.Number()
@@ -36,6 +36,6 @@ class RFC7807Schema(Schema):
     detail.__doc__ = "A human-readable explanation specific to this occurrence of the problem."
 
     instance = fields.String()
-    instance.__doc__ = "A URI reference that identifies the specific" \
-                       "occurrence of the problem.  It may or may not yield further" \
+    instance.__doc__ = "A URI reference that identifies the specific " \
+                       "occurrence of the problem.  It may or may not yield further " \
                        "information if dereferenced."
