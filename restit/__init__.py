@@ -16,4 +16,4 @@ from .rfc7807_schema import RFC7807Schema
 from .static_directory_resource import StaticDirectoryResource
 from .static_file_response import StaticFileResponse
 
-__version__ = "0.2.2"
+__version__ = "0.2.3"
