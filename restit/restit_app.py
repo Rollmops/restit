@@ -84,7 +84,7 @@ class RestitApp:
 
         .. warning::
 
-           Do not use the developer server in production!
+           Do not use the development server in production!
 
         :param host: The host name, defaults to 127.0.0.1
         :type host: str
