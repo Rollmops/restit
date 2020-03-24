@@ -8,16 +8,17 @@ To get started with RestIt we can use the following code snippet:
 
 .. code-block:: python
 
-    from restit import Request, request_mapping, Resource, Response, RestitApp
+    from restit import Request, Resource, Response, RestItApp
+    from restit.decorator import path
 
 
-    @request_mapping("/")
+    @path("/")
     class IndexResource(Resource):
         def get(self, request: Request) -> Response:
             return Response("Hello from index.")
 
 
-    app = RestitApp(resources=[IndexResource()])
+    app = RestItApp(resources=[IndexResource()])
 
 
     if __name__ == "__main__":
