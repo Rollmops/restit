@@ -2,8 +2,6 @@ from http import HTTPStatus
 from json import loads
 from typing import Union, Any
 
-from restit.common import get_default_encoding
-
 
 class Response:
 
@@ -16,7 +14,7 @@ class Response:
         self.response_body_input = response_body
         self._status: HTTPStatus = HTTPStatus(status_code, None) if isinstance(status_code, int) else status_code
         self._headers = headers or {}
-        self._headers.setdefault("Content-Encoding", get_default_encoding())
+        self._headers.setdefault("Content-Encoding", None)
         self.content = b""
         self.text = ""
 
@@ -33,11 +31,14 @@ class Response:
         return f"{self._status.value} {self._status.name}"
 
     def json(self, **kwargs) -> dict:
-        return loads(self.content.decode(encoding=self.headers["Content-Encoding"]), **kwargs)
+        return loads(self.content.decode(), **kwargs)
 
     @property
     def headers(self) -> dict:
         return self._headers
+
+    def __str__(self) -> str:
+        return f"Response(<{self.status_string}>)"
 
     class ResponseBodyTypeNotSupportedException(Exception):
         pass

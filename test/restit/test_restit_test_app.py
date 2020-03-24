@@ -84,7 +84,7 @@ class RestitTestAppTestCase(unittest.TestCase):
         self.assertEqual('{"key": "value"}', response.text)
         self.assertEqual(b'{"key": "value"}', response.content)
         self.assertEqual({
-            'Content-Encoding': 'utf-8',
+            'Content-Encoding': None,
             'Content-Length': 16,
             'Content-Type': 'application/json'
         }, response._headers)
@@ -96,7 +96,7 @@ class RestitTestAppTestCase(unittest.TestCase):
         self.assertEqual('{"key": "value", "key2": "value2"}', response.text)
         self.assertEqual(b'{"key": "value", "key2": "value2"}', response.content)
         self.assertEqual({
-            'Content-Encoding': 'utf-8',
+            'Content-Encoding': None,
             'Content-Length': 34,
             'Content-Type': 'application/json'
         }, response._headers)
@@ -108,7 +108,7 @@ class RestitTestAppTestCase(unittest.TestCase):
         self.assertEqual('{"key": "value"}', response.text)
         self.assertEqual(b'{"key": "value"}', response.content)
         self.assertEqual({
-            'Content-Encoding': 'utf-8',
+            'Content-Encoding': None,
             'Content-Length': 16,
             'Content-Type': 'application/json'
         }, response.headers)
@@ -120,7 +120,7 @@ class RestitTestAppTestCase(unittest.TestCase):
         self.assertEqual('{"key": "value"}', response.text)
         self.assertEqual(b'{"key": "value"}', response.content)
         self.assertEqual({
-            'Content-Encoding': 'utf-8',
+            'Content-Encoding': None,
             'Content-Length': 16,
             'Content-Type': 'application/json'
         }, response._headers)
@@ -132,7 +132,7 @@ class RestitTestAppTestCase(unittest.TestCase):
         self.assertEqual('{"key": "value"}', response.text)
         self.assertEqual(b'{"key": "value"}', response.content)
         self.assertEqual({
-            'Content-Encoding': 'utf-8',
+            'Content-Encoding': None,
             'Content-Length': 16,
             'Content-Type': 'application/json'
         }, response._headers)
