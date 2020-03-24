@@ -2,6 +2,7 @@ import logging
 import traceback
 from contextlib import contextmanager
 from functools import lru_cache
+from time import time
 from typing import Iterable, Callable, List, Tuple, Dict, Union
 
 from restit._response import Response
@@ -168,13 +169,14 @@ class RestItApp:
     def __call__(self, wsgi_environ: dict, start_response: Callable) -> Iterable:
         if not self._init_called:
             self._init()
-
+        start_time = time()
         resource, path_params = self._find_resource_for_url(wsgi_environ["PATH_INFO"])
         request = Request(wsgi_environ, path_params)
         response = self._create_response_and_handle_exceptions(path_params, request, resource)
         header_as_list = [(key, str(value)) for key, value in response.headers.items()]
         start_response(response.status_string, header_as_list)
-
+        end_time = time()
+        LOGGER.debug("Request processing took %d seconds", (end_time - start_time))
         return [response.content]
 
     def _create_response_and_handle_exceptions(

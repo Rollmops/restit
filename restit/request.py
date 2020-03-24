@@ -142,5 +142,8 @@ class Request:
 
         return url
 
+    def __str__(self) -> str:
+        return f"Request(url={self.original_url}"
+
     class DeserializedBodyAlreadySetException(Exception):
         pass
