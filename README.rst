@@ -33,10 +33,11 @@ Quick example
 
 .. code-block:: python
 
-    from restit import Request, request_mapping, Resource, Response, RestItApp
+    from restit import Request, Resource, Response, RestItApp
+    from restit.decorator import path
 
 
-    @request_mapping("/")
+    @path("/")
     class IndexResource(Resource):
         def get(self, request: Request) -> Response:
             return Response("Hello from index.")
