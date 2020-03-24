@@ -51,6 +51,6 @@ def guess_text_content_subtype_string(content: str) -> str:
 
 
 def get_response_status_parameters_for_method(method_object: object) -> List[ResponseStatusParameter]:
-    response_status_parameters = getattr(method_object, "__response_status_parameters__", [])
-    response_status_parameters.extend(getattr(method_object.__self__, "__response_status_parameters__", []))
+    response_status_parameters = getattr(method_object.__self__, "__response_status_parameters__", [])
+    response_status_parameters.extend(getattr(method_object, "__response_status_parameters__", []))
     return response_status_parameters
