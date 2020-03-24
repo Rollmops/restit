@@ -94,6 +94,10 @@ class Resource:
         self._process_query_parameters(method_object, request)
         request = self._validate_request_body(method_object, request)
         response: Response = method_object(request)
+        if not isinstance(response, Response):
+            raise Resource.NoResponseReturnException(
+                f"Resource method {method_object} does not return a response object"
+            )
         response_status_parameter = Resource._find_response_schema_by_status(response.status_code, method_object)
         ResponseSerializerService.validate_and_serialize_response_body(
             response, request.http_accept_object, response_status_parameter
@@ -179,4 +183,7 @@ class Resource:
         return sorted(resources, key=key_function, reverse=True)
 
     class PathParameterNotFoundException(Exception):
+        pass
+
+    class NoResponseReturnException(Exception):
         pass

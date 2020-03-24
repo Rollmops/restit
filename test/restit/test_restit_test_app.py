@@ -25,6 +25,12 @@ class MyResource(Resource):
         return Response(request.typed_body[dict], 201)
 
 
+@request_mapping("/no_response_exception")
+class NoResponseExceptionResource(Resource):
+    def get(self, request: Request) -> Response:
+        pass
+
+
 @request_mapping("/no_methods")
 class NoMethodsResource(Resource):
     pass
@@ -66,7 +72,8 @@ class RestitTestAppTestCase(unittest.TestCase):
             NoMethodsResource(),
             PassHeadersResource(),
             ResourceWithHyperLink(),
-            ResourceWithPathParams()
+            ResourceWithPathParams(),
+            NoResponseExceptionResource()
         ])
         self.resit_test_app = RestItTestApp(resit_app)
 
@@ -166,3 +173,8 @@ class RestitTestAppTestCase(unittest.TestCase):
             'hyperlink': 'http://127.0.0.1/',
             'hyperlink_with_path_params': 'http://127.0.0.1/miau/10'
         }, response.json())
+
+    def test_no_response_exception(self):
+        self.resit_test_app.raise_exceptions = True
+        with self.assertRaises(Resource.NoResponseReturnException):
+            self.resit_test_app.get("/no_response_exception")
