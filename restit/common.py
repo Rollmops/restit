@@ -1,6 +1,9 @@
 import os
 import sys
 from html import escape
+from typing import List
+
+from restit.internal.response_status_parameter import ResponseStatusParameter
 
 _DEFAULT_ENCODING = sys.getdefaultencoding()
 
@@ -45,3 +48,9 @@ def guess_text_content_subtype_string(content: str) -> str:
         return "text/html"
 
     return "text/plain"
+
+
+def get_response_status_parameters_for_method(method_object: object) -> List[ResponseStatusParameter]:
+    response_status_parameters = getattr(method_object, "__response_status_parameters__", [])
+    response_status_parameters.extend(getattr(method_object.__self__, "__response_status_parameters__", []))
+    return response_status_parameters

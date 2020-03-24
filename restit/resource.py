@@ -8,6 +8,7 @@ from marshmallow import ValidationError
 
 from restit._path_parameter import PathParameter
 from restit._response import Response
+from restit.common import get_response_status_parameters_for_method
 from restit.exception import MethodNotAllowed
 from restit.exception.client_errors_4xx import BadRequest
 from restit.internal.query_parameter import QueryParameter
@@ -106,13 +107,12 @@ class Resource:
 
     @staticmethod
     def _find_response_schema_by_status(status: int, method_object: object) -> Union[None, ResponseStatusParameter]:
-        response_status_parameters = getattr(method_object, "__response_status_parameters__", None)
-        if response_status_parameters:
-            for response_status_parameter in response_status_parameters:  # type: ResponseStatusParameter
-                if response_status_parameter.status == status:
-                    return response_status_parameter
+        response_status_parameters = get_response_status_parameters_for_method(method_object)
+        for response_status_parameter in response_status_parameters:  # type: ResponseStatusParameter
+            if response_status_parameter.status == status:
+                return response_status_parameter
 
-            LOGGER.warning("Response status code %d is not expected for %s", status, method_object)
+        LOGGER.warning("Response status code %d is not expected for %s", status, method_object)
 
     @staticmethod
     def _validate_request_body(method_object: object, request: Request) -> Request:

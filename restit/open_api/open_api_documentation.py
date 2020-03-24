@@ -2,6 +2,7 @@ import re
 from functools import lru_cache
 from typing import List, Tuple, Union, Match
 
+from restit.common import get_response_status_parameters_for_method
 from restit.internal.request_body_properties import RequestBodyProperties
 from restit.internal.response_status_parameter import ResponseStatusParameter
 from restit.open_api.info_object import InfoObject
@@ -58,7 +59,7 @@ class OpenApiDocumentation:
 
     @staticmethod
     def _add_responses(method_spec: dict, method_object: object, root_spec: dict):
-        response_status_parameters = getattr(method_object, "__response_status_parameters__", None)
+        response_status_parameters = get_response_status_parameters_for_method(method_object)
         if response_status_parameters:
             for response_status_parameter in response_status_parameters:  # type: ResponseStatusParameter
                 method_spec["responses"][response_status_parameter.status or "default"] = {
