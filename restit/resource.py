@@ -2,13 +2,13 @@ import ast
 import inspect
 import logging
 import re
-from typing import Tuple, AnyStr, Dict, Union, List
+from typing import Tuple, AnyStr, Dict, Union, List, Callable
 
 from marshmallow import ValidationError
 
 from restit._path_parameter import PathParameter
 from restit._response import Response
-from restit.common import get_response_status_parameters_for_method
+from restit.common import get_response_status_parameters_for_method, get_exception_mapping_for_method
 from restit.exception import MethodNotAllowed
 from restit.exception.client_errors_4xx import BadRequest
 from restit.internal.query_parameter import QueryParameter
@@ -94,7 +94,7 @@ class Resource:
         request._path_params = self._collect_and_convert_path_parameters(path_params)
         self._process_query_parameters(method_object, request)
         request = self._validate_request_body(method_object, request)
-        response: Response = method_object(request)
+        response: Response = self._execute_request_with_exception_mapping(method_object, request)
         if not isinstance(response, Response):
             raise Resource.NoResponseReturnException(
                 f"Resource method {method_object} does not return a response object"
@@ -104,6 +104,28 @@ class Resource:
             response, request.http_accept_object, response_status_parameter
         )
         return response
+
+    @staticmethod
+    def _execute_request_with_exception_mapping(method_object: Callable, request: Request) -> Response:
+        exception_mapping = get_exception_mapping_for_method(method_object)
+        try:
+            return method_object(request)
+        except Exception as exception:
+            for source_exception_class, target_exception_tuple_or_class in exception_mapping.items():
+                if isinstance(exception, source_exception_class):
+                    if isinstance(target_exception_tuple_or_class, tuple):
+                        LOGGER.debug(
+                            "Mapping exception class %s to %s with description: %s",
+                            type(exception), target_exception_tuple_or_class[0], target_exception_tuple_or_class[1]
+                        )
+                        raise target_exception_tuple_or_class[0](target_exception_tuple_or_class[1])
+                    else:
+                        LOGGER.debug(
+                            "Mapping exception class %s to %s", type(exception), target_exception_tuple_or_class
+                        )
+                        raise target_exception_tuple_or_class(str(exception))
+
+            raise exception
 
     @staticmethod
     def _find_response_schema_by_status(status: int, method_object: object) -> Union[None, ResponseStatusParameter]:
