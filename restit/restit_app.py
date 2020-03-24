@@ -172,7 +172,9 @@ class RestItApp:
         start_time = time()
         resource, path_params = self._find_resource_for_url(wsgi_environ["PATH_INFO"])
         request = Request(wsgi_environ, path_params)
+        LOGGER.debug("Start handling %s request %s", request.request_method_name.upper(), request)
         response = self._create_response_and_handle_exceptions(path_params, request, resource)
+        LOGGER.debug("Got response %s", response)
         header_as_list = [(key, str(value)) for key, value in response.headers.items()]
         start_response(response.status_string, header_as_list)
         end_time = time()

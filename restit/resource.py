@@ -90,7 +90,6 @@ class Resource:
         raise MethodNotAllowed()
 
     def handle_request(self, request_method: str, request: Request, path_params: Dict) -> Response:
-        LOGGER.debug("Start handling %s request %s", request_method, request)
         method_object = getattr(self, request_method.lower())
         request._path_params = self._collect_and_convert_path_parameters(path_params)
         self._process_query_parameters(method_object, request)
