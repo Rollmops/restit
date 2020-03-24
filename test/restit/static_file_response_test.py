@@ -1,11 +1,12 @@
 import unittest
 from unittest.mock import patch, mock_open
 
-from restit import RestItTestApp, RestItApp, Resource, Response, Request, request_mapping
+from restit import RestItTestApp, RestItApp, Resource, Response, Request
+from restit.decorator import path
 from restit.static_file_response import StaticFileResponse
 
 
-@request_mapping("/static-response")
+@path("/static-response")
 class MyResource(Resource):
     def get(self, request: Request, **path_params) -> Response:
         file_path = request.typed_body[dict]["file_path"]

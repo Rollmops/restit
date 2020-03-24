@@ -2,12 +2,13 @@ import unittest
 
 from marshmallow import fields
 
-from restit import request_mapping, Request, Response, path_parameter, RestItApp, RestItTestApp
-from restit.path_parameter import PathParameter
+from restit import Request, Response, RestItApp, RestItTestApp
+from restit._path_parameter import PathParameter
+from restit.decorator import path, path_parameter
 from restit.resource import Resource
 
 
-@request_mapping("/path/:id1/and/:id2/and/:id3")
+@path("/path/:id1/and/:id2/and/:id3")
 @path_parameter("id1", field_type=fields.Integer(), description="First path parameter")
 @path_parameter("id2", field_type=fields.Float(), description="Second path parameter")
 @path_parameter("id3", description="Id3")
@@ -16,7 +17,7 @@ class Resource1(Resource):
         return Response(request.path_parameters)
 
 
-@request_mapping(
+@path(
     "/path/:id", path_parameters=[PathParameter("id", "Super path parameter", fields.Integer())]
 )
 class Resource2(Resource):

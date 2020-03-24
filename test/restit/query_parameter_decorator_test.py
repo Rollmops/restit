@@ -4,14 +4,13 @@ from uuid import UUID
 from marshmallow import fields
 
 from restit import RestItApp, RestItTestApp, Request
+from restit._response import Response
+from restit.decorator import path, query_parameter
 from restit.internal.query_parameter import QueryParameter
-from restit.query_parameter_decorator import query_parameter
-from restit.request_mapping_decorator import request_mapping
 from restit.resource import Resource
-from restit.response import Response
 
 
-@request_mapping("/1")
+@path("/1")
 class QueryParametersResource(Resource):
     @query_parameter("param1", description="First parameter", field_type=fields.Integer())
     @query_parameter("uuid", description="uuid parameter", field_type=fields.UUID())
@@ -26,7 +25,7 @@ class QueryParametersResource(Resource):
         )
 
 
-@request_mapping("/2")
+@path("/2")
 class QueryParameterListResource(Resource):
     @query_parameter("int_list", description="A list of ints", field_type=fields.List(fields.Integer()))
     def get(self, request: Request) -> Response:

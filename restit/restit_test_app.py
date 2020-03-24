@@ -4,9 +4,9 @@ from typing import Union, Tuple
 from urllib.parse import urlparse
 from wsgiref.util import setup_testing_defaults
 
+from restit._response import Response
 from restit.common import get_default_encoding
 from restit.request import Request
-from restit.response import Response
 from restit.restit_app import RestItApp
 
 

@@ -6,18 +6,18 @@ from typing import Tuple, AnyStr, Dict, Union, List
 
 from marshmallow import ValidationError
 
+from restit._path_parameter import PathParameter
+from restit._response import Response
 from restit.exception import MethodNotAllowed
 from restit.exception.client_errors_4xx import BadRequest
+from restit.internal.query_parameter import QueryParameter
 from restit.internal.request_body_properties import RequestBodyProperties
 from restit.internal.request_body_schema_deserializer import RequestBodySchemaDeserializer
 from restit.internal.resource_path import ResourcePath
 from restit.internal.response_serializer_service import ResponseSerializerService
 from restit.internal.response_status_parameter import ResponseStatusParameter
 from restit.internal.schema_or_field_deserializer import SchemaOrFieldDeserializer
-from restit.path_parameter_decorator import PathParameter
-from restit.query_parameter_decorator import QueryParameter
 from restit.request import Request
-from restit.response import Response
 
 LOGGER = logging.getLogger(__name__)
 

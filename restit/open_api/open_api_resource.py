@@ -1,7 +1,7 @@
+from restit._response import Response
 from restit.common import get_open_api_resource_path
 from restit.open_api.open_api_documentation import OpenApiDocumentation
 from restit.request import Request
-from restit.response import Response
 from restit.static_directory_resource import StaticDirectoryResource
 
 

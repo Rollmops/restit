@@ -4,6 +4,7 @@ from contextlib import contextmanager
 from functools import lru_cache
 from typing import Iterable, Callable, List, Tuple, Dict, Union
 
+from restit._response import Response
 from restit.development_server import DevelopmentServer
 from restit.exception import InternalServerError, NotFound, MissingRequestMappingException
 from restit.exception.http_error import HttpError
@@ -14,7 +15,6 @@ from restit.open_api.open_api_documentation import OpenApiDocumentation
 from restit.open_api.open_api_resource import OpenApiResource
 from restit.request import Request
 from restit.resource import Resource
-from restit.response import Response
 
 LOGGER = logging.getLogger(__name__)
 
@@ -151,7 +151,7 @@ class RestItApp:
         for resource in resources:
             if resource.__request_mapping__ is None:
                 raise MissingRequestMappingException(
-                    f"The resource class {resource.__class__.__name__} does not appear to have a @request_mapping(...)"
+                    f"The resource class {resource.__class__.__name__} does not appear to have a @path(...)"
                 )
 
     def _init(self):

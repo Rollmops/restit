@@ -1,5 +1,6 @@
 from typing import List, Union, Tuple
 
+from restit._response import Response
 from restit.exception import NotAcceptable
 from restit.internal.default_response_serializer.default_bytes_text_response_serializer import \
     DefaultBytesTextResponseSerializer
@@ -14,7 +15,6 @@ from restit.internal.default_response_serializer.str_fallback_response_serialize
     StringFallbackResponseSerializer
 from restit.internal.http_accept import HttpAccept
 from restit.internal.response_status_parameter import ResponseStatusParameter
-from restit.response import Response
 from restit.response_serializer import ResponseSerializer, CanHandleResultType
 
 _DEFAULT_RESPONSE_SERIALIZER = [

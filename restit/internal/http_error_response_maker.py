@@ -1,7 +1,7 @@
+from restit._response import Response
 from restit.exception.http_error import HttpError
 from restit.internal.http_accept import HttpAccept
 from restit.internal.response_serializer_service import ResponseSerializerService
-from restit.response import Response
 
 
 class HttpErrorResponseMaker:

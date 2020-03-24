@@ -4,13 +4,12 @@ import requests
 from marshmallow import Schema, fields
 from marshmallow.validate import Regexp, Range
 
-from restit import Resource, Response, Request, request_mapping, RestItApp, query_parameter, \
-    request_body
+from restit import Resource, Response, Request, RestItApp
+from restit.decorator import path, query_parameter, request_body, response
 from restit.open_api import OpenApiDocumentation, reusable_schema
 from restit.open_api.contact_object import ContactObject
 from restit.open_api.info_object import InfoObject
 from restit.open_api.license_object import LicenseObject
-from restit.response_status_decorator import response_status
 
 
 @reusable_schema
@@ -22,7 +21,7 @@ class MyRequestBodySchema(Schema):
     field2 = fields.Integer(validate=[Range(min=1, max=100)])
 
 
-@request_mapping("/path")
+@path("/path")
 class FirstResource(Resource):
     @query_parameter("param1", description="A query parameter", field_type=fields.Integer(default=10))
     def get(self, request: Request, **path_params) -> Response:
@@ -38,13 +37,13 @@ class FirstResource(Resource):
             "image/png": fields.String(required=True)
         }, description="A request body", required=True
     )
-    @response_status(200, {"text/plain": fields.Integer()}, "Everything worked fine")
-    @response_status(None, {"text/plain": fields.Integer()}, "Hmm...some default")
+    @response(200, {"text/plain": fields.Integer()}, "Everything worked fine")
+    @response(None, {"text/plain": fields.Integer()}, "Hmm...some default")
     def post(self, request: Request, **path_params) -> Response:
         return Response("123", 201)
 
 
-@request_mapping("/path/:id<int>/wuff/:id2")
+@path("/path/:id<int>/wuff/:id2")
 class SecondResource(Resource):
     def get(self, request: Request, **path_params) -> Response:
         return Response("Hallo")

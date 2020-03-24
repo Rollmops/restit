@@ -3,8 +3,8 @@ from http import HTTPStatus
 from pathlib import Path
 from typing import Union
 
+from restit._response import Response
 from restit.internal.suffix_media_type_mapping import SUFFIX_MEDIA_TYPE_MAPPING
-from restit.response import Response
 
 
 class StaticFileResponse(Response):

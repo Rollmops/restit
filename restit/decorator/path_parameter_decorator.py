@@ -3,7 +3,7 @@ from typing import List
 
 from marshmallow.fields import Field, String
 
-from restit.path_parameter import PathParameter
+from restit._path_parameter import PathParameter
 
 LOGGER = logging.getLogger(__name__)
 

@@ -1,28 +1,28 @@
 import requests
 
 from restit import Hyperlink
+from restit._response import Response
+from restit.decorator import path
 from restit.exception import MissingRequestMappingException
 from restit.internal.default_favicon_resource import DefaultFaviconResource
 from restit.request import Request
-from restit.request_mapping_decorator import request_mapping
 from restit.resource import Resource
-from restit.response import Response
 from restit.restit_app import RestItApp
 from test.base_test_server_test_case import BaseTestServerTestCase
 
 
-@request_mapping("/")
+@path("/")
 class MyResource(Resource):
     def get(self, request: Request, **kwargs) -> Response:
         return Response("Hallo")
 
 
-@request_mapping("/no_methods")
+@path("/no_methods")
 class NoMethodsResource(Resource):
     pass
 
 
-@request_mapping("/miau")
+@path("/miau")
 class MyResource2(Resource):
     def get(self, request: Request) -> Response:
         return Response("wuff")
@@ -31,20 +31,20 @@ class MyResource2(Resource):
         return Response("", 204)
 
 
-@request_mapping("/miau/:id")
+@path("/miau/:id")
 class ResourceWithPathParams(Resource):
 
     def get(self, request: Request) -> Response:
         return Response(request.path_parameters)
 
 
-@request_mapping("/error")
+@path("/error")
 class ErrorResource(Resource):
     def get(self, request: Request) -> Response:
         raise Exception("OH NOOOO")
 
 
-@request_mapping("/resource_with_hyperlink")
+@path("/resource_with_hyperlink")
 class ResourceWithHyperLink(Resource):
     def get(self, request: Request) -> Response:
         return Response({
@@ -54,7 +54,7 @@ class ResourceWithHyperLink(Resource):
         })
 
 
-@request_mapping("/resource_with_hyperlink_error")
+@path("/resource_with_hyperlink_error")
 class ResourceWithHyperLinkError(Resource):
     def get(self, request: Request) -> Response:
         return Response({

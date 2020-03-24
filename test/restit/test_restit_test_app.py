@@ -1,16 +1,16 @@
 import unittest
 
 from restit import Hyperlink
+from restit._response import Response
+from restit.decorator import path
 from restit.exception import MethodNotAllowed
 from restit.request import Request
-from restit.request_mapping_decorator import request_mapping
 from restit.resource import Resource
-from restit.response import Response
 from restit.restit_app import RestItApp
 from restit.restit_test_app import RestItTestApp
 
 
-@request_mapping("/")
+@path("/")
 class MyResource(Resource):
     def get(self, request: Request, **kwargs) -> Response:
         return Response(request.typed_body[dict])
@@ -25,24 +25,24 @@ class MyResource(Resource):
         return Response(request.typed_body[dict], 201)
 
 
-@request_mapping("/no_response_exception")
+@path("/no_response_exception")
 class NoResponseExceptionResource(Resource):
     def get(self, request: Request) -> Response:
         pass
 
 
-@request_mapping("/no_methods")
+@path("/no_methods")
 class NoMethodsResource(Resource):
     pass
 
 
-@request_mapping("/miau/:id")
+@path("/miau/:id")
 class ResourceWithPathParams(Resource):
     def get(self, request: Request, **path_params) -> Response:
         return Response(path_params)
 
 
-@request_mapping("/resource_with_hyperlink")
+@path("/resource_with_hyperlink")
 class ResourceWithHyperLink(Resource):
     def get(self, request: Request, **kwargs) -> Response:
         return Response({
@@ -51,7 +51,7 @@ class ResourceWithHyperLink(Resource):
         })
 
 
-@request_mapping("/pass_headers")
+@path("/pass_headers")
 class PassHeadersResource(Resource):
     def get(self, request: Request, **kwargs) -> Response:
         headers = request.headers

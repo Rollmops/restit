@@ -1,12 +1,11 @@
 import requests
 from marshmallow import Schema, fields, post_load
 
+from restit._response import Response
+from restit.decorator import path, request_body
 from restit.internal.request_body_properties import RequestBodyProperties
 from restit.request import Request
-from restit.request_body_decorator import request_body
-from restit.request_mapping_decorator import request_mapping
 from restit.resource import Resource
-from restit.response import Response
 from test.base_test_server_test_case import BaseTestServerTestCase
 
 
@@ -30,14 +29,14 @@ class RequestBodyObjectSchema(Schema):
         return SchemaClass(**data)
 
 
-@request_mapping("/miau")
+@path("/miau")
 class QueryParametersResource(Resource):
     @request_body({"application/x-www-form-urlencoded": RequestBodySchema()}, description="Huhu")
     def post(self, request: Request) -> Response:
         return Response(request.deserialized_body)
 
 
-@request_mapping("/request-with-object")
+@path("/request-with-object")
 class RequestWithObjectResource(Resource):
     @request_body({"application/json": RequestBodyObjectSchema()}, "")
     def post(self, request: Request) -> Response:

@@ -2,15 +2,15 @@ import unittest
 
 import requests
 
+from restit._response import Response
+from restit.decorator import path
 from restit.development_server import DevelopmentServer
 from restit.request import Request
-from restit.request_mapping_decorator import request_mapping
 from restit.resource import Resource
-from restit.response import Response
 from restit.restit_app import RestItApp
 
 
-@request_mapping("/")
+@path("/")
 class MyResource(Resource):
     def get(self, request: Request) -> Response:
         return Response("Hello")

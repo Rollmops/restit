@@ -1,15 +1,15 @@
 import logging
 from typing import Type, List
 
+from restit._path_parameter import PathParameter
+from restit.decorator.path_parameter_decorator import register_path_parameter
 from restit.exception import PathIsNotStartingWithSlashException
-from restit.path_parameter import PathParameter
-from restit.path_parameter_decorator import register_path_parameter
 from restit.resource import Resource
 
 LOGGER = logging.getLogger(__name__)
 
 
-def request_mapping(path: str, path_parameters: List[PathParameter] = None):
+def path(path: str, path_parameters: List[PathParameter] = None):
     """Maps a resource *URI* path to your resource.
 
     The path can contain multiple path parameters.
@@ -18,7 +18,7 @@ def request_mapping(path: str, path_parameters: List[PathParameter] = None):
 
     .. code-block:: python
 
-        @request_mapping("/users/:id")
+        @path("/users/:id")
         class UserResource(Resource):
             ...
 
@@ -26,7 +26,7 @@ def request_mapping(path: str, path_parameters: List[PathParameter] = None):
 
     .. code-block:: python
 
-        @request_mapping("/orders/:year/:month/:id")
+        @path("/orders/:year/:month/:id")
         class OrdersResource(Resource):
             ...
 
@@ -45,7 +45,7 @@ def request_mapping(path: str, path_parameters: List[PathParameter] = None):
 
         1. Using the :func:`~restit.path_parameter_decorator.path_parameter` decorator
 
-        2. Passing a list of :class:`~restit.PathParameter` instances to the ``path_parameter`` parameter of the :func:`request_mapping` decorator
+        2. Passing a list of :class:`~restit.PathParameter` instances to the ``path_parameter`` parameter of the :func:`path` decorator
 
 
     Example for 2.:
@@ -56,7 +56,7 @@ def request_mapping(path: str, path_parameters: List[PathParameter] = None):
 
         ...
 
-        @request_mapping(
+        @path(
             "/users/:id",
             [
                 PathParameter("id", "The user id", fields.Integer())

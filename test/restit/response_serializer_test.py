@@ -3,6 +3,7 @@ from typing import List, Tuple, Any, Union
 
 from marshmallow import fields, ValidationError, Schema
 
+from restit._response import Response
 from restit.exception import NotAcceptable
 from restit.internal.default_response_serializer.default_dict_json_response_serializer import \
     DefaultDictJsonResponseSerializer
@@ -15,7 +16,6 @@ from restit.internal.http_accept import HttpAccept
 from restit.internal.mime_type import MIMEType
 from restit.internal.response_serializer_service import ResponseSerializerService
 from restit.internal.response_status_parameter import ResponseStatusParameter
-from restit.response import Response
 from restit.response_serializer import ResponseSerializer, CanHandleResultType
 
 

@@ -2,22 +2,22 @@ import unittest
 
 import requests
 
+from restit._response import Response
+from restit.decorator import path
 from restit.namespace import Namespace
 from restit.request import Request
-from restit.request_mapping_decorator import request_mapping
 from restit.resource import Resource
-from restit.response import Response
 from restit.restit_app import RestItApp
 from test.start_server_with_wsgi_app import start_server_with_wsgi_app
 
 
-@request_mapping("/subpath")
+@path("/subpath")
 class MyResource(Resource):
     def get(self, request: Request) -> Response:
         return Response("Hallo")
 
 
-@request_mapping("/subpath2")
+@path("/subpath2")
 class MyResource2(Resource):
     def get(self, request: Request) -> Response:
         return Response("Hallo from subpath 2")
