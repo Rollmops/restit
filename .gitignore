@@ -6,11 +6,4 @@ venv/
 .pytest_cache
 dist/*
 /docs/build/
-restit/__pycache__/
-restit/internal/__pycache__/
-restit/internal/default_request_deserializer/__pycache__/
-restit/internal/default_response_serializer/__pycache__/
-restit/open_api/__pycache__/
-test/__pycache__/
-test/learning_tests/__pycache__/
-test/restit/__pycache__/
+__pycache__/
