@@ -33,12 +33,12 @@ def path(path: str, path_parameters: List[PathParameter] = None):
 
     .. note::
 
-        A specific request mapping paths will always win. So given the following two request mapping paths:
+        A specific request mapping paths will always win. So given the following two paths:
 
             - ``/orders/api``
             - ``/orders/:id``
 
-        The incoming path ``/orders/api`` will always map to the resource with the ``/orders/api`` request mapping path.
+        The incoming path ``/orders/api`` will always map to the resource with the ``/orders/api`` path.
 
     **Setting** `OpenApi <https://swagger.io/docs/specification/about/>`_ **properties**
 
