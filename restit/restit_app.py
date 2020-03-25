@@ -190,17 +190,19 @@ class RestItApp:
             error.traceback = traceback.format_exc()
             response = HttpErrorResponseMaker(error, self.debug).create_response(request.http_accept_object)
         except Exception as error:
-            if self.raise_exceptions:
-                raise
-            LOGGER.error(str(error))
-            _traceback = traceback.format_exc()
-            LOGGER.error(_traceback)
-            internal_server_error = InternalServerError(
-                description=f"{error.__class__.__name__}: {error}", traceback=_traceback
-            )
-            response = HttpErrorResponseMaker(
-                internal_server_error, self.debug
-            ).create_response(request.http_accept_object)
+            response = self._get_response_from_common_exception(error, request)
+        return response
+
+    def _get_response_from_common_exception(self, error: Exception, request: Request) -> Response:
+        if self.raise_exceptions:
+            raise
+        LOGGER.error(str(error))
+        _traceback = traceback.format_exc()
+        LOGGER.error(_traceback)
+        internal_server_error = InternalServerError(
+            description=f"{error.__class__.__name__}: {error}", traceback=_traceback
+        )
+        response = HttpErrorResponseMaker(internal_server_error, self.debug).create_response(request.http_accept_object)
         return response
 
     @staticmethod

@@ -19,7 +19,7 @@ def response(status: Union[int, HTTPStatus], content_types: Dict[str, Union[Sche
         registered_response_status_parameters: List[ResponseStatusParameter] = \
             getattr(func_or_class, "__response_status_parameters__", [])
         LOGGER.debug(
-            "Registering response status parameter %s for %s", response_status_parameter, func_or_class.__name__
+            "Registering response %s for resource %s", response_status_parameter, func_or_class.__name__
         )
         registered_response_status_parameters.append(response_status_parameter)
         setattr(func_or_class, "__response_status_parameters__", registered_response_status_parameters)

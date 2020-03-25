@@ -21,7 +21,7 @@ def request_body(
             content_types, description, required, validation_error_class
         )
         LOGGER.debug(
-            "Registering request body parameter %s for %s", request_body_properties, func.__name__
+            "Registering request body parameter %s for resource %s", request_body_properties, func.__name__
         )
         setattr(func, "__request_body_properties__", request_body_properties)
         return func

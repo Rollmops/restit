@@ -9,6 +9,7 @@ from restit.resource import Resource
 LOGGER = logging.getLogger(__name__)
 
 
+# noinspection PyShadowingNames
 def path(path: str, path_parameters: List[PathParameter] = None):
     """Maps a resource *URI* path to your resource.
 
@@ -81,11 +82,10 @@ def path(path: str, path_parameters: List[PathParameter] = None):
 
         if not path.startswith("/"):
             raise PathIsNotStartingWithSlashException(path)
-        LOGGER.debug("Registering path %s for swagger %s", path, clazz.__name__)
+        LOGGER.debug("Registering path %s for resource %s", path, clazz.__name__)
         clazz.__request_mapping__ = path
-        for path_parameter in path_parameters:
+        for path_parameter in path_parameters:  # type: PathParameter
             register_path_parameter(path_parameter, clazz)
         return clazz
 
     return wrapper
-
