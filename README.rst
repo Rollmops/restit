@@ -26,6 +26,9 @@ Features
 - `OpenApi <https://swagger.io/docs/specification/about/>`_ documentation generation
 - *OOP*-ready (no module-based global instances necessary)
 - Easy hyperlink generation
+- Exception mapping
+- Response serialization customization
+- Request deserialization customization
 - Easy to test
 
 Quick example
