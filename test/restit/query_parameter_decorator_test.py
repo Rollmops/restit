@@ -38,7 +38,7 @@ class QueryParameterTest(unittest.TestCase):
             QueryParametersResource(),
             QueryParameterListResource()
         ])
-        self.restit_test_app = RestItTestApp(restit_app)
+        self.restit_test_app = RestItTestApp.from_restit_app(restit_app)
 
     def test_query_parameter(self):
         response = self.restit_test_app.get("/1?param1=3&uuid=08695ead-392a-40ab-99fa-2fe64c3b48b4")

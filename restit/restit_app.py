@@ -41,7 +41,6 @@ class RestItApp:
             debug: bool = False,
             raise_exceptions: bool = False,
             open_api_documentation: OpenApiDocumentation = None
-
     ):
         self._namespaces: List[Namespace] = []
         self._resources: List[Resource] = []
@@ -203,12 +202,6 @@ class RestItApp:
             description=f"{error.__class__.__name__}: {error}", traceback=_traceback
         )
         response = HttpErrorResponseMaker(internal_server_error, self.debug).create_response(request.http_accept_object)
-        return response
-
-    @staticmethod
-    def _create_http_exception_response(request: Request, http_exception: HttpError) -> Response:
-        exception_response_maker = HttpErrorResponseMaker(http_exception)
-        response = exception_response_maker.create_response(request.http_accept_object)
         return response
 
     @staticmethod

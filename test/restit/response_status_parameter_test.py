@@ -3,7 +3,7 @@ import unittest
 
 from marshmallow import Schema, fields
 
-from restit import Resource, Request, Response, RestItTestApp, RestItApp
+from restit import Resource, Request, Response, RestItTestApp
 from restit.decorator import path, response
 from restit.rfc7807_schema import RFC7807Schema
 
@@ -27,7 +27,7 @@ class MyResource(Resource):
 
 class ResponseStatusParameterTestCase(unittest.TestCase):
     def setUp(self) -> None:
-        self.restit_test_app = RestItTestApp(RestItApp(resources=[MyResource()]))
+        self.restit_test_app = RestItTestApp(resources=[MyResource()])
 
     def test_status_supported(self):
         r = self.restit_test_app.get("/", json={"status": 200})

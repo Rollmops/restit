@@ -28,7 +28,7 @@ class Resource2(Resource):
 class PathParameterTestCase(unittest.TestCase):
     def setUp(self) -> None:
         restit_app = RestItApp(resources=[Resource1(), Resource2()])
-        self.restit_test_app = RestItTestApp(restit_app)
+        self.restit_test_app = RestItTestApp.from_restit_app(restit_app)
 
     def test_path_parameters(self):
         response = self.restit_test_app.get("/path/1/and/10/and/20")

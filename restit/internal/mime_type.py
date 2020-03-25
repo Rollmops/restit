@@ -22,7 +22,7 @@ class MIMEType:
 
     @staticmethod
     def from_string(mime_type_string: str) -> "MIMEType":
-        match = MIMEType._REGEX.match(mime_type_string)
+        match = MIMEType._REGEX.match(mime_type_string.strip())
         if not match:
             raise MIMEType.MIMETypeParsingException(mime_type_string)
 

@@ -75,10 +75,11 @@ class RestitTestAppTestCase(unittest.TestCase):
             ResourceWithPathParams(),
             NoResponseExceptionResource()
         ])
-        self.resit_test_app = RestItTestApp(resit_app)
+        self.resit_test_app = RestItTestApp.from_restit_app(resit_app)
 
     def test_get_json_body(self):
         response = self.resit_test_app.get("/", json={"key": "value"})
+        self.assertEqual("Response(200 OK)", str(response))
         self.assertEqual(200, response.status_code)
         self.assertEqual({"key": "value"}, response.json())
         self.assertEqual('{"key": "value"}', response.text)
@@ -149,9 +150,15 @@ class RestitTestAppTestCase(unittest.TestCase):
         self.resit_test_app.raise_exceptions = True
         with self.assertRaises(MethodNotAllowed):
             self.assertEqual(405, self.resit_test_app.get("/no_methods").status_code)
+        with self.assertRaises(MethodNotAllowed):
+            self.assertEqual(405, self.resit_test_app.get("/no_methods").status_code)
+        with self.assertRaises(MethodNotAllowed):
             self.assertEqual(405, self.resit_test_app.post("/no_methods").status_code)
+        with self.assertRaises(MethodNotAllowed):
             self.assertEqual(405, self.resit_test_app.put("/no_methods").status_code)
+        with self.assertRaises(MethodNotAllowed):
             self.assertEqual(405, self.resit_test_app.delete("/no_methods").status_code)
+        with self.assertRaises(MethodNotAllowed):
             self.assertEqual(405, self.resit_test_app.patch("/no_methods").status_code)
 
     def test_pass_headers(self):

@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import patch, mock_open
 
-from restit import RestItTestApp, RestItApp, Resource, Response, Request
+from restit import RestItTestApp, Resource, Response, Request
 from restit.decorator import path
 from restit.static_file_response import StaticFileResponse
 
@@ -15,9 +15,7 @@ class MyResource(Resource):
 
 class StaticFileResourceTestCase(unittest.TestCase):
     def setUp(self) -> None:
-        self.rest_test_app = RestItTestApp(RestItApp(
-            resources=[MyResource()]
-        ))
+        self.rest_test_app = RestItTestApp(resources=[MyResource()])
 
     def test_text_file(self):
         m = mock_open(read_data=b"Huhu from file")

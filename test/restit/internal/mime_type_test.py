@@ -37,6 +37,9 @@ class MIMETypeTestCase(unittest.TestCase):
         with self.assertRaises(MIMEType.MIMETypeParsingException):
             MIMEType.from_string("can not parse me")
 
+    def test_parse_with_trailing_whitespaces(self):
+        MIMEType.from_string(" image/jpeg")
+
     def test_mime_type_equal(self):
         mime_type1 = MIMEType("application", "json", 0.9)
         mime_type2 = MIMEType("application", "json", 0.9)

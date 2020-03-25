@@ -38,7 +38,7 @@ class Response:
         return self._headers
 
     def __str__(self) -> str:
-        return f"Response(<{self.status_string}>)"
+        return f"Response({self.status_string})"
 
     class ResponseBodyTypeNotSupportedException(Exception):
         pass

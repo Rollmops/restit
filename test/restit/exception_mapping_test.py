@@ -1,6 +1,6 @@
 import unittest
 
-from restit import Resource, Request, Response, RestItTestApp, RestItApp
+from restit import Resource, Request, Response, RestItTestApp
 from restit.decorator import path, exception_mapping
 from restit.exception import BadRequest, NotFound
 
@@ -22,7 +22,7 @@ class MyResource(Resource):
 
 class ExceptionMappingTestTestCase(unittest.TestCase):
     def setUp(self) -> None:
-        self.restit_test_app = RestItTestApp(RestItApp(resources=[MyResource()], raise_exceptions=True))
+        self.restit_test_app = RestItTestApp(resources=[MyResource()], raise_exceptions=True)
 
     def test_map_exception(self):
         with self.assertRaises(BadRequest) as exception:
