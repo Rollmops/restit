@@ -16,8 +16,7 @@ Welcome to the **RestIt** documentation.
 Python HTTP REST library including OOP-readiness and Open-API generation
 
 .. toctree::
-   :titlesonly:
-   :includehidden:
+   :maxdepth: 4
 
    installation
    quickstart

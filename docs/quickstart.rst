@@ -1,8 +1,8 @@
 Quickstart
-==========
+**********
 
 A Minimal Application
----------------------
+=====================
 
 To get started with RestIt we can use the following code snippet:
 
@@ -29,8 +29,8 @@ One of the key aspects of *REST* and the *RestIt* library are *Resources*. Since
 *URI*, in our Python code we assign it using the :func:`~restit.decorator.path` decorator.
 
 
-Serve Swagger/OpenApi Documentation
---------------------------------------
+Swagger/OpenApi Documentation
+=============================
 
 To get your HTTP app serving an *OpenApi* documentation, you have to create an instance of
 :class:`~restit.open_api.OpenApiDocumentation` and pass it to your :class:`~restit.RestItApp` constructor.
@@ -55,3 +55,39 @@ documentation.
     Since we did not yet provide any information about our API we do not see too much in the *OpenApi* documentation yet.
 
 
+More OpenApi Documentation Details
+------------------------------------
+
+Request Details
+^^^^^^^^^^^^^^^
+
+A description for the request method is always a good starting point and so we are adding a simple doc string to our
+``get`` method:
+
+.. code-block:: python
+
+    @path("/")
+    class IndexResource(Resource):
+        def get(self, request: Request) -> Response:
+            """This is a super get method.
+
+            It takes a request and responds with a text.
+            """
+            return Response("Hello from index.")
+
+
+The doc string then will be used to generate the `summary and description <https://swagger.io/specification/#operationObject>`_  fields.
+
+
+Query Parameters
+""""""""""""""""
+
+Path Parameters
+"""""""""""""""
+
+Request Body
+""""""""""""
+
+
+Response Details
+^^^^^^^^^^^^^^^^

@@ -43,7 +43,11 @@ class OpenApiDocumentation:
     def _add_resource(self, paths: dict, resource: Resource, root_spec: dict):
         path, inferred_path_parameters = \
             self._infer_path_params_and_open_api_path_syntax(resource.__request_mapping__)
-        paths[path] = {}
+        summary, description = self._get_summary_and_description_from_doc(resource.__doc__)
+        paths[path] = {
+            "summary": summary,
+            "description": description
+        }
         for method_name, method_object in self._get_allowed_resource_methods(resource).items():
             paths[path][method_name] = {
                 "responses": {},

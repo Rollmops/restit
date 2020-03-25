@@ -23,6 +23,11 @@ class MyRequestBodySchema(Schema):
 
 @path("/path")
 class FirstResource(Resource):
+    """First resource summary
+
+    Super description.
+    """
+
     @query_parameter("param1", description="A query parameter", field_type=fields.Integer(default=10))
     def get(self, request: Request, **path_params) -> Response:
         """This is a summary.
@@ -112,6 +117,9 @@ class OpenApiSpecTestCase(unittest.TestCase):
         self.assertEqual("3.0.0", open_api_dict["openapi"])
 
         paths_path = open_api_dict["paths"]["/path"]
+        self.assertEqual("First resource summary", paths_path["summary"])
+        self.assertEqual("Super description.", paths_path["description"])
+
         self.assertEqual({
             'responses': {},
             'parameters': [{
