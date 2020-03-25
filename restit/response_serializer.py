@@ -20,10 +20,10 @@ class ResponseSerializer:
             return CanHandleResultType(best_match[0], best_match[1])
 
     def get_media_type_strings(self) -> List[str]:
-        raise NotImplemented()
+        raise NotImplementedError()
 
     def get_response_data_type(self) -> type:
-        raise NotImplemented()
+        raise NotImplementedError()
 
     def validate_and_serialize(
             self,
@@ -32,7 +32,7 @@ class ResponseSerializer:
             can_handle_result: CanHandleResultType
     ) -> Tuple[bytes, str]:
         """Returns a tuple of the serialized bytes and the content type"""
-        raise NotImplemented()
+        raise NotImplementedError()
 
     @staticmethod
     def find_schema(

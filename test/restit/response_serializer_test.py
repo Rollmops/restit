@@ -1,4 +1,5 @@
 import unittest
+from http import HTTPStatus
 from typing import List, Tuple, Any, Union
 
 from marshmallow import fields, ValidationError, Schema
@@ -170,3 +171,18 @@ class ResponseSerializerTestCase(unittest.TestCase):
         self.assertNotIn(b"not_expected", response.content)
         self.assertEqual(200, response.status_code)
         self.assertEqual("application/json", response.headers["Content-Type"])
+
+    def test_not_implemented(self):
+        response_serializer = ResponseSerializer()
+        with self.assertRaises(NotImplementedError):
+            response_serializer.get_media_type_strings()
+
+        with self.assertRaises(NotImplementedError):
+            response_serializer.get_response_data_type()
+
+        with self.assertRaises(NotImplementedError):
+            response_serializer.validate_and_serialize("", None, CanHandleResultType("", MIMEType.from_string("*/*")))
+
+    def test_content_type_not_expected_exception(self):
+        with self.assertRaises(ResponseSerializer.ContentTypeNotExpectedForResponseStatusException):
+            ResponseSerializer.find_schema("hans/wurst", ResponseStatusParameter(HTTPStatus.OK, "", {}))

@@ -73,3 +73,12 @@ class RequestDeserializerTestCase(unittest.TestCase):
         )
 
         self.assertEqual("olleh", deserialized_value)
+
+    def test_not_implemented_error(self):
+        request_deserializer = RequestDeserializer()
+        with self.assertRaises(NotImplementedError):
+            request_deserializer.get_content_type_list()
+        with self.assertRaises(NotImplementedError):
+            request_deserializer.get_deserialized_python_type()
+        with self.assertRaises(NotImplementedError):
+            request_deserializer.deserialize(b"", "")
