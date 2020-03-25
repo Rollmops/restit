@@ -11,7 +11,7 @@ This part of the documentation covers all the interfaces of RestIt.
 Restit Application
 ------------------
 
-.. autoclass:: RestitApp
+.. autoclass:: RestItApp
    :members:
 
 
