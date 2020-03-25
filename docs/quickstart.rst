@@ -29,10 +29,10 @@ One of the key aspects of *REST* and the *RestIt* library are *Resources*. Since
 *URI*, in our Python code we assign it using the :func:`~restit.decorator.path` decorator.
 
 
-Adding a Swagger/OpenApi Documentation
+Serve Swagger/OpenApi Documentation
 --------------------------------------
 
-To get your HTTP app serving a *OpenApi* documentation you have to create an instance of
+To get your HTTP app serving an *OpenApi* documentation, you have to create an instance of
 :class:`~restit.open_api.OpenApiDocumentation` and pass it to your :class:`~restit.RestItApp` constructor.
 
 .. code-block:: python
@@ -47,6 +47,8 @@ To get your HTTP app serving a *OpenApi* documentation you have to create an ins
 
 Once you start your development server and navigate to ``http://127.0.0.1:5000/api/`` you will see a minimal *OpenApi*
 documentation.
+
+.. image:: images/first_open_api_doc.png
 
 .. note::
 

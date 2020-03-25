@@ -70,7 +70,10 @@ class ResponseSerializerService:
                     response.response_body_input, response_status_parameter, can_handle_result
                 )
                 # Todo encoding from incoming accept charset
-                response.text = response.content.decode()
+                try:
+                    response.text = response.content.decode()
+                except UnicodeDecodeError:
+                    response.text = None
                 response._prepare_headers(content_type)
                 return
 

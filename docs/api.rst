@@ -20,4 +20,6 @@ Resource Related
 
 .. autoclass:: restit.Resource
 
-.. autofunction:: request_mapping
+.. py:module:: restit.decorator
+
+.. autofunction:: path
