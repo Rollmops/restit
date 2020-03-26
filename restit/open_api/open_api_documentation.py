@@ -13,6 +13,43 @@ from restit.resource import Resource
 
 
 class OpenApiDocumentation:
+    """Class that that is responsible for creating the `OpenApi`_ documentation.
+
+    If you want to create a *OpenApi* documentation, you have to instantiate this class and pass it your
+    :class:`~restit.RestItApp`.
+
+    Example:
+
+    .. code-block:: python
+
+        from restit import RestItApp
+        from restit.open_api import OpenApiDocumentation, InfoObject, ContactObject, LicenseObject
+
+        open_api_documentation = OpenApiDocumentation(
+            info=InfoObject(
+                title="First OpenApi Test",
+                description="Super description",
+                version="1.2.3",
+                contact=ContactObject("API Support", "http://www.example.com/support", "support@example.com"),
+                license=LicenseObject("Apache 2.0", "https://www.apache.org/licenses/LICENSE-2.0.html"),
+                terms_of_service="http://example.com/terms/"
+            ),
+            path="/some/custom/api/path"
+        )
+
+        restit_app = RestItApp(resource=[...], open_api_documentation=open_api_documentation)
+
+        ...
+
+    Once your app is running, you can access ``http://<host>:<port>/some/custom/api/path/`` to see your API
+    documentation.
+
+    :param info: Metadata about the API
+    :type info: InfoObject
+    :param path: The path where the API is served
+    :type path: str
+    """
+
     _IGNORE_RESOURCE_CLASS_NAMES = ["DefaultFaviconResource", "OpenApiResource"]
     _SPEC_VERSION = "3.0.0"
 
@@ -23,12 +60,26 @@ class OpenApiDocumentation:
         self._servers = []
 
     def register_resource(self, resource: Resource):
+        """Register a resource that should be documented.
+
+        .. note:: Only use this function if you want to generate the API specification outside your app.
+
+        :param resource: The resource that should be registered
+        :type resource: Resource
+        """
         if resource not in self._resources and \
                 resource.__class__.__name__ not in OpenApiDocumentation._IGNORE_RESOURCE_CLASS_NAMES:
             self._resources.append(resource)
 
     @lru_cache()
     def generate_spec(self) -> dict:
+        """Generate the `OpenApi`_ specification as a dictionary
+
+        .. note:: Only use this function if you want to generate the API specification outside your app.
+
+        :return: The generated specification
+        :rtype: dict
+        """
         self._resources.sort(key=lambda r: r.__request_mapping__)
         root_spec = self._generate_root_spec()
         self._generate_paths(root_spec)
@@ -43,6 +94,7 @@ class OpenApiDocumentation:
     def _add_resource(self, paths: dict, resource: Resource, root_spec: dict):
         path, inferred_path_parameters = \
             self._infer_path_params_and_open_api_path_syntax(resource.__request_mapping__)
+        # noinspection PyTypeChecker
         summary, description = self._get_summary_and_description_from_doc(resource.__doc__)
         paths[path] = {
             "summary": summary,

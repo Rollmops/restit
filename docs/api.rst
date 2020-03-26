@@ -23,3 +23,18 @@ Resource Related
 .. py:module:: restit.decorator
 
 .. autofunction:: path
+
+
+OpenApi Documentation
+---------------------
+
+.. py:module:: restit.open_api
+
+.. autoclass:: OpenApiDocumentation
+   :members: generate_spec, register_resource
+
+.. autoclass:: InfoObject
+
+.. autoclass:: LicenseObject
+
+.. autoclass::  ContactObject

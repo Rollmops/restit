@@ -27,12 +27,16 @@ class RestItApp:
     like `Gunicorn <https://gunicorn.org/>`_.
 
     :param resources: A list of :class:`Resource` instances
+    :type resources: List[Resource]
     :param namespaces: A list of :class:`Namespace` instances
+    :type namespaces: List[Namespace]
     :param debug: If set to `True`, you will get a detailed *HTML* stacktrace if an error is raised inside your application
+    :type debug: bool
     :param raise_exceptions: If set to `True`, exceptions will not cause error responses but will raise an error
+    :type raise_exceptions: bool
     :param open_api_documentation: An instance of :class:`OpenApiDocumentation`. If not set, no
-           `OpenApi <https://swagger.io/docs/specification/about/>`_ documenation will be generated.
-
+           `OpenApi <https://swagger.io/docs/specification/about/>`_ documentation will be generated.
+    :type open_api_documentation: OpenApiDocumentation
     """
 
     def __init__(
