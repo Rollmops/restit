@@ -19,7 +19,7 @@ Python HTTP REST library including OOP-readiness and Open-API generation
    :maxdepth: 4
 
    installation
-   quickstart
+   getting-started
 
    api
 

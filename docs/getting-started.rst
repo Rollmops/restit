@@ -1,5 +1,5 @@
-Quickstart
-**********
+Getting Started
+***************
 
 A Minimal Application
 =====================
@@ -55,11 +55,13 @@ documentation.
     Since we did not yet provide any information about our API we do not see too much in the *OpenApi* documentation yet.
 
 
-More OpenApi Documentation Details
-----------------------------------
+Describe your REST API
+======================
 
-Request Details
-^^^^^^^^^^^^^^^
+The following decorators
+
+Request Description
+-------------------
 
 A description for the request method is always a good starting point and so we are adding a simple doc string to our
 ``get`` method:
@@ -87,7 +89,7 @@ The first line will always be treated as the *summary* and the following lines a
 
 
 Path Parameters
-"""""""""""""""
+---------------
 
 Imagine you want to add a resource with a parameter in the *URL* - a so called *path parameter*. So for instance, we
 want to serve the *URL* ``/users/:id``:
@@ -129,7 +131,7 @@ if the incoming path parameter can not be deserialized (in our example, because 
 
 
 Query Parameters
-""""""""""""""""
+----------------
 
 So now imagine we want to add a query parameter that controls whether to send the address information or not. Lets call
 it ``address_info``:
@@ -158,15 +160,18 @@ An example *URL* can be:
 
 
 Request Body
-""""""""""""
+------------
 
 
 
 
 Response Details
-^^^^^^^^^^^^^^^^
+----------------
 
 
 Exception Mapping
------------------
+=================
+
+Hyperlink Generation
+====================
 
