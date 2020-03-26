@@ -83,7 +83,7 @@ The first line will always be treated as the *summary* and the following lines a
 .. note::
 
     The doc string of the resource class will also be recognized and added to the `PathItemObject <https://swagger.io/specification/#pathItemObject>`_,
-    but for some reason it might be not appear in the *OpenApi* documentation.
+    but for some reason it might not be appear in the *OpenApi* documentation.
 
 
 Path Parameters
@@ -161,5 +161,12 @@ Request Body
 """"""""""""
 
 
+
+
 Response Details
 ^^^^^^^^^^^^^^^^
+
+
+Exception Mapping
+-----------------
+
