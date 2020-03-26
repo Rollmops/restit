@@ -128,14 +128,33 @@ if the incoming path parameter can not be deserialized (in our example, because 
                 ...
 
 
-
-
-
 Query Parameters
 """"""""""""""""
 
+So now imagine we want to add a query parameter that controls whether to send the address information or not. Lets call
+it ``address_info``:
+
+.. code-block:: python
+
+    @path("/users/:id")
+    @path_parameter("id", "The user id", fields.Integer())
+    class UserResource(Resource):
+
+        @query_parameter("address_info", "Send address information", fields.Boolean(default=False))
+        def get(self, request: Request) -> Response:
+            """Get user information"""
+
+            if request.query_parameters["address_info"]:
+                # collect address information here
+
+            return Response({"name": ...})
 
 
+An example *URL* can be:
+
+- ``/users/1?address_info=true``
+- ``/users/1?address_info=false``
+- ``/users/1`` (which here defaults to *false*)
 
 
 Request Body
