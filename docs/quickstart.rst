@@ -56,7 +56,7 @@ documentation.
 
 
 More OpenApi Documentation Details
-------------------------------------
+----------------------------------
 
 Request Details
 ^^^^^^^^^^^^^^^
@@ -78,12 +78,65 @@ A description for the request method is always a good starting point and so we a
 
 The doc string then will be used to generate the `summary and description <https://swagger.io/specification/#operationObject>`_  fields.
 
+The first line will always be treated as the *summary* and the following lines as the *description*.
+
+.. note::
+
+    The doc string of the resource class will also be recognized and added to the `PathItemObject <https://swagger.io/specification/#pathItemObject>`_,
+    but for some reason it might be not appear in the *OpenApi* documentation.
+
+
+Path Parameters
+"""""""""""""""
+
+Imagine you want to add a resource with a parameter in the *URL* - a so called *path parameter*. So for instance, we
+want to serve the *URL* ``/users/:id``:
+
+.. code-block:: python
+
+    from marshmallow import fields
+
+    ...
+
+
+    @path("/users/:id")
+    @path_parameter("id", "The user id", fields.Integer())
+    class UserResource(Resource):
+        def get(self, request: Request) -> Response:
+            """Get user information"""
+            return Response({"id": request.path_parameters["id"]})
+
+
+Though our *HTTP* service would also consider the path parameter ``id`` here without the :func:`~restit.decorator.path_parameter`
+decorator, we add it because we want to:
+
+1. Hand more information about that parameter to the *OpenApi* documentation
+2. Use `marshmallow <https://marshmallow.readthedocs.io/en/stable/>`_ for validation and deserialization here
+
+So in our *OpenApi* documentation we will see the description and the type of our path parameter, but we will also get
+the path parameter ``id`` as an *int* in our request method. And we will also get a *400 BadRequest* response status,
+if the incoming path parameter can not be deserialized (in our example, because someone is passing a ``id`` of type string).
+
+.. note::
+
+    As an alternative syntax you can also register path parameters the following way:
+
+    .. code-block:: python
+
+            @path("/users/:id", path_parameters=[PathParameter("id", "The user id", fields.Integer())])
+            class UserResource(Resource):
+                ...
+
+
+
+
 
 Query Parameters
 """"""""""""""""
 
-Path Parameters
-"""""""""""""""
+
+
+
 
 Request Body
 """"""""""""
