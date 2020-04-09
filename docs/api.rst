@@ -24,6 +24,10 @@ Resource Related
 
 .. autofunction:: path
 
+.. autofunction:: path_parameter
+
+.. autoclass:: restit._path_parameter.PathParameter
+
 
 OpenApi Documentation
 ---------------------

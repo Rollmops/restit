@@ -33,7 +33,7 @@ def path(path: str, path_parameters: List[PathParameter] = None):
 
     .. note::
 
-        A specific request mapping paths will always win. So given the following two paths:
+        A specific request mapping path will always win. So given the following two paths:
 
             - ``/orders/api``
             - ``/orders/:id``
@@ -44,9 +44,9 @@ def path(path: str, path_parameters: List[PathParameter] = None):
 
     There are two ways of setting the path parameter properties for the *OpenApi* documentation.
 
-        1. Using the :func:`~restit.path_parameter_decorator.path_parameter` decorator
+        1. Using the :func:`~restit.decorator.path_parameter` decorator
 
-        2. Passing a list of :class:`~restit.PathParameter` instances to the ``path_parameter`` parameter of the :func:`path` decorator
+        2. Passing a list of :class:`~restit._path_parameter.PathParameter` instances to the ``path_parameter`` parameter of the :func:`path` decorator
 
 
     Example for 2.:
@@ -68,6 +68,12 @@ def path(path: str, path_parameters: List[PathParameter] = None):
 
 
     As you can see, we are using the `marshmallow <https://marshmallow.readthedocs.io/en/stable/#>`_ library here.
+
+    .. note::
+
+        If you do not describe the path parameters with either :func:`path_parameter` or inside the
+        :func:`path` decorator, they won´t show up in the *OpenApi* documentation and the type is
+        considered to be string.
 
     :param path: The *URI* path to the resource
     :type path: str
