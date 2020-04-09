@@ -60,8 +60,8 @@ Describe your REST API
 
 The following decorators
 
-Request Description
--------------------
+Request Method Description
+--------------------------
 
 A description for the request method is always a good starting point and so we are adding a simple doc string to our
 ``get`` method:
@@ -88,8 +88,8 @@ The first line will always be treated as the *summary* and the following lines a
     but for some reason it might not be appear in the *OpenApi* documentation.
 
 
-Path Parameters
----------------
+Describing the Path Parameters
+------------------------------
 
 Imagine you want to add a resource with a parameter in the *URL* - a so called *path parameter*. So for instance, we
 want to serve the *URL* ``/users/:id``:
@@ -130,8 +130,8 @@ if the incoming path parameter can not be deserialized (in our example, because 
                 ...
 
 
-Query Parameters
-----------------
+Describing the Query Parameters
+-------------------------------
 
 So now imagine we want to add a query parameter that controls whether to send the address information or not. Lets call
 it ``address_info``:
@@ -159,11 +159,42 @@ An example *URL* can be:
 - ``/users/1`` (which here defaults to *false*)
 
 
-Request Body
-------------
+Describing the Request Body
+---------------------------
+
+If you expect a response body with an incoming request, you can specify that with the
+:func:`~restit.decorator.request_body` decorator.
+
+First we need to define our schema:
+
+.. code-block:: python
+
+    from marshmallow import Schema, fields
 
 
+    class MyRequestSchema(Schema):
+        """This is my example request schema"""
+        string_fields = fields.String()
+        string_fields.__doc__ = "A field holding a string value"
+        integer_field = fields.Integer()
+        integer_field.__doc__ = "A field holding an integer value"
 
+
+Now we can use that schema to describe our expected request body:
+
+.. code-block:: python
+
+    @path("/orders)
+    class MyResource(Resource):
+
+        @request_body({"application/json": MyRequestSchema()}, "My request body description")
+        def post(self, request: Request) -> Response:
+            request_body = request.deserialized_body
+
+            ...
+
+
+As you can see, you can access the request body with the :attr:`~restit.Request.deserialized_body` property.
 
 Response Details
 ----------------

@@ -28,6 +28,9 @@ Resource Related
 
 .. autoclass:: restit._path_parameter.PathParameter
 
+.. autofunction:: query_parameter
+
+.. autofunction:: request_body
 
 OpenApi Documentation
 ---------------------

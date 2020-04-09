@@ -1,9 +1,9 @@
 from marshmallow import Schema, fields
 from marshmallow.fields import Boolean
 
-from restit import Resource, request_mapping, Response, Request, query_parameter
+from restit import Resource, Response, Request
+from restit.decorator import path, response, query_parameter
 from restit.exception import BadRequest
-from restit.response_status_decorator import response_status
 from test.restit.acceptence_test.todo_repo import TodoRepo
 
 
@@ -14,13 +14,13 @@ class TodosSchema(Schema):
     sort = fields.Boolean()
 
 
-@request_mapping("/")
+@path("/")
 class TodosResource(Resource):
     def __init__(self, repo: TodoRepo):
         super().__init__()
         self.repo = repo
 
-    @response_status(
+    @response(
         200, description="Get a list of all todo ids",
         content_types={"application/json": TodosSchema()}
     )
