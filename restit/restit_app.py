@@ -198,7 +198,7 @@ class RestItApp:
 
     def _get_response_from_common_exception(self, error: Exception, request: Request) -> Response:
         if self.raise_exceptions:
-            raise
+            raise error
         LOGGER.error(str(error))
         _traceback = traceback.format_exc()
         LOGGER.error(_traceback)
