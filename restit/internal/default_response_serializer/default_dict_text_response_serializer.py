@@ -25,3 +25,8 @@ class DefaultDictTextResponseSerializer(ResponseSerializer):
         )
 
         return response_in_bytes, "text/plain"
+
+
+class DefaultListTextResponseSerializer(DefaultDictTextResponseSerializer):
+    def get_response_data_type(self) -> type:
+        return list

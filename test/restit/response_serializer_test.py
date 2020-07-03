@@ -32,6 +32,14 @@ class ResponseSerializerTestCase(unittest.TestCase):
 
         self.assertEqual(b'{"key": "value"}', response.content)
 
+    def test_default_list_to_json(self):
+        response = Response(["1", 2])
+        ResponseSerializerService.validate_and_serialize_response_body(
+            response, HttpAccept([MIMEType("application", "json")])
+        )
+
+        self.assertEqual(b'["1", 2]', response.content)
+
     def test_default_dict_to_text(self):
         response = Response({"key": "value"})
         ResponseSerializerService.validate_and_serialize_response_body(
@@ -39,6 +47,14 @@ class ResponseSerializerTestCase(unittest.TestCase):
         )
 
         self.assertEqual(b'{"key": "value"}', response.content)
+
+    def test_default_list_to_text(self):
+        response = Response(["1", 2])
+        ResponseSerializerService.validate_and_serialize_response_body(
+            response, HttpAccept.from_accept_string("text/plain")
+        )
+
+        self.assertEqual(b'["1", 2]', response.content)
 
     def test_default_str_to_text(self):
         response = Response("Test")

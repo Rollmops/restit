@@ -5,9 +5,9 @@ from restit.exception import NotAcceptable
 from restit.internal.default_response_serializer.default_bytes_text_response_serializer import \
     DefaultBytesTextResponseSerializer
 from restit.internal.default_response_serializer.default_dict_json_response_serializer import \
-    DefaultDictJsonResponseSerializer
+    DefaultDictJsonResponseSerializer, DefaultListJsonResponseSerializer
 from restit.internal.default_response_serializer.default_dict_text_response_serializer import \
-    DefaultDictTextResponseSerializer
+    DefaultDictTextResponseSerializer, DefaultListTextResponseSerializer
 from restit.internal.default_response_serializer.default_str_text_response_serializer import \
     DefaultStrTextResponseSerializer
 from restit.internal.default_response_serializer.dict_fallback_response_serializer import DictFallbackResponseSerializer
@@ -24,6 +24,8 @@ _DEFAULT_RESPONSE_SERIALIZER = [
     DefaultDictTextResponseSerializer(),
     DictFallbackResponseSerializer(),
     StringFallbackResponseSerializer(),
+    DefaultListJsonResponseSerializer(),
+    DefaultListTextResponseSerializer()
 ]
 
 

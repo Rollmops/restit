@@ -25,3 +25,8 @@ class DefaultDictJsonResponseSerializer(ResponseSerializer):
         else:
             json_string = json.dumps(response_input)
         return json_string.encode(encoding=can_handle_result.mime_type.charset), content_type
+
+
+class DefaultListJsonResponseSerializer(DefaultDictJsonResponseSerializer):
+    def get_response_data_type(self) -> type:
+        return list
