@@ -3,12 +3,13 @@ from typing import Tuple, Union, Dict, AnyStr, Match
 
 
 class ResourcePath:
+    _STRING_PATTERN = r"[\w\d_\-\s\$]+"
     _TYPE_MAPPING = {
         "int": (r"\d+", int),
         "integer": (r"\d+", int),
-        "string": (r"\S+", str),
-        "str": (r"\S+", str),
-        None: (r"\S+", str)
+        "string": (_STRING_PATTERN, str),
+        "str": (_STRING_PATTERN, str),
+        None: (_STRING_PATTERN, str)
     }
     _PATH_PARAM_REGEX = re.compile(r":(\w+)(?:<(\w+)>)?")
 

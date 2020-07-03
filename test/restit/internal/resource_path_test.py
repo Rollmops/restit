@@ -22,7 +22,9 @@ class ResourcePathTestCase(unittest.TestCase):
 
     def test_match_multiple_path_params(self):
         resource_path = ResourcePath("/hello/:id/wuff/:miau")
-        self.assertEqual((True, {'id': '21', 'miau': 'dog'}), resource_path.get_match("/hello/21/wuff/dog"))
+        self.assertEqual(
+            (True, {'id': '21', 'miau': 'dog'}), resource_path.get_match("/hello/21/wuff/dog")
+        )
 
     def test_match_path_param_type_int(self):
         resource_path = ResourcePath("/hello/:id<int>")
@@ -46,6 +48,16 @@ class ResourcePathTestCase(unittest.TestCase):
         resource_path = ResourcePath("/hello/:id_1<str>")
         self.assertEqual((True, {"id_1": "21"}), resource_path.get_match("/hello/21"))
         self.assertEqual((True, {"id_1": "hans"}), resource_path.get_match("/hello/hans"))
+
+    def test_do_not_allow_path_params_with_slash(self):
+        resource_path = ResourcePath("/hello/:id")
+
+        self.assertEqual((False, None), resource_path.get_match("/hello/you/whats/up"))
+
+    def test_match_special_characters(self):
+        resource_path = ResourcePath("/hello/:id")
+
+        self.assertEqual((True, {"id": "a_b- $"}), resource_path.get_match("/hello/a_b- $"))
 
     def test_invalid_type_annotation(self):
         with self.assertRaises(ResourcePath.UnknownPathParamTypeAnnotation):
