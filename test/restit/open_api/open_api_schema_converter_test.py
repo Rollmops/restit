@@ -27,6 +27,10 @@ class SchemaWithNestedList(Schema):
     nested_list = fields.Nested(SchemaWithNested())
 
 
+class SchemaWithMapping(Schema):
+    mapping = fields.Mapping(keys=fields.String(), values=fields.Integer())
+
+
 class OpenApiSchemaConverterTestCase(unittest.TestCase):
     def test_simple(self):
         open_api_schema = OpenApiSchemaConverter.convert_schema(SimpleSchema(), {})
@@ -169,6 +173,23 @@ class OpenApiSchemaConverterTestCase(unittest.TestCase):
                         }
                     },
                     'required': ['nested_field'],
+                    'type': 'object'
+                }
+            },
+            'required': [],
+            'type': 'object'
+        }, open_api_schema)
+
+    def test_mapping(self):
+        open_api_schema = OpenApiSchemaConverter.convert(SchemaWithMapping(), {})
+
+        self.assertEqual({
+            'description': None,
+            'properties': {
+                'mapping': {
+                    'additionalProperties': {'type': 'integer'},
+                    'description': 'An abstract class for objects with '
+                                   'key-value pairs.',
                     'type': 'object'
                 }
             },

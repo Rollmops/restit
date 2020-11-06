@@ -6,20 +6,30 @@ from marshmallow.fields import Field, Nested
 from marshmallow.validate import Validator, Range, Length, Regexp
 
 
-class OpenApiSchemaConverter:
-    _SCHEMA_TYPE_MAPPING = {
-        fields.Integer: {"type": "integer"},
-        fields.Float: {"type": "number", "format": "float"},
-        fields.String: {"type": "string"},
-        fields.UUID: {"type": "string", "format": "uuid"},
-        fields.Boolean: {"type": "boolean"},
-        fields.Email: {"type": "string", "format": "email"},
-        fields.Url: {"type": "string", "format": "uri"},
-        fields.DateTime: {"type": "string", "format": "date-time"},
-        fields.Date: {"type": "string", "format": "date"},
-        fields.Number: {"type": "number"}
+# https://swagger.io/docs/specification/data-models/dictionaries/
+def get_mapping_field_schema(field: fields.Mapping):
+    return {
+        "type": "object",
+        "additionalProperties": _OPEN_API_SCHEMA_TYPE_MAPPING[field.value_field.__class__](field.value_field)
     }
 
+
+_OPEN_API_SCHEMA_TYPE_MAPPING = {
+    fields.Integer: lambda _: {"type": "integer"},
+    fields.Float: lambda _: {"type": "number", "format": "float"},
+    fields.String: lambda _: {"type": "string"},
+    fields.UUID: lambda _: {"type": "string", "format": "uuid"},
+    fields.Boolean: lambda _: {"type": "boolean"},
+    fields.Email: lambda _: {"type": "string", "format": "email"},
+    fields.Url: lambda _: {"type": "string", "format": "uri"},
+    fields.DateTime: lambda _: {"type": "string", "format": "date-time"},
+    fields.Date: lambda _: {"type": "string", "format": "date"},
+    fields.Number: lambda _: {"type": "number"},
+    fields.Mapping: get_mapping_field_schema
+}
+
+
+class OpenApiSchemaConverter:
     @staticmethod
     def convert(schema_or_field: Union[Field, Schema], root_spec: dict):
         if isinstance(schema_or_field, Schema):
@@ -67,7 +77,7 @@ class OpenApiSchemaConverter:
 
     @staticmethod
     def convert_field(field: Field) -> dict:
-        field_schema = OpenApiSchemaConverter._SCHEMA_TYPE_MAPPING[field.__class__].copy()
+        field_schema = _OPEN_API_SCHEMA_TYPE_MAPPING[field.__class__](field).copy()
         field_schema["description"] = OpenApiSchemaConverter._get_first_doc_line(str(field.__doc__))
         field_schema = OpenApiSchemaConverter._process_validators(field.validators, field_schema)
         if field.default != marshmallow.missing:
