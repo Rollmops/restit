@@ -31,7 +31,7 @@ author = 'Erik Tuerke'
 # The short X.Y version
 version = ''
 # The full version, including alpha/beta/rc tags
-release = '0.2.9'
+release = '0.2.10'
 
 # -- General configuration ---------------------------------------------------
 

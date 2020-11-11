@@ -1,5 +1,6 @@
 import os
 import sys
+from copy import deepcopy
 from functools import lru_cache
 from html import escape
 from typing import List
@@ -53,13 +54,13 @@ def guess_text_content_subtype_string(content: str) -> str:
 
 @lru_cache()
 def get_response_status_parameters_for_method(method_object: object) -> List[ResponseStatusParameter]:
-    response_status_parameters = getattr(method_object.__self__, "__response_status_parameters__", [])
+    response_status_parameters = deepcopy(getattr(method_object.__self__, "__response_status_parameters__", []))
     response_status_parameters.extend(getattr(method_object, "__response_status_parameters__", []))
     return response_status_parameters
 
 
 @lru_cache()
 def get_exception_mapping_for_method(method_object: object) -> dict:
-    exception_mapping: dict = getattr(method_object.__self__, "__exception_mapping__", {})
+    exception_mapping: dict = deepcopy(getattr(method_object.__self__, "__exception_mapping__", {}))
     exception_mapping.update(getattr(method_object, "__exception_mapping__", {}))
     return exception_mapping
