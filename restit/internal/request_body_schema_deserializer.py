@@ -18,4 +18,3 @@ class RequestBodySchemaDeserializer:
             raise request_body_properties.validation_error_class(
                 f"Request body schema deserialization failed ({str(error)})"
             )
-
