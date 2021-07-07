@@ -2,7 +2,7 @@ import ast
 import inspect
 import logging
 import re
-from typing import Tuple, AnyStr, Dict, Union, List, Callable
+from typing import Tuple, AnyStr, Dict, Union, List, Callable, Optional
 
 from marshmallow import ValidationError
 
@@ -119,16 +119,16 @@ class Resource:
                             type(exception), target_exception_tuple_or_class[0], target_exception_tuple_or_class[1]
                         )
                         raise target_exception_tuple_or_class[0](target_exception_tuple_or_class[1])
-                    else:
-                        LOGGER.debug(
-                            "Mapping exception class %s to %s", type(exception), target_exception_tuple_or_class
-                        )
-                        raise target_exception_tuple_or_class(str(exception))
+
+                    LOGGER.debug(
+                        "Mapping exception class %s to %s", type(exception), target_exception_tuple_or_class
+                    )
+                    raise target_exception_tuple_or_class(str(exception))
 
             raise exception
 
     @staticmethod
-    def _find_response_schema_by_status(status: int, method_object: object) -> Union[None, ResponseStatusParameter]:
+    def _find_response_schema_by_status(status: int, method_object: object) -> Optional[ResponseStatusParameter]:
         response_status_parameters = get_response_status_parameters_for_method(method_object)
         if response_status_parameters:
             for response_status_parameter in response_status_parameters:  # type: ResponseStatusParameter
@@ -136,6 +136,8 @@ class Resource:
                     return response_status_parameter
 
             LOGGER.warning("Response status code %d is not expected for %s", status, method_object)
+
+        return None
 
     @staticmethod
     def _validate_request_body(method_object: object, request: Request) -> Request:
@@ -165,10 +167,10 @@ class Resource:
         for path_parameter in getattr(self, "__path_parameters__", []):  # type: PathParameter
             try:
                 path_parameter_value = path_params[path_parameter.name]
-            except KeyError:
+            except KeyError as error:
                 raise Resource.PathParameterNotFoundException(
                     f"Unable to find {path_parameter} in incoming path parameters {path_params}"
-                )
+                ) from error
             try:
                 path_params[path_parameter.name] = \
                     SchemaOrFieldDeserializer.deserialize(path_parameter_value, path_parameter.field_type)
@@ -176,7 +178,7 @@ class Resource:
                 raise BadRequest(
                     f"Path parameter value '{path_parameter_value}' is not matching '{path_parameter}' "
                     f"({str(error)})"
-                )
+                ) from error
 
         return path_params
 

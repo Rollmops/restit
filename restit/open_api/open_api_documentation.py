@@ -88,8 +88,7 @@ class OpenApiDocumentation:
     def _generate_paths(self, root_spec: dict):
         paths = root_spec["paths"]
         for resource in self._resources:
-            if resource.__request_mapping__:
-                self._add_resource(paths, resource, root_spec)
+            if resource.__request_mapping__:                self._add_resource(paths, resource, root_spec)
 
     def _add_resource(self, paths: dict, resource: Resource, root_spec: dict):
         path, inferred_path_parameters = \
@@ -186,7 +185,11 @@ class OpenApiDocumentation:
 
         def _handle_path_parameter(match: Match) -> str:
             path_parameter_list.append(
-                PathParameter(match.group(1), "", eval(match.group(2)) if match.group(2) else str)
+                PathParameter(
+                    name=match.group(1),
+                    description="",
+                    field_type=OpenApiDocumentation._get_path_param_type(match.group(2))
+                )
             )
             return "{%s}" % match.group(1)
 
@@ -225,3 +228,24 @@ class OpenApiDocumentation:
                 "schemas": {}
             }
         }
+
+    @staticmethod
+    @lru_cache()
+    def _get_path_param_type(type_name: str) -> type:
+        path_param_types = {
+            "str": str,
+            "string": str,
+            "int": int,
+            "integer": int,
+            "float": float,
+            "bool": bool,
+            "boolean": bool,
+            None: str
+        }
+        try:
+            return path_param_types[type_name]
+        except KeyError:
+            raise OpenApiDocumentation.UnknownPathParamType(type_name)
+
+    class UnknownPathParamType(Exception):
+        pass

@@ -1,3 +1,5 @@
+from typing import Union
+
 from marshmallow import fields
 from marshmallow.fields import Field
 
@@ -16,12 +18,15 @@ class PathParameter:
 
     _PYTHON_TYPE_FIELD_MAPPING = {
         int: fields.Integer(),
-        str: fields.String()
+        str: fields.String(),
+        float: fields.Float(),
+        bool: fields.Boolean()
     }
 
-    def __init__(self, name: str, description: str, field_type: Field):
+    def __init__(self, name: str, description: str, field_type: Union[Field, type]):
         self.name = name
         self.description = description
+        # noinspection PyTypeChecker
         self.field_type = \
             field_type if isinstance(field_type, Field) else PathParameter._PYTHON_TYPE_FIELD_MAPPING[field_type]
 
