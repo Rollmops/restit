@@ -2,6 +2,7 @@ from typing import List, Union, Tuple
 
 from restit._response import Response
 from restit.exception import NotAcceptable
+from restit.internal.default_response_serializer.any_type_json_response_serializer import AnyTypeJsonResponseSerializer
 from restit.internal.default_response_serializer.default_bytes_text_response_serializer import \
     DefaultBytesTextResponseSerializer
 from restit.internal.default_response_serializer.default_dict_json_response_serializer import \
@@ -25,7 +26,8 @@ _DEFAULT_RESPONSE_SERIALIZER = [
     DictFallbackResponseSerializer(),
     StringFallbackResponseSerializer(),
     DefaultListJsonResponseSerializer(),
-    DefaultListTextResponseSerializer()
+    DefaultListTextResponseSerializer(),
+    AnyTypeJsonResponseSerializer(),
 ]
 
 

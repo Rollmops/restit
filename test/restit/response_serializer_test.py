@@ -1,4 +1,6 @@
+import json
 import unittest
+from argparse import Namespace
 from http import HTTPStatus
 from typing import List, Tuple, Any, Union
 
@@ -6,6 +8,7 @@ from marshmallow import fields, ValidationError, Schema
 
 from restit._response import Response
 from restit.exception import NotAcceptable
+from restit.internal.default_response_serializer.any_type_json_response_serializer import AnyTypeJsonResponseSerializer
 from restit.internal.default_response_serializer.default_dict_json_response_serializer import \
     DefaultDictJsonResponseSerializer
 from restit.internal.default_response_serializer.default_dict_text_response_serializer import \
@@ -133,7 +136,7 @@ class ResponseSerializerTestCase(unittest.TestCase):
 
     def test_response_body_type_not_supported(self):
         response = Response(1.0)
-        with self.assertRaises(Response.ResponseBodyTypeNotSupportedException):
+        with self.assertRaises(AnyTypeJsonResponseSerializer.PrimitiveTypeNotSupportedForJsonResponse):
             ResponseSerializerService.validate_and_serialize_response_body(
                 response, HttpAccept.from_accept_string("application/json")
             )
@@ -187,6 +190,23 @@ class ResponseSerializerTestCase(unittest.TestCase):
         self.assertNotIn(b"not_expected", response.content)
         self.assertEqual(200, response.status_code)
         self.assertEqual("application/json", response.headers["Content-Type"])
+
+    def test_any_type_response_serializer(self):
+        class MySchema(Schema):
+            field1 = fields.Integer()
+            field2 = fields.String()
+
+        response = Response(Namespace(field1=1.0, field2="huhu", field3="not required"))
+
+        ResponseSerializerService.validate_and_serialize_response_body(
+            response,
+            HttpAccept.from_accept_string("application/json"),
+            ResponseStatusParameter(200, "", {"application/json": MySchema()})
+        )
+
+        _json = json.loads(response.content.decode())
+        self.assertDictEqual({'field1': 1, 'field2': 'huhu'}, _json)
+        self.assertEqual("application/json", response._headers["Content-Type"])
 
     def test_not_implemented(self):
         response_serializer = ResponseSerializer()

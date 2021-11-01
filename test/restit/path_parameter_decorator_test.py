@@ -46,12 +46,13 @@ class PathParameterTestCase(unittest.TestCase):
         self.assertEqual(
             "<title>400 Bad Request</title>\n"
             "<h1>Bad Request</h1>\n"
-            "<p>Path parameter value 'hans' is not matching 'PathParameter(name='id2', "
-            "description='Second path parameter', field_type=<fields.Float(default=<marshmallow.missing>, "
-            "attribute=None, validate=None, required=False, load_only=False, dump_only=False, "
-            "missing=<marshmallow.missing>, allow_none=False, error_messages={'required': 'Missing data for "
-            "required field.', 'null': 'Field may not be null.', 'validator_failed': 'Invalid value.', 'invalid': "
-            "'Not a valid number.', 'too_large': 'Number too large.', 'special': 'Special numeric values "
-            "(nan or infinity) are not permitted.'})>)' (Not a valid number.)</p>\n",
+            "<p>Path parameter value 'hans' is not matching "
+            "'PathParameter(name='id2', description='Second path parameter', "
+            "field_type=<fields.Float(dump_default=<marshmallow.missing>, attribute=None, validate=None, "
+            "required=False, load_only=False, dump_only=False, load_default=<marshmallow.missing>, "
+            "allow_none=False, error_messages={'required': 'Missing data for required field.', 'null': "
+            "'Field may not be null.', 'validator_failed': 'Invalid value.', 'invalid': 'Not a valid number.', "
+            "'too_large': 'Number too large.', "
+            "'special': 'Special numeric values (nan or infinity) are not permitted.'})>)' (Not a valid number.)</p>\n",
             response.text
         )
