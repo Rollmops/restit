@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION=${1-3.51.1}
+VERSION=${1-3.52.5}
 mkdir -p restit/resource/swagger/
 rm -f restit/resource/swagger/*
 
