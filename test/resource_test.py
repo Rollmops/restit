@@ -17,12 +17,15 @@ class ResourceTestCase(unittest.TestCase):
 
         resources = Resource.sort_resources(resources)
 
-        self.assertEqual([
-            "/users/:id/size/api.rst",
-            "/users/:id/size/:id2",
-            "/users/api.rst/",
-            "/users/:id",
-            "/:wuff/:id",
-            "/users",
-            "/"
-        ], [r.__request_mapping__ for r in resources])
+        self.assertEqual(
+            [
+                "/users/:id/size/api.rst",
+                "/users/:id/size/:id2",
+                "/users/api.rst/",
+                "/users/:id",
+                "/:wuff/:id",
+                "/users",
+                "/",
+            ],
+            [r.__request_mapping__ for r in resources],
+        )

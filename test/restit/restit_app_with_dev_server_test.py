@@ -33,7 +33,6 @@ class MyResource2(Resource):
 
 @path("/miau/:id")
 class ResourceWithPathParams(Resource):
-
     def get(self, request: Request) -> Response:
         return Response(request.path_parameters)
 
@@ -47,19 +46,23 @@ class ErrorResource(Resource):
 @path("/resource_with_hyperlink")
 class ResourceWithHyperLink(Resource):
     def get(self, request: Request) -> Response:
-        return Response({
-            "hyperlink_with_path_params": Hyperlink(ResourceWithPathParams, request).generate(id=10),
-            "hyperlink": Hyperlink(MyResource, request).generate(),
-            "hyperlink_with_path": Hyperlink("/path/to/hyperlink/:id", request).generate(id=10)
-        })
+        return Response(
+            {
+                "hyperlink_with_path_params": Hyperlink(ResourceWithPathParams, request).generate(id=10),
+                "hyperlink": Hyperlink(MyResource, request).generate(),
+                "hyperlink_with_path": Hyperlink("/path/to/hyperlink/:id", request).generate(id=10),
+            }
+        )
 
 
 @path("/resource_with_hyperlink_error")
 class ResourceWithHyperLinkError(Resource):
     def get(self, request: Request) -> Response:
-        return Response({
-            "hyperlink_with_path_params": Hyperlink(ResourceWithPathParams, request).generate(not_there=10),
-        })
+        return Response(
+            {
+                "hyperlink_with_path_params": Hyperlink(ResourceWithPathParams, request).generate(not_there=10),
+            }
+        )
 
 
 class RestitAppTestCase(BaseTestServerTestCase):
@@ -73,7 +76,7 @@ class RestitAppTestCase(BaseTestServerTestCase):
             NoMethodsResource(),
             ResourceWithHyperLink(),
             ResourceWithHyperLinkError(),
-            DefaultFaviconResource()
+            DefaultFaviconResource(),
         ]
         BaseTestServerTestCase.setUpClass()
 
@@ -119,7 +122,8 @@ class RestitAppTestCase(BaseTestServerTestCase):
 
     def test_internal_server_error_as_rfc7807_json(self):
         response = requests.get(
-            f"http://127.0.0.1:{self.port}/error", headers={'Accept': "application/json", "Accept-Charset": "utf-8"}
+            f"http://127.0.0.1:{self.port}/error",
+            headers={"Accept": "application/json", "Accept-Charset": "utf-8"},
         )
         self.assertEqual(500, response.status_code)
         self.assertEqual("Internal Server Error", response.json()["title"])
@@ -136,35 +140,47 @@ class RestitAppTestCase(BaseTestServerTestCase):
     def test_hyperlink(self):
         response = requests.get(f"http://127.0.0.1:{self.port}/resource_with_hyperlink")
         self.assertEqual(200, response.status_code)
-        self.assertEqual({
-            "hyperlink_with_path_params": f"http://127.0.0.1:{self.port}/miau/10",
-            'hyperlink_with_path': f'http://127.0.0.1:{self.port}/path/to/hyperlink/10',
-            "hyperlink": f"http://127.0.0.1:{self.port}/"
-        }, response.json())
+        self.assertEqual(
+            {
+                "hyperlink_with_path_params": f"http://127.0.0.1:{self.port}/miau/10",
+                "hyperlink_with_path": f"http://127.0.0.1:{self.port}/path/to/hyperlink/10",
+                "hyperlink": f"http://127.0.0.1:{self.port}/",
+            },
+            response.json(),
+        )
 
     def test_hyperlink_with_x_forwarded(self):
         response = requests.get(
             f"http://127.0.0.1:{self.port}/resource_with_hyperlink",
-            headers={"X-Forwarded-Host": "my.server.com:8080", "X-Forwarded-Proto": "https"}
+            headers={
+                "X-Forwarded-Host": "my.server.com:8080",
+                "X-Forwarded-Proto": "https",
+            },
         )
         self.assertEqual(200, response.status_code)
-        self.assertEqual({
-            "hyperlink_with_path_params": 'https://my.server.com:8080/miau/10',
-            'hyperlink_with_path': 'https://my.server.com:8080/path/to/hyperlink/10',
-            "hyperlink": 'https://my.server.com:8080/'
-        }, response.json())
+        self.assertEqual(
+            {
+                "hyperlink_with_path_params": "https://my.server.com:8080/miau/10",
+                "hyperlink_with_path": "https://my.server.com:8080/path/to/hyperlink/10",
+                "hyperlink": "https://my.server.com:8080/",
+            },
+            response.json(),
+        )
 
     def test_hyperlink_with_forwarded(self):
         response = requests.get(
             f"http://127.0.0.1:{self.port}/resource_with_hyperlink",
-            headers={"Forwarded": "for=123.0.2.33; host=my.server.com:8080;proto=https"}
+            headers={"Forwarded": "for=123.0.2.33; host=my.server.com:8080;proto=https"},
         )
         self.assertEqual(200, response.status_code)
-        self.assertEqual({
-            "hyperlink_with_path_params": 'https://my.server.com:8080/miau/10',
-            'hyperlink_with_path': 'https://my.server.com:8080/path/to/hyperlink/10',
-            "hyperlink": 'https://my.server.com:8080/'
-        }, response.json())
+        self.assertEqual(
+            {
+                "hyperlink_with_path_params": "https://my.server.com:8080/miau/10",
+                "hyperlink_with_path": "https://my.server.com:8080/path/to/hyperlink/10",
+                "hyperlink": "https://my.server.com:8080/",
+            },
+            response.json(),
+        )
 
     def test_hyperlink_path_param_not_found(self):
         self.restit_app.debug = False
@@ -175,7 +191,7 @@ class RestitAppTestCase(BaseTestServerTestCase):
             "<h1>Internal Server Error</h1>\n"
             "<p>ExpectedPathParameterForRequestMappingNotFoundException: The path parameter id in request "
             "mapping '/miau/:id' was not found in the provided path parameters {'not_there': 10}</p>\n",
-            response.text
+            response.text,
         )
 
     def test_default_favicon(self):

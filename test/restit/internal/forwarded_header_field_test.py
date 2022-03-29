@@ -47,19 +47,17 @@ class ForwardedHeaderFieldTestCase(unittest.TestCase):
         headers = {
             "X-Forwarded-For": "12.34.56.78, 23.45.67.89",
             "X-Forwarded-Host": "example.com",
-            "X-Forwarded-Proto": "https"
+            "X-Forwarded-Proto": "https",
         }
 
         forwarded_header = ForwardedHeader.from_headers(headers)
 
         self.assertEqual("https", forwarded_header.proto)
-        self.assertEqual(['12.34.56.78', '23.45.67.89'], forwarded_header.for_list)
-        self.assertEqual('example.com', forwarded_header.host)
+        self.assertEqual(["12.34.56.78", "23.45.67.89"], forwarded_header.for_list)
+        self.assertEqual("example.com", forwarded_header.host)
 
     def test_from_headers_forwarded(self):
-        headers = {
-            "Forwarded": "for=12.34.56.78;host=example.com;proto=https, for=23.45.67.89"
-        }
+        headers = {"Forwarded": "for=12.34.56.78;host=example.com;proto=https, for=23.45.67.89"}
         forwarded_header = ForwardedHeader.from_headers(headers)
         self.assertEqual(["12.34.56.78", "23.45.67.89"], forwarded_header.for_list)
         self.assertEqual("https", forwarded_header.proto)

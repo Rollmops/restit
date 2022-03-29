@@ -10,7 +10,13 @@ LOGGER = logging.getLogger(__name__)
 
 
 class DevelopmentServer:
-    def __init__(self, wsgi_app: Callable, host: str = None, port: int = 0, stop_signals: List[int] = None):
+    def __init__(
+        self,
+        wsgi_app: Callable,
+        host: str = None,
+        port: int = 0,
+        stop_signals: List[int] = None,
+    ):
         self.wsgi_app = wsgi_app
         self.host = host or "127.0.0.1"
         self.port = port
@@ -28,11 +34,17 @@ class DevelopmentServer:
         self._is_running = True
         if blocking:
             LOGGER.info(
-                "Starting development server in blocking mode at http://%s:%d/", self.host, self.server.server_port
+                "Starting development server in blocking mode at http://%s:%d/",
+                self.host,
+                self.server.server_port,
             )
             self._wait_until_stopped()
         else:
-            LOGGER.info("Development server is now running at http://%s:%d/", self.host, self.port)
+            LOGGER.info(
+                "Development server is now running at http://%s:%d/",
+                self.host,
+                self.port,
+            )
             return self.server.server_port
 
     def _wait_until_stopped(self):

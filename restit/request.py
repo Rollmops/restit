@@ -82,8 +82,8 @@ class Request:
     def host(self) -> str:
         host = self.forwarded.host or self._headers.get("Host")
         if host is None:
-            host = (self.forwarded.server or self._wsgi_environment["SERVER_NAME"])
-            port = self._wsgi_environment['SERVER_PORT']
+            host = self.forwarded.server or self._wsgi_environment["SERVER_NAME"]
+            port = self._wsgi_environment["SERVER_PORT"]
             if port != 443 and port != 80:
                 host += f":{port}"
 
@@ -91,7 +91,7 @@ class Request:
 
     @property
     def protocol(self) -> str:
-        return self.forwarded.proto or self._wsgi_environment['wsgi.url_scheme']
+        return self.forwarded.proto or self._wsgi_environment["wsgi.url_scheme"]
 
     @property
     def content_encoding(self) -> str:
@@ -135,10 +135,10 @@ class Request:
         """https://www.python.org/dev/peps/pep-0333/#url-reconstruction"""
         url = self.host
 
-        url += quote(self._wsgi_environment.get('SCRIPT_NAME', ''))
-        url += quote(self._wsgi_environment.get('PATH_INFO', ''))
-        if self._wsgi_environment.get('QUERY_STRING'):
-            url += '?' + self._wsgi_environment['QUERY_STRING']
+        url += quote(self._wsgi_environment.get("SCRIPT_NAME", ""))
+        url += quote(self._wsgi_environment.get("PATH_INFO", ""))
+        if self._wsgi_environment.get("QUERY_STRING"):
+            url += "?" + self._wsgi_environment["QUERY_STRING"]
 
         return url
 

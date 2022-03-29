@@ -20,15 +20,16 @@ class PathParameter:
         int: fields.Integer(),
         str: fields.String(),
         float: fields.Float(),
-        bool: fields.Boolean()
+        bool: fields.Boolean(),
     }
 
     def __init__(self, name: str, description: str, field_type: Union[Field, type]):
         self.name = name
         self.description = description
         # noinspection PyTypeChecker
-        self.field_type = \
+        self.field_type = (
             field_type if isinstance(field_type, Field) else PathParameter._PYTHON_TYPE_FIELD_MAPPING[field_type]
+        )
 
     def __str__(self):
         return f"PathParameter(name='{self.name}', description='{self.description}', field_type={self.field_type})"

@@ -11,7 +11,7 @@ class TypedBody:
     def __getitem__(self, python_type: type):
         value = self.cache.get(
             python_type,
-            RequestDeserializerService.deserialize_request_body(self.body, self.content_type, python_type)
+            RequestDeserializerService.deserialize_request_body(self.body, self.content_type, python_type),
         )
         self.cache[python_type] = value
         return value

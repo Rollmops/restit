@@ -13,10 +13,10 @@ class AnyTypeJsonResponseSerializer(ResponseSerializer):
         return object
 
     def validate_and_serialize(
-            self,
-            response_input: object,
-            response_status_parameter: Union[None, ResponseStatusParameter],
-            can_handle_result: CanHandleResultType
+        self,
+        response_input: object,
+        response_status_parameter: Union[None, ResponseStatusParameter],
+        can_handle_result: CanHandleResultType,
     ) -> Tuple[bytes, str]:
         if self._is_primitive(response_input):
             raise AnyTypeJsonResponseSerializer.PrimitiveTypeNotSupportedForJsonResponse(response_input)
@@ -27,7 +27,10 @@ class AnyTypeJsonResponseSerializer(ResponseSerializer):
             json_string = schema.dumps(response_input)
         else:
             json_string = json.dumps(dir(response_input))
-        return json_string.encode(encoding=can_handle_result.mime_type.charset), content_type
+        return (
+            json_string.encode(encoding=can_handle_result.mime_type.charset),
+            content_type,
+        )
 
     @staticmethod
     def _is_primitive(value: Any) -> bool:

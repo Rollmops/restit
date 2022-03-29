@@ -12,13 +12,12 @@ from restit.restit_app import RestItApp
 
 
 class RestItTestApp:
-
     def __init__(
-            self,
-            resources: List[Resource] = None,
-            namespaces: List[Namespace] = None,
-            debug: bool = True,
-            raise_exceptions: bool = False,
+        self,
+        resources: List[Resource] = None,
+        namespaces: List[Namespace] = None,
+        debug: bool = True,
+        raise_exceptions: bool = False,
     ):
         self._restit_app = RestItApp(resources, namespaces, debug, raise_exceptions)
         # noinspection PyProtectedMember
@@ -28,7 +27,10 @@ class RestItTestApp:
     def from_restit_app(restit_app: RestItApp) -> "RestItTestApp":
         # noinspection PyProtectedMember
         return RestItTestApp(
-            restit_app._resources, restit_app._namespaces, restit_app.debug, restit_app.raise_exceptions
+            restit_app._resources,
+            restit_app._namespaces,
+            restit_app.debug,
+            restit_app.raise_exceptions,
         )
 
     @property
@@ -39,31 +41,68 @@ class RestItTestApp:
     def raise_exceptions(self, raise_exception: bool):
         self._restit_app.raise_exceptions = raise_exception
 
-    def get(self, path: str, json: dict = None, data: Union[dict, str, bytes] = None, headers: dict = None) -> Response:
+    def get(
+        self,
+        path: str,
+        json: dict = None,
+        data: Union[dict, str, bytes] = None,
+        headers: dict = None,
+    ) -> Response:
         return self._get_response_for_method(path, json, data, headers, "GET")
 
     def post(
-            self, path: str, json: dict = None, data: Union[dict, str, bytes] = None, headers: dict = None) -> Response:
+        self,
+        path: str,
+        json: dict = None,
+        data: Union[dict, str, bytes] = None,
+        headers: dict = None,
+    ) -> Response:
         return self._get_response_for_method(path, json, data, headers, "POST")
 
     def put(
-            self, path: str, json: dict = None, data: Union[dict, str, bytes] = None, headers: dict = None) -> Response:
+        self,
+        path: str,
+        json: dict = None,
+        data: Union[dict, str, bytes] = None,
+        headers: dict = None,
+    ) -> Response:
         return self._get_response_for_method(path, json, data, headers, "PUT")
 
     def delete(
-            self, path: str, json: dict = None, data: Union[dict, str, bytes] = None, headers: dict = None) -> Response:
+        self,
+        path: str,
+        json: dict = None,
+        data: Union[dict, str, bytes] = None,
+        headers: dict = None,
+    ) -> Response:
         return self._get_response_for_method(path, json, data, headers, "DELETE")
 
     def patch(
-            self, path: str, json: dict = None, data: Union[dict, str, bytes] = None, headers: dict = None) -> Response:
+        self,
+        path: str,
+        json: dict = None,
+        data: Union[dict, str, bytes] = None,
+        headers: dict = None,
+    ) -> Response:
         return self._get_response_for_method(path, json, data, headers, "PATCH")
 
     def options(
-            self, path: str, json: dict = None, data: Union[dict, str, bytes] = None, headers: dict = None) -> Response:
+        self,
+        path: str,
+        json: dict = None,
+        data: Union[dict, str, bytes] = None,
+        headers: dict = None,
+    ) -> Response:
         return self._get_response_for_method(path, json, data, headers, "OPTIONS")
 
     def _get_response_for_method(
-            self, path: str, json: dict, data: Union[dict, str, bytes], headers: dict, method: str):
+        self,
+        path: str,
+        json: dict,
+        data: Union[dict, str, bytes],
+        headers: dict,
+        method: str,
+    ):
         wsgi_environment = self._create_wsgi_environment(json, data, headers, path, method)
         response = self._get_response(wsgi_environment)
         return response
@@ -78,7 +117,12 @@ class RestItTestApp:
             return self._restit_app._create_response_and_handle_exceptions(path_params, request, resource)
 
     def _create_wsgi_environment(
-            self, json: Union[dict, None], data: Union[dict, None], header: Union[dict, None], path: str, method: str
+        self,
+        json: Union[dict, None],
+        data: Union[dict, None],
+        header: Union[dict, None],
+        path: str,
+        method: str,
     ):
         header = header or {}
         wsgi_environment = {}
@@ -94,8 +138,7 @@ class RestItTestApp:
             body_as_bytes = dumps(json).encode(encoding=accept_charset)
             content_type = "application/json"
         elif data is not None:
-            body_as_bytes, content_type = \
-                self._get_body_as_bytes_from_data_argument(data, accept_charset)
+            body_as_bytes, content_type = self._get_body_as_bytes_from_data_argument(data, accept_charset)
         wsgi_environment["REQUEST_METHOD"] = method
         wsgi_environment["PATH_INFO"] = parsed_path.path
         wsgi_environment["CONTENT_LENGTH"] = len(body_as_bytes)
@@ -112,11 +155,13 @@ class RestItTestApp:
             wsgi_environment.setdefault(wsgi_key, value)
 
     @staticmethod
-    def _get_body_as_bytes_from_data_argument(
-            data: Union[dict, str, bytes], accept_charset: str) -> Tuple[bytes, str]:
+    def _get_body_as_bytes_from_data_argument(data: Union[dict, str, bytes], accept_charset: str) -> Tuple[bytes, str]:
         if isinstance(data, dict):
             body_as_bytes = "&".join([f"{key}={value}" for key, value in data.items()])
-            return body_as_bytes.encode(encoding=accept_charset), "application/x-www-form-urlencoded"
+            return (
+                body_as_bytes.encode(encoding=accept_charset),
+                "application/x-www-form-urlencoded",
+            )
         elif isinstance(data, str):
             return data.encode(encoding=accept_charset), "text/plain"
         elif isinstance(data, bytes):

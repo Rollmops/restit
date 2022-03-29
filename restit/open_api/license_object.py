@@ -12,7 +12,4 @@ class LicenseObject:
         self.url = url
 
     def to_dict(self) -> dict:
-        return {
-            "name": self.name,
-            "url": self.url
-        }
+        return {"name": self.name, "url": self.url}

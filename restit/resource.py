@@ -8,12 +8,17 @@ from marshmallow import ValidationError
 
 from restit._path_parameter import PathParameter
 from restit._response import Response
-from restit.common import get_response_status_parameters_for_method, get_exception_mapping_for_method
+from restit.common import (
+    get_response_status_parameters_for_method,
+    get_exception_mapping_for_method,
+)
 from restit.exception import MethodNotAllowed
 from restit.exception.client_errors_4xx import BadRequest
 from restit.internal.query_parameter import QueryParameter
 from restit.internal.request_body_properties import RequestBodyProperties
-from restit.internal.request_body_schema_deserializer import RequestBodySchemaDeserializer
+from restit.internal.request_body_schema_deserializer import (
+    RequestBodySchemaDeserializer,
+)
 from restit.internal.resource_path import ResourcePath
 from restit.internal.response_serializer_service import ResponseSerializerService
 from restit.internal.response_status_parameter import ResponseStatusParameter
@@ -41,7 +46,17 @@ class Resource:
     """
 
     __request_mapping__ = None
-    _METHOD_NAMES = ["get", "post", "put", "delete", "patch", "options", "trace", "connect", "head"]
+    _METHOD_NAMES = [
+        "get",
+        "post",
+        "put",
+        "delete",
+        "patch",
+        "options",
+        "trace",
+        "connect",
+        "head",
+    ]
 
     def __init__(self):
         self._resource_path = None
@@ -111,17 +126,24 @@ class Resource:
         try:
             return method_object(request)
         except Exception as exception:
-            for source_exception_class, target_exception_tuple_or_class in exception_mapping.items():
+            for (
+                source_exception_class,
+                target_exception_tuple_or_class,
+            ) in exception_mapping.items():
                 if isinstance(exception, source_exception_class):
                     if isinstance(target_exception_tuple_or_class, tuple):
                         LOGGER.debug(
                             "Mapping exception class %s to %s with description: %s",
-                            type(exception), target_exception_tuple_or_class[0], target_exception_tuple_or_class[1]
+                            type(exception),
+                            target_exception_tuple_or_class[0],
+                            target_exception_tuple_or_class[1],
                         )
                         raise target_exception_tuple_or_class[0](target_exception_tuple_or_class[1])
 
                     LOGGER.debug(
-                        "Mapping exception class %s to %s", type(exception), target_exception_tuple_or_class
+                        "Mapping exception class %s to %s",
+                        type(exception),
+                        target_exception_tuple_or_class,
                     )
                     raise target_exception_tuple_or_class(str(exception))
 
@@ -141,8 +163,7 @@ class Resource:
 
     @staticmethod
     def _validate_request_body(method_object: object, request: Request) -> Request:
-        request_body_properties: RequestBodyProperties = \
-            getattr(method_object, "__request_body_properties__", None)
+        request_body_properties: RequestBodyProperties = getattr(method_object, "__request_body_properties__", None)
         if request_body_properties:
             RequestBodySchemaDeserializer.deserialize(request, request_body_properties)
 
@@ -151,7 +172,9 @@ class Resource:
     @staticmethod
     def _process_query_parameters(method_object: object, request: Request):
         for query_parameter in getattr(method_object, "__query_parameters__", []):  # type: QueryParameter
-            value: str = request.query_parameters.get(query_parameter.name, )
+            value: str = request.query_parameters.get(
+                query_parameter.name,
+            )
             if value is None and query_parameter.field_type.required:
                 # ToDo message
                 raise BadRequest()
@@ -172,8 +195,9 @@ class Resource:
                     f"Unable to find {path_parameter} in incoming path parameters {path_params}"
                 ) from error
             try:
-                path_params[path_parameter.name] = \
-                    SchemaOrFieldDeserializer.deserialize(path_parameter_value, path_parameter.field_type)
+                path_params[path_parameter.name] = SchemaOrFieldDeserializer.deserialize(
+                    path_parameter_value, path_parameter.field_type
+                )
             except ValidationError as error:
                 raise BadRequest(
                     f"Path parameter value '{path_parameter_value}' is not matching '{path_parameter}' "
@@ -189,7 +213,8 @@ class Resource:
             resource_method_code = inspect.getsource(method_object)
             match = re.match(
                 r"^.+def\s+\w+\(self,\s*request:\s*Request\s*\)\s*->\s*Response:.+raise\s+MethodNotAllowed\(\).*$",
-                resource_method_code, flags=re.DOTALL | re.IGNORECASE
+                resource_method_code,
+                flags=re.DOTALL | re.IGNORECASE,
             )
             if match is None:
                 allowed.append(method_name)
@@ -203,7 +228,10 @@ class Resource:
     @staticmethod
     def sort_resources(resources: List["Resource"]) -> List["Resource"]:
         def key_function(resource: Resource):
-            return resource.__request_mapping__.count("/"), resource.__request_mapping__.count(":") * -1
+            return (
+                resource.__request_mapping__.count("/"),
+                resource.__request_mapping__.count(":") * -1,
+            )
 
         return sorted(resources, key=key_function, reverse=True)
 

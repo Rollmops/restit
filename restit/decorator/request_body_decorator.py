@@ -11,10 +11,10 @@ LOGGER = logging.getLogger(__name__)
 
 
 def request_body(
-        content_types: Dict[str, Union[Schema, Field]],
-        description: str,
-        required: bool = True,
-        validation_error_class=UnprocessableEntity
+    content_types: Dict[str, Union[Schema, Field]],
+    description: str,
+    required: bool = True,
+    validation_error_class=UnprocessableEntity,
 ):
     """Describe an expected request body for a method
 
@@ -31,11 +31,11 @@ def request_body(
     """
 
     def decorator(func):
-        request_body_properties = RequestBodyProperties(
-            content_types, description, required, validation_error_class
-        )
+        request_body_properties = RequestBodyProperties(content_types, description, required, validation_error_class)
         LOGGER.debug(
-            "Registering request body parameter %s for resource %s", request_body_properties, func.__name__
+            "Registering request body parameter %s for resource %s",
+            request_body_properties,
+            func.__name__,
         )
         setattr(func, "__request_body_properties__", request_body_properties)
         return func

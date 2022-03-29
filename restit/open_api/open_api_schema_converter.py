@@ -10,7 +10,7 @@ from marshmallow.validate import Validator, Range, Length, Regexp
 def get_mapping_field_schema(field: fields.Mapping):
     return {
         "type": "object",
-        "additionalProperties": _OPEN_API_SCHEMA_TYPE_MAPPING[field.value_field.__class__](field.value_field)
+        "additionalProperties": _OPEN_API_SCHEMA_TYPE_MAPPING[field.value_field.__class__](field.value_field),
     }
 
 
@@ -25,7 +25,7 @@ _OPEN_API_SCHEMA_TYPE_MAPPING = {
     fields.DateTime: lambda _: {"type": "string", "format": "date-time"},
     fields.Date: lambda _: {"type": "string", "format": "date"},
     fields.Number: lambda _: {"type": "number"},
-    fields.Mapping: get_mapping_field_schema
+    fields.Mapping: get_mapping_field_schema,
 }
 
 
@@ -45,8 +45,7 @@ class OpenApiSchemaConverter:
             "required": [],
             "type": "object",
             "description": schema.__doc__,
-            "properties": {
-            }
+            "properties": {},
         }
 
         for name, field in schema.fields.items():
@@ -61,9 +60,7 @@ class OpenApiSchemaConverter:
 
         if getattr(schema, "__reusable_schema__", False):
             root_spec["components"]["schemas"][schema.__class__.__name__] = open_api_schema
-            return {
-                "$ref": f"#/components/schemas/{schema.__class__.__name__}"
-            }
+            return {"$ref": f"#/components/schemas/{schema.__class__.__name__}"}
 
         return open_api_schema
 
@@ -71,7 +68,7 @@ class OpenApiSchemaConverter:
     def convert_array(array: fields.List, root_spec: dict) -> dict:
         list_schema = {
             "type": "array",
-            "items": OpenApiSchemaConverter.convert(array.inner, root_spec)
+            "items": OpenApiSchemaConverter.convert(array.inner, root_spec),
         }
         return list_schema
 
@@ -96,8 +93,9 @@ class OpenApiSchemaConverter:
                 field_schema["minLength"] = validator.min
                 field_schema["maxLength"] = validator.max
             elif isinstance(validator, Regexp):
-                field_schema["pattern"] = \
+                field_schema["pattern"] = (
                     validator.regex.pattern if isinstance(validator.regex, Pattern) else str(validator.regex)
+                )
 
         return field_schema
 

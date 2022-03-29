@@ -24,11 +24,14 @@ class InfoObject:
     """
 
     def __init__(
-            self,
-            title: str,
-            version: str,
-            description: str = None,
-            terms_of_service: str = None, contact: ContactObject = None, license: LicenseObject = None):
+        self,
+        title: str,
+        version: str,
+        description: str = None,
+        terms_of_service: str = None,
+        contact: ContactObject = None,
+        license: LicenseObject = None,
+    ):
         self.title = title
         self.version = version
         self.description = description
@@ -43,5 +46,5 @@ class InfoObject:
             "description": self.description,
             "termsOfService": self.terms_of_service,
             "contact": self.contact.to_dict() if self.contact else None,
-            "license": self.license.to_dict() if self.license else None
+            "license": self.license.to_dict() if self.license else None,
         }

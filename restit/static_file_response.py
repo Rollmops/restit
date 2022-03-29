@@ -9,14 +9,17 @@ from restit.internal.suffix_media_type_mapping import SUFFIX_MEDIA_TYPE_MAPPING
 
 class StaticFileResponse(Response):
     def __init__(
-            self, file_path: Union[str, Path],
-            status_code: Union[int, HTTPStatus] = HTTPStatus.OK,
-            headers: dict = None,
-            suffix: str = None
+        self,
+        file_path: Union[str, Path],
+        status_code: Union[int, HTTPStatus] = HTTPStatus.OK,
+        headers: dict = None,
+        suffix: str = None,
     ):
         headers = headers or {}
         suffix = suffix or StaticFileResponse._get_suffix_from_file_path(file_path)
-        content_type = SUFFIX_MEDIA_TYPE_MAPPING.get(suffix, )
+        content_type = SUFFIX_MEDIA_TYPE_MAPPING.get(
+            suffix,
+        )
         headers.setdefault("Content-Type", content_type)
 
         with open(file_path, "rb") as fp:

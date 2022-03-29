@@ -32,14 +32,17 @@ class ResponseStatusParameterTestCase(unittest.TestCase):
     def test_status_supported(self):
         r = self.restit_test_app.get("/", json={"status": 200})
         self.assertEqual(200, r.status_code)
-        self.assertEqual({'field1': 'Hans', 'field2': 10}, r.json())
+        self.assertEqual({"field1": "Hans", "field2": 10}, r.json())
 
     def test_status_unsupported(self):
         with self.assertLogs(level=logging.WARNING) as logs:
             r = self.restit_test_app.get("/", json={"status": 201})
             self.assertEqual(201, r.status_code)
 
-            self.assertIn("WARNING:restit.resource:Response status code 201 is not expected for ", logs.output[0])
+            self.assertIn(
+                "WARNING:restit.resource:Response status code 201 is not expected for ",
+                logs.output[0],
+            )
 
     def test_no_status_unsupported_if_no_decorator(self):
         with self.assertRaises(AssertionError):

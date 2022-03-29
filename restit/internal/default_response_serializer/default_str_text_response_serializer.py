@@ -14,16 +14,20 @@ class DefaultStrTextResponseSerializer(ResponseSerializer):
         return str
 
     def validate_and_serialize(
-            self, response_input: str,
-            response_status_parameter: Union[None, ResponseStatusParameter],
-            can_handle_result: CanHandleResultType
+        self,
+        response_input: str,
+        response_status_parameter: Union[None, ResponseStatusParameter],
+        can_handle_result: CanHandleResultType,
     ) -> Tuple[bytes, str]:
         content_type = guess_text_content_subtype_string(response_input)
         schema_or_field = self.find_schema(content_type, response_status_parameter)
         if schema_or_field:
             response_input = str(SchemaOrFieldDeserializer.deserialize(response_input, schema_or_field))
 
-        return response_input.encode(encoding=can_handle_result.mime_type.charset), content_type
+        return (
+            response_input.encode(encoding=can_handle_result.mime_type.charset),
+            content_type,
+        )
 
     class SchemaNotSupportedForStringResponseBody(Exception):
         pass

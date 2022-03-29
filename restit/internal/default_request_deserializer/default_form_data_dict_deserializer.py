@@ -6,7 +6,11 @@ from restit.request_deserializer import RequestDeserializer
 
 class DefaultFormDataDictDeserializer(RequestDeserializer):
     def get_content_type_list(self) -> List[str]:
-        return ["application/x-www-form-urlencoded", "multipart/form-data", "application/x-url-encoded"]
+        return [
+            "application/x-www-form-urlencoded",
+            "multipart/form-data",
+            "application/x-url-encoded",
+        ]
 
     def deserialize(self, request_input: bytes, encoding: str = None) -> dict:
         if len(request_input) == 0:

@@ -39,11 +39,11 @@ class HttpError(RuntimeError):
     DEFAULT_RFC7807_TYPE: Union[str, None] = "about:blank"
 
     def __init__(
-            self,
-            description: str = None,
-            traceback: str = None,
-            rfc7807_type: str = None,
-            rfc7807_instance: str = None
+        self,
+        description: str = None,
+        traceback: str = None,
+        rfc7807_type: str = None,
+        rfc7807_instance: str = None,
     ):
         self.description = description or self.DEFAULT_DESCRIPTION
         self.traceback = traceback
@@ -63,7 +63,7 @@ class HttpError(RuntimeError):
             "title": self.TITLE,
             "status": self.STATUS_CODE,
             "detail": self.description,
-            "instance": self.rfc7807_instance
+            "instance": self.rfc7807_instance,
         }
 
     def to_html(self, debug: bool = False) -> str:
@@ -74,7 +74,7 @@ class HttpError(RuntimeError):
                 description=self.description.strip("\n "),
                 traceback=self.traceback.replace("\n", "<br>"),
                 css=_ERROR_BOOTSTRAP_CSS,
-                rfc7807_type=self.rfc7807_type
+                rfc7807_type=self.rfc7807_type,
             )
         else:
             html_string = _HTML_TEMPLATE.format(

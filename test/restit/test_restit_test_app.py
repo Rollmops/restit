@@ -45,10 +45,12 @@ class ResourceWithPathParams(Resource):
 @path("/resource_with_hyperlink")
 class ResourceWithHyperLink(Resource):
     def get(self, request: Request, **kwargs) -> Response:
-        return Response({
-            "hyperlink_with_path_params": Hyperlink(ResourceWithPathParams, request).generate(id=10),
-            "hyperlink": Hyperlink(MyResource, request).generate()
-        })
+        return Response(
+            {
+                "hyperlink_with_path_params": Hyperlink(ResourceWithPathParams, request).generate(id=10),
+                "hyperlink": Hyperlink(MyResource, request).generate(),
+            }
+        )
 
 
 @path("/pass_headers")
@@ -57,24 +59,27 @@ class PassHeadersResource(Resource):
         headers = request.headers
         return Response(
             {
-                'Accept': headers["Accept"],
-                'Accept-Encoding': headers["Accept-Encoding"],
-                'Content-Type': headers["Content-Type"],
-                'Content-Encoding': headers["Content-Encoding"],
-                'Accept-Charset': headers["Accept-Charset"]
-            })
+                "Accept": headers["Accept"],
+                "Accept-Encoding": headers["Accept-Encoding"],
+                "Content-Type": headers["Content-Type"],
+                "Content-Encoding": headers["Content-Encoding"],
+                "Accept-Charset": headers["Accept-Charset"],
+            }
+        )
 
 
 class RestitTestAppTestCase(unittest.TestCase):
     def setUp(self) -> None:
-        resit_app = RestItApp(resources=[
-            MyResource(),
-            NoMethodsResource(),
-            PassHeadersResource(),
-            ResourceWithHyperLink(),
-            ResourceWithPathParams(),
-            NoResponseExceptionResource()
-        ])
+        resit_app = RestItApp(
+            resources=[
+                MyResource(),
+                NoMethodsResource(),
+                PassHeadersResource(),
+                ResourceWithHyperLink(),
+                ResourceWithPathParams(),
+                NoResponseExceptionResource(),
+            ]
+        )
         self.resit_test_app = RestItTestApp.from_restit_app(resit_app)
 
     def test_get_json_body(self):
@@ -84,59 +89,74 @@ class RestitTestAppTestCase(unittest.TestCase):
         self.assertEqual({"key": "value"}, response.json())
         self.assertEqual('{"key": "value"}', response.text)
         self.assertEqual(b'{"key": "value"}', response.content)
-        self.assertEqual({
-            'Content-Encoding': None,
-            'Content-Length': 16,
-            'Content-Type': 'application/json'
-        }, response._headers)
+        self.assertEqual(
+            {
+                "Content-Encoding": None,
+                "Content-Length": 16,
+                "Content-Type": "application/json",
+            },
+            response._headers,
+        )
 
     def test_get_data_body(self):
         response = self.resit_test_app.get("/", data={"key": "value", "key2": "value2"})
         self.assertEqual(200, response.status_code)
-        self.assertEqual({'key': 'value', 'key2': 'value2'}, response.json())
+        self.assertEqual({"key": "value", "key2": "value2"}, response.json())
         self.assertEqual('{"key": "value", "key2": "value2"}', response.text)
         self.assertEqual(b'{"key": "value", "key2": "value2"}', response.content)
-        self.assertEqual({
-            'Content-Encoding': None,
-            'Content-Length': 34,
-            'Content-Type': 'application/json'
-        }, response._headers)
+        self.assertEqual(
+            {
+                "Content-Encoding": None,
+                "Content-Length": 34,
+                "Content-Type": "application/json",
+            },
+            response._headers,
+        )
 
     def test_post(self):
         response = self.resit_test_app.post("/", json={"key": "value"})
         self.assertEqual(201, response.status_code)
-        self.assertEqual({'key': 'value'}, response.json())
+        self.assertEqual({"key": "value"}, response.json())
         self.assertEqual('{"key": "value"}', response.text)
         self.assertEqual(b'{"key": "value"}', response.content)
-        self.assertEqual({
-            'Content-Encoding': None,
-            'Content-Length': 16,
-            'Content-Type': 'application/json'
-        }, response.headers)
+        self.assertEqual(
+            {
+                "Content-Encoding": None,
+                "Content-Length": 16,
+                "Content-Type": "application/json",
+            },
+            response.headers,
+        )
 
     def test_put(self):
         response = self.resit_test_app.put("/", json={"key": "value"})
         self.assertEqual(201, response.status_code)
-        self.assertEqual({'key': 'value'}, response.json())
+        self.assertEqual({"key": "value"}, response.json())
         self.assertEqual('{"key": "value"}', response.text)
         self.assertEqual(b'{"key": "value"}', response.content)
-        self.assertEqual({
-            'Content-Encoding': None,
-            'Content-Length': 16,
-            'Content-Type': 'application/json'
-        }, response._headers)
+        self.assertEqual(
+            {
+                "Content-Encoding": None,
+                "Content-Length": 16,
+                "Content-Type": "application/json",
+            },
+            response._headers,
+        )
 
     def test_delete(self):
         response = self.resit_test_app.delete("/", json={"key": "value"})
         self.assertEqual(201, response.status_code)
-        self.assertEqual({'key': 'value'}, response.json())
+        self.assertEqual({"key": "value"}, response.json())
         self.assertEqual('{"key": "value"}', response.text)
         self.assertEqual(b'{"key": "value"}', response.content)
-        self.assertEqual({
-            'Content-Encoding': None,
-            'Content-Length': 16,
-            'Content-Type': 'application/json'
-        }, response._headers)
+        self.assertEqual(
+            {
+                "Content-Encoding": None,
+                "Content-Length": 16,
+                "Content-Type": "application/json",
+            },
+            response._headers,
+        )
 
     def test_no_method(self):
         self.assertEqual(405, self.resit_test_app.get("/no_methods").status_code)
@@ -164,22 +184,28 @@ class RestitTestAppTestCase(unittest.TestCase):
     def test_pass_headers(self):
         response = self.resit_test_app.get("/pass_headers", headers={"Accept-Charset": "utf-8"})
         self.assertEqual(200, response.status_code)
-        self.assertEqual({
-            'Accept': '*/*',
-            'Accept-Charset': 'utf-8',
-            'Accept-Encoding': 'gzip, deflate',
-            'Content-Encoding': 'gzip, deflate',
-            'Content-Type': 'application/octet-stream'
-        }, response.json())
+        self.assertEqual(
+            {
+                "Accept": "*/*",
+                "Accept-Charset": "utf-8",
+                "Accept-Encoding": "gzip, deflate",
+                "Content-Encoding": "gzip, deflate",
+                "Content-Type": "application/octet-stream",
+            },
+            response.json(),
+        )
 
     def test_hyperlinks(self):
         response = self.resit_test_app.get("/resource_with_hyperlink")
 
         self.assertEqual(200, response.status_code)
-        self.assertEqual({
-            'hyperlink': 'http://127.0.0.1/',
-            'hyperlink_with_path_params': 'http://127.0.0.1/miau/10'
-        }, response.json())
+        self.assertEqual(
+            {
+                "hyperlink": "http://127.0.0.1/",
+                "hyperlink_with_path_params": "http://127.0.0.1/miau/10",
+            },
+            response.json(),
+        )
 
     def test_no_response_exception(self):
         self.resit_test_app.raise_exceptions = True

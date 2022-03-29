@@ -1,11 +1,14 @@
 from typing import List, Type, Union, Any
 
-from restit.internal.default_request_deserializer.default_application_json_dict_deserializer import \
-    DefaultApplicationJsonDictDeserializer
-from restit.internal.default_request_deserializer.default_fallback_dict_deserializer import \
-    DefaultFallbackDictDeserializer
-from restit.internal.default_request_deserializer.default_form_data_dict_deserializer import \
-    DefaultFormDataDictDeserializer
+from restit.internal.default_request_deserializer.default_application_json_dict_deserializer import (
+    DefaultApplicationJsonDictDeserializer,
+)
+from restit.internal.default_request_deserializer.default_fallback_dict_deserializer import (
+    DefaultFallbackDictDeserializer,
+)
+from restit.internal.default_request_deserializer.default_form_data_dict_deserializer import (
+    DefaultFormDataDictDeserializer,
+)
 from restit.internal.mime_type import MIMEType
 from restit.request_deserializer import RequestDeserializer
 
@@ -36,8 +39,7 @@ class RequestDeserializerService:
         request_deserializer = RequestDeserializerService._find_deserializer(content_type, python_type)
         if request_deserializer is None:
             raise RequestDeserializerService.NoRequestDeserializerFoundException(
-                f"Unable to find a request deserializer for content type {content_type} "
-                f"to type {python_type}"
+                f"Unable to find a request deserializer for content type {content_type} " f"to type {python_type}"
             )
         deserialized_value = request_deserializer.deserialize(body, content_type.charset)
         return deserialized_value

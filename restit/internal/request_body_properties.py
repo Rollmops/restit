@@ -9,10 +9,11 @@ from restit.internal.mime_type import MIMEType
 
 class RequestBodyProperties:
     def __init__(
-            self,
-            content_types: Dict[str, Union[Schema, Field]],
-            description: str,
-            required: bool, validation_error_class=UnprocessableEntity
+        self,
+        content_types: Dict[str, Union[Schema, Field]],
+        description: str,
+        required: bool,
+        validation_error_class=UnprocessableEntity,
     ):
         self.content_types = content_types
         self.description = description

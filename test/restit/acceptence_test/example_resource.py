@@ -21,11 +21,14 @@ class TodosResource(Resource):
         self.repo = repo
 
     @response(
-        200, description="Get a list of all todo ids",
-        content_types={"application/json": TodosSchema()}
+        200,
+        description="Get a list of all todo ids",
+        content_types={"application/json": TodosSchema()},
     )
     @query_parameter(
-        "sort", description="Flag if the todo list should be sorted", field_type=Boolean(default=True)
+        "sort",
+        description="Flag if the todo list should be sorted",
+        field_type=Boolean(default=True),
     )
     def get(self, request: Request) -> Response:
         """Get a list of all todo ids"""

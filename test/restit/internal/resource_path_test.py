@@ -23,7 +23,8 @@ class ResourcePathTestCase(unittest.TestCase):
     def test_match_multiple_path_params(self):
         resource_path = ResourcePath("/hello/:id/wuff/:miau")
         self.assertEqual(
-            (True, {'id': '21', 'miau': 'dog'}), resource_path.get_match("/hello/21/wuff/dog")
+            (True, {"id": "21", "miau": "dog"}),
+            resource_path.get_match("/hello/21/wuff/dog"),
         )
 
     def test_match_path_param_type_int(self):

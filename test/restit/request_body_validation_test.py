@@ -41,12 +41,7 @@ class RequestWithObjectResource(Resource):
     @request_body({"application/json": RequestBodyObjectSchema()}, "")
     def post(self, request: Request) -> Response:
         schema_object: SchemaClass = request.deserialized_body
-        return Response(
-            {
-                "param1": schema_object.param1,
-                "param2": schema_object.param2
-            }
-        )
+        return Response({"param1": schema_object.param1, "param2": schema_object.param2})
 
 
 class RequestBodyValidationTestCase(BaseTestServerTestCase):
@@ -54,22 +49,24 @@ class RequestBodyValidationTestCase(BaseTestServerTestCase):
     def setUpClass(cls) -> None:
         BaseTestServerTestCase.resources = [
             QueryParametersResource(),
-            RequestWithObjectResource()
+            RequestWithObjectResource(),
         ]
         BaseTestServerTestCase.setUpClass()
 
     def test_request_body_validation(self):
         response = requests.post(f"http://127.0.0.1:{self.port}/miau", data={"param1": "1", "param2": "huhu"})
         self.assertEqual(200, response.status_code)
-        self.assertEqual({'param1': 1, 'param2': 'huhu'}, response.json())
+        self.assertEqual({"param1": 1, "param2": "huhu"}, response.json())
 
     def test_request_body_validation_fails(self):
         response = requests.post(f"http://127.0.0.1:{self.port}/miau", data={"param1": "hans", "param2": 222})
         self.assertEqual(422, response.status_code)
         self.assertIn("<title>422 Unprocessable Entity</title>", response.text)
         self.assertIn("<h1>Unprocessable Entity</h1>", response.text)
-        self.assertIn("Request body schema deserialization failed ({'param1': ['Not a valid integer.']})",
-                      response.text)
+        self.assertIn(
+            "Request body schema deserialization failed ({'param1': ['Not a valid integer.']})",
+            response.text,
+        )
 
     def test_request_body_schema_type_not_supported(self):
         with self.assertRaises(RequestBodyProperties.UnsupportedSchemaTypeException):
@@ -82,6 +79,7 @@ class RequestBodyValidationTestCase(BaseTestServerTestCase):
 
     def test_request_body_object(self):
         response = requests.post(
-            f"http://127.0.0.1:{self.port}/request-with-object", json={"param1": "312", "param2": "hans"}
+            f"http://127.0.0.1:{self.port}/request-with-object",
+            json={"param1": "312", "param2": "hans"},
         )
         self.assertEqual(200, response.status_code)

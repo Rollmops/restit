@@ -8,14 +8,21 @@ from marshmallow import fields, ValidationError, Schema
 
 from restit._response import Response
 from restit.exception import NotAcceptable
-from restit.internal.default_response_serializer.any_type_json_response_serializer import AnyTypeJsonResponseSerializer
-from restit.internal.default_response_serializer.default_dict_json_response_serializer import \
-    DefaultDictJsonResponseSerializer
-from restit.internal.default_response_serializer.default_dict_text_response_serializer import \
-    DefaultDictTextResponseSerializer
-from restit.internal.default_response_serializer.dict_fallback_response_serializer import DictFallbackResponseSerializer
-from restit.internal.default_response_serializer.str_fallback_response_serializer import \
-    StringFallbackResponseSerializer
+from restit.internal.default_response_serializer.any_type_json_response_serializer import (
+    AnyTypeJsonResponseSerializer,
+)
+from restit.internal.default_response_serializer.default_dict_json_response_serializer import (
+    DefaultDictJsonResponseSerializer,
+)
+from restit.internal.default_response_serializer.default_dict_text_response_serializer import (
+    DefaultDictTextResponseSerializer,
+)
+from restit.internal.default_response_serializer.dict_fallback_response_serializer import (
+    DictFallbackResponseSerializer,
+)
+from restit.internal.default_response_serializer.str_fallback_response_serializer import (
+    StringFallbackResponseSerializer,
+)
 from restit.internal.http_accept import HttpAccept
 from restit.internal.mime_type import MIMEType
 from restit.internal.response_serializer_service import ResponseSerializerService
@@ -65,7 +72,7 @@ class ResponseSerializerTestCase(unittest.TestCase):
             response, HttpAccept.from_accept_string("text/plain")
         )
 
-        self.assertEqual(b'Test', response.content)
+        self.assertEqual(b"Test", response.content)
 
     def test_clear_all_default_serializer(self):
         ResponseSerializerService.clear_all_response_serializer()
@@ -84,13 +91,16 @@ class ResponseSerializerTestCase(unittest.TestCase):
                 return ["my/type"]
 
             def validate_and_serialize(
-                    self,
-                    response_input: Any,
-                    response_status_parameter: Union[None, ResponseStatusParameter],
-                    can_handle_result: CanHandleResultType
+                self,
+                response_input: Any,
+                response_status_parameter: Union[None, ResponseStatusParameter],
+                can_handle_result: CanHandleResultType,
             ) -> Tuple[bytes, str]:
                 assert can_handle_result.mime_type.charset == "ascii"
-                return "".join(reversed(response_input)).encode(encoding=can_handle_result.mime_type.charset), "my/type"
+                return (
+                    "".join(reversed(response_input)).encode(encoding=can_handle_result.mime_type.charset),
+                    "my/type",
+                )
 
         ResponseSerializerService.register_response_serializer(MyResponseSerializer())
         response = Response("Test")
@@ -98,7 +108,7 @@ class ResponseSerializerTestCase(unittest.TestCase):
             response, HttpAccept.from_accept_string("my/type; charset=ascii")
         )
 
-        self.assertEqual(b'tseT', response.content)
+        self.assertEqual(b"tseT", response.content)
 
     def test_prioritize_media_type(self):
         http_accept = HttpAccept([MIMEType("application", "json"), MIMEType("text", "plain", 0.7)])
@@ -131,7 +141,7 @@ class ResponseSerializerTestCase(unittest.TestCase):
             response, HttpAccept.from_accept_string("wuff/miau")
         )
 
-        self.assertEqual(b'huhu', response.content)
+        self.assertEqual(b"huhu", response.content)
         self.assertEqual("text/plain", response._headers["Content-Type"])
 
     def test_response_body_type_not_supported(self):
@@ -144,8 +154,9 @@ class ResponseSerializerTestCase(unittest.TestCase):
     def test_str_response_body_with_schema(self):
         response = Response("1234")
         ResponseSerializerService.validate_and_serialize_response_body(
-            response, HttpAccept.from_accept_string("text/plain"),
-            ResponseStatusParameter(200, "", {"text/plain": fields.Integer()})
+            response,
+            HttpAccept.from_accept_string("text/plain"),
+            ResponseStatusParameter(200, "", {"text/plain": fields.Integer()}),
         )
 
         self.assertEqual(b"1234", response.content)
@@ -155,8 +166,9 @@ class ResponseSerializerTestCase(unittest.TestCase):
     def test_bytes_response_body_with_schema(self):
         response = Response(b"1234")
         ResponseSerializerService.validate_and_serialize_response_body(
-            response, HttpAccept.from_accept_string("text/plain"),
-            ResponseStatusParameter(200, "", {"text/plain": fields.Integer()})
+            response,
+            HttpAccept.from_accept_string("text/plain"),
+            ResponseStatusParameter(200, "", {"text/plain": fields.Integer()}),
         )
 
         self.assertEqual(b"1234", response.content)
@@ -167,8 +179,9 @@ class ResponseSerializerTestCase(unittest.TestCase):
         response = Response("1234")
         with self.assertRaises(ValidationError):
             ResponseSerializerService.validate_and_serialize_response_body(
-                response, HttpAccept.from_accept_string("text/plain"),
-                ResponseStatusParameter(200, "", {"text/plain": fields.Email()})
+                response,
+                HttpAccept.from_accept_string("text/plain"),
+                ResponseStatusParameter(200, "", {"text/plain": fields.Email()}),
             )
 
     def test_response_serializer_with_schema(self):
@@ -178,8 +191,9 @@ class ResponseSerializerTestCase(unittest.TestCase):
 
         response = Response({"field1": 1, "field2": "hello", "not_expected": "wuff"})
         ResponseSerializerService.validate_and_serialize_response_body(
-            response, HttpAccept.from_accept_string("application/json"),
-            ResponseStatusParameter(200, "", {"application/json": MySchema()})
+            response,
+            HttpAccept.from_accept_string("application/json"),
+            ResponseStatusParameter(200, "", {"application/json": MySchema()}),
         )
 
         self.assertIn('"field1": 1', response.text)
@@ -201,11 +215,11 @@ class ResponseSerializerTestCase(unittest.TestCase):
         ResponseSerializerService.validate_and_serialize_response_body(
             response,
             HttpAccept.from_accept_string("application/json"),
-            ResponseStatusParameter(200, "", {"application/json": MySchema()})
+            ResponseStatusParameter(200, "", {"application/json": MySchema()}),
         )
 
         _json = json.loads(response.content.decode())
-        self.assertDictEqual({'field1': 1, 'field2': 'huhu'}, _json)
+        self.assertDictEqual({"field1": 1, "field2": "huhu"}, _json)
         self.assertEqual("application/json", response._headers["Content-Type"])
 
     def test_not_implemented(self):

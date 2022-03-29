@@ -7,7 +7,14 @@ class MIMEType:
     _REGEX = re.compile(r"^([*a-zA-Z0-9_-]+)/([+*a-zA-Z0-9_-]+)(.+)?$")
 
     # noinspection PyShadowingBuiltins
-    def __init__(self, type: str, subtype: str, quality: float = 1.0, details: dict = None, charset: str = None):
+    def __init__(
+        self,
+        type: str,
+        subtype: str,
+        quality: float = 1.0,
+        details: dict = None,
+        charset: str = None,
+    ):
         self.type = type if type != "*" else None
         self.subtype = subtype if subtype != "*" else None
         self.quality = quality
@@ -33,7 +40,7 @@ class MIMEType:
             subtype=match.group(2),
             quality=float(details.get("q", 1)),
             details=details,
-            charset=details.get("charset")
+            charset=details.get("charset"),
         )
 
     def matches_mime_type_string(self, mime_type_string: str) -> bool:
@@ -51,18 +58,18 @@ class MIMEType:
         return _to_string
 
     def __eq__(self, other: "MIMEType") -> bool:
-        return \
-            self.type == other.type and \
-            self.subtype == other.subtype and \
-            self.details == other.details and \
-            self.charset == other.charset
+        return (
+            self.type == other.type
+            and self.subtype == other.subtype
+            and self.details == other.details
+            and self.charset == other.charset
+        )
 
     def __gt__(self, other: "MIMEType") -> bool:
         return self.quality > other.quality
 
     def __str__(self):
-        return f"MIMEType(" \
-               f"type={self.type}, subtype={self.subtype}, quality={self.quality}, details={self.details})"
+        return f"MIMEType(" f"type={self.type}, subtype={self.subtype}, quality={self.quality}, details={self.details})"
 
     def __repr__(self):
         return str(self)

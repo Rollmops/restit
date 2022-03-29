@@ -18,7 +18,9 @@ class RequestDeserializer:
             return python_type == self.get_deserialized_python_type()
 
         for content_type_string in self.get_content_type_list():
-            if content_type.matches_mime_type_string(content_type_string) and \
-                    python_type == self.get_deserialized_python_type():
+            if (
+                content_type.matches_mime_type_string(content_type_string)
+                and python_type == self.get_deserialized_python_type()
+            ):
                 return True
         return False

@@ -9,12 +9,7 @@ class HttpAccept:
 
     @staticmethod
     def from_accept_string(accept_string: str) -> "HttpAccept":
-        return HttpAccept(
-            [
-                MIMEType.from_string(mime_type_string)
-                for mime_type_string in accept_string.split(",")
-            ]
-        )
+        return HttpAccept([MIMEType.from_string(mime_type_string) for mime_type_string in accept_string.split(",")])
 
     def get_best_match(self, mime_type_strings: List[str]) -> Union[None, Tuple[str, MIMEType]]:
         for mime_type in self.mime_types:

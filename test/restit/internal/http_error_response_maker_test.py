@@ -7,21 +7,22 @@ from restit.internal.http_error_response_maker import HttpErrorResponseMaker
 
 class HttpExceptionResponseMakerTestCase(unittest.TestCase):
     def setUp(self) -> None:
-        self.response_maker = HttpErrorResponseMaker(
-            InternalServerError("Something is not working")
-        )
+        self.response_maker = HttpErrorResponseMaker(InternalServerError("Something is not working"))
 
     def test_make_application_json_error(self):
         response = self.response_maker.create_response(HttpAccept.from_accept_string("application/json"))
 
         self.assertEqual(500, response.status_code)
-        self.assertEqual({
-            'detail': 'Something is not working',
-            'instance': None,
-            'status': 500,
-            'title': 'Internal Server Error',
-            'type': 'https://developer.mozilla.org/de/docs/Web/HTTP/Status/500'
-        }, response.json())
+        self.assertEqual(
+            {
+                "detail": "Something is not working",
+                "instance": None,
+                "status": 500,
+                "title": "Internal Server Error",
+                "type": "https://developer.mozilla.org/de/docs/Web/HTTP/Status/500",
+            },
+            response.json(),
+        )
 
     def test_make_html_response_no_debug(self):
         response = self.response_maker.create_response(HttpAccept.from_accept_string("text/html"))
@@ -33,7 +34,8 @@ class HttpExceptionResponseMakerTestCase(unittest.TestCase):
 
     def test_make_html_response_debug(self):
         response = HttpErrorResponseMaker(
-            InternalServerError("Something is not working", traceback="traceback"), debug=True
+            InternalServerError("Something is not working", traceback="traceback"),
+            debug=True,
         ).create_response(HttpAccept.from_accept_string("text/html"))
 
         self.assertEqual(500, response.status_code)
@@ -45,6 +47,4 @@ class HttpExceptionResponseMakerTestCase(unittest.TestCase):
     def test_fallback_text_error_response(self):
         response = self.response_maker.create_response(HttpAccept.from_accept_string("unknown/muh"))
         self.assertEqual(500, response.status_code)
-        self.assertEqual(
-            "500 Internal Server Error: Something is not working", response.text
-        )
+        self.assertEqual("500 Internal Server Error: Something is not working", response.text)

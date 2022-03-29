@@ -5,14 +5,16 @@ from restit.internal.response_serializer_service import ResponseSerializerServic
 
 
 class HttpErrorResponseMaker:
-
     def __init__(self, http_error: HttpError, debug: bool = False):
         self.http_error = http_error
         self.debug = debug
 
     def create_response(self, http_accept: HttpAccept) -> Response:
         supported_media_types = [
-            "text/html", "application/xhtml+xml", "application/json", "application/problem+json"
+            "text/html",
+            "application/xhtml+xml",
+            "application/json",
+            "application/problem+json",
         ]
         best_match = http_accept.get_best_match(supported_media_types)
         if best_match is None:
@@ -32,7 +34,7 @@ class HttpErrorResponseMaker:
         response = Response(
             response_body=self.http_error.to_html(self.debug),
             status_code=self.http_error.status_code,
-            headers={"Content-Type": "text/html"}
+            headers={"Content-Type": "text/html"},
         )
         return response
 
@@ -43,12 +45,12 @@ class HttpErrorResponseMaker:
         response = Response(
             response_body=self.http_error.to_rfc7807_json(),
             status_code=self.http_error.status_code,
-            headers={"Content-Type": "application/problem+json"}
+            headers={"Content-Type": "application/problem+json"},
         )
         return response
 
     def create_plain_text_response(self) -> Response:
         return Response(
             response_body=self.http_error.to_text(self.debug),
-            status_code=self.http_error.status_code
+            status_code=self.http_error.status_code,
         )

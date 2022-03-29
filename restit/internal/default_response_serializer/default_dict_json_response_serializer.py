@@ -13,10 +13,10 @@ class DefaultDictJsonResponseSerializer(ResponseSerializer):
         return dict
 
     def validate_and_serialize(
-            self,
-            response_input: dict,
-            response_status_parameter: Union[None, ResponseStatusParameter],
-            can_handle_result: CanHandleResultType
+        self,
+        response_input: dict,
+        response_status_parameter: Union[None, ResponseStatusParameter],
+        can_handle_result: CanHandleResultType,
     ) -> Tuple[bytes, str]:
         content_type = "application/json"
         schema = ResponseSerializer.find_schema(content_type, response_status_parameter)
@@ -24,7 +24,10 @@ class DefaultDictJsonResponseSerializer(ResponseSerializer):
             json_string = schema.dumps(response_input)
         else:
             json_string = json.dumps(response_input)
-        return json_string.encode(encoding=can_handle_result.mime_type.charset), content_type
+        return (
+            json_string.encode(encoding=can_handle_result.mime_type.charset),
+            content_type,
+        )
 
 
 class DefaultListJsonResponseSerializer(DefaultDictJsonResponseSerializer):

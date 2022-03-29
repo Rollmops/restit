@@ -23,6 +23,8 @@ class StaticDirectoryResource(Resource):
             file_content = fp.read()
 
         _, suffix = os.path.splitext(file_name)
-        content_type = SUFFIX_MEDIA_TYPE_MAPPING.get(suffix, )
+        content_type = SUFFIX_MEDIA_TYPE_MAPPING.get(
+            suffix,
+        )
 
         return Response(file_content, headers={"Content-Type": content_type})

@@ -5,7 +5,7 @@ from wsgiref.simple_server import make_server
 
 @contextmanager
 def start_server_with_wsgi_app(wsgi_app):
-    with make_server('', 0, wsgi_app) as httpd:
+    with make_server("", 0, wsgi_app) as httpd:
         thread = Thread(target=httpd.serve_forever)
         thread.start()
         try:

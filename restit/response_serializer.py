@@ -26,17 +26,18 @@ class ResponseSerializer:
         raise NotImplementedError()
 
     def validate_and_serialize(
-            self,
-            response_input: Any,
-            response_status_parameter: Union[None, ResponseStatusParameter],
-            can_handle_result: CanHandleResultType
+        self,
+        response_input: Any,
+        response_status_parameter: Union[None, ResponseStatusParameter],
+        can_handle_result: CanHandleResultType,
     ) -> Tuple[bytes, str]:
         """Returns a tuple of the serialized bytes and the content type"""
         raise NotImplementedError()
 
     @staticmethod
     def find_schema(
-            content_type: str, response_status_parameter: Union[None, ResponseStatusParameter]
+        content_type: str,
+        response_status_parameter: Union[None, ResponseStatusParameter],
     ) -> Union[None, Schema, Field]:
         if response_status_parameter is not None:
             try:

@@ -31,13 +31,15 @@ class RequestTestCase(unittest.TestCase):
         self.assertEqual({"id": 1}, request.path_parameters)
 
     def test_typed_body_json(self):
-        self.wsgi_environment.update({
-            "wsgi.input": BytesIO(b'{"key": "value"}'),
-            "CONTENT_LENGTH": 16,
-            "CONTENT_TYPE": "application/json"
-        })
+        self.wsgi_environment.update(
+            {
+                "wsgi.input": BytesIO(b'{"key": "value"}'),
+                "CONTENT_LENGTH": 16,
+                "CONTENT_TYPE": "application/json",
+            }
+        )
         request = Request(self.wsgi_environment, {})
-        self.assertEqual({'key': 'value'}, request.typed_body[dict])
+        self.assertEqual({"key": "value"}, request.typed_body[dict])
 
     @staticmethod
     def _create_wsgi_environment():
@@ -55,5 +57,4 @@ class RequestTestCase(unittest.TestCase):
             "wsgi.url_scheme": "http",
             "SERVER_PORT": "8080",
             "SERVER_NAME": "localhost",
-
         }

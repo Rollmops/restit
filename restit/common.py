@@ -22,6 +22,7 @@ def get_default_encoding() -> str:
 
 def get_open_api_resource_path() -> str:
     import restit
+
     path = os.path.join(restit.__path__[0], "resource", "swagger")
     assert os.path.isdir(path)
     return path
@@ -32,7 +33,8 @@ def create_dict_from_assignment_syntax(request_input_string: str, group_delimite
         return {}
 
     return {
-        key: escape(value) for key, value in [
+        key: escape(value)
+        for key, value in [
             pair.split("=") for pair in request_input_string.strip(group_delimiter + " ").split(group_delimiter)
         ]
     }
@@ -53,7 +55,9 @@ def guess_text_content_subtype_string(content: str) -> str:
 
 
 @lru_cache()
-def get_response_status_parameters_for_method(method_object: object) -> List[ResponseStatusParameter]:
+def get_response_status_parameters_for_method(
+    method_object: object,
+) -> List[ResponseStatusParameter]:
     response_status_parameters = deepcopy(getattr(method_object.__self__, "__response_status_parameters__", []))
     response_status_parameters.extend(getattr(method_object, "__response_status_parameters__", []))
     return response_status_parameters

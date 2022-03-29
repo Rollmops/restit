@@ -14,7 +14,9 @@ def query_parameter(name: str, description: str, field_type: Field = String()):
         _query_parameter = QueryParameter(name, description, field_type)
         registered_query_parameters: List[QueryParameter] = getattr(func, "__query_parameters__", [])
         LOGGER.debug(
-            "Registering query parameter %s for resource %s", _query_parameter, func.__name__
+            "Registering query parameter %s for resource %s",
+            _query_parameter,
+            func.__name__,
         )
         registered_query_parameters.append(_query_parameter)
         setattr(func, "__query_parameters__", registered_query_parameters)

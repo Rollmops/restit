@@ -1,6 +1,5 @@
 # https://wiki.selfhtml.org/wiki/MIME-Type/%C3%9Cbersicht
 SUFFIX_MEDIA_TYPE_MAPPING = {
-
     # A
     ".dwg": "application/acad",
     ".asd": "application/astound",

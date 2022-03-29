@@ -9,7 +9,12 @@ class ForwardedHeader:
     _HOST_REGEX = re.compile(r".*host=([:.a-z0-9-_]+).*", flags=re.IGNORECASE)
 
     def __init__(
-            self, for_list: List[str] = None, by: str = None, host: str = None, proto: str = None, server: str = None
+        self,
+        for_list: List[str] = None,
+        by: str = None,
+        host: str = None,
+        proto: str = None,
+        server: str = None,
     ):
         self.for_list = for_list or []
         self.by = by
@@ -33,7 +38,7 @@ class ForwardedHeader:
             for_list=for_directives,
             by=by_directive,
             proto=proto_directive,
-            host=host_directive
+            host=host_directive,
         )
 
     @staticmethod
@@ -45,5 +50,5 @@ class ForwardedHeader:
                 host=headers.get("X-Forwarded-Host"),
                 for_list=[fs.strip() for fs in headers.get("X-Forwarded-For", "").split(",")],
                 proto=headers.get("X-Forwarded-Proto"),
-                server=headers.get("X-Forwarded-Server")
+                server=headers.get("X-Forwarded-Server"),
             )

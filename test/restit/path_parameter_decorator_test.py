@@ -18,7 +18,8 @@ class Resource1(Resource):
 
 
 @path(
-    "/path/:id", path_parameters=[PathParameter("id", "Super path parameter", fields.Integer())]
+    "/path/:id",
+    path_parameters=[PathParameter("id", "Super path parameter", fields.Integer())],
 )
 class Resource2(Resource):
     def get(self, request: Request) -> Response:
@@ -33,12 +34,12 @@ class PathParameterTestCase(unittest.TestCase):
     def test_path_parameters(self):
         response = self.restit_test_app.get("/path/1/and/10/and/20")
         self.assertEqual(200, response.status_code)
-        self.assertEqual({'id1': 1, 'id2': 10.0, 'id3': '20'}, response.json())
+        self.assertEqual({"id1": 1, "id2": 10.0, "id3": "20"}, response.json())
 
     def test_path_parameters_alternative_declaration(self):
         response = self.restit_test_app.get("/path/1")
         self.assertEqual(200, response.status_code)
-        self.assertEqual({'id': 1}, response.json())
+        self.assertEqual({"id": 1}, response.json())
 
     def test_conversion_exception(self):
         response = self.restit_test_app.get("/path/1/and/hans/and/20")
@@ -54,5 +55,5 @@ class PathParameterTestCase(unittest.TestCase):
             "'Field may not be null.', 'validator_failed': 'Invalid value.', 'invalid': 'Not a valid number.', "
             "'too_large': 'Number too large.', "
             "'special': 'Special numeric values (nan or infinity) are not permitted.'})>)' (Not a valid number.)</p>\n",
-            response.text
+            response.text,
         )

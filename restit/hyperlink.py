@@ -14,7 +14,6 @@ class Hyperlink:
         self.request = request
 
     def generate(self, **path_parameter) -> str:
-        request_mapping_with_values = \
-            ResourcePath.generate_url_with_path_parameter_values(self._path, path_parameter)
+        request_mapping_with_values = ResourcePath.generate_url_with_path_parameter_values(self._path, path_parameter)
 
         return self.request.host.rstrip("/") + "/" + request_mapping_with_values.lstrip("/")

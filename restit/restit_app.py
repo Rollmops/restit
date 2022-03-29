@@ -7,7 +7,11 @@ from typing import Iterable, Callable, List, Tuple, Dict, Union
 
 from restit._response import Response
 from restit.development_server import DevelopmentServer
-from restit.exception import InternalServerError, NotFound, MissingRequestMappingException
+from restit.exception import (
+    InternalServerError,
+    NotFound,
+    MissingRequestMappingException,
+)
 from restit.exception.http_error import HttpError
 from restit.internal.default_favicon_resource import DefaultFaviconResource
 from restit.internal.http_error_response_maker import HttpErrorResponseMaker
@@ -40,11 +44,12 @@ class RestItApp:
     """
 
     def __init__(
-            self, resources: List[Resource] = None,
-            namespaces: List[Namespace] = None,
-            debug: bool = False,
-            raise_exceptions: bool = False,
-            open_api_documentation: OpenApiDocumentation = None
+        self,
+        resources: List[Resource] = None,
+        namespaces: List[Namespace] = None,
+        debug: bool = False,
+        raise_exceptions: bool = False,
+        open_api_documentation: OpenApiDocumentation = None,
     ):
         self._namespaces: List[Namespace] = []
         self._resources: List[Resource] = []
@@ -185,7 +190,7 @@ class RestItApp:
         return [response.content]
 
     def _create_response_and_handle_exceptions(
-            self, path_params: dict, request: Request, resource: Resource
+        self, path_params: dict, request: Request, resource: Resource
     ) -> Response:
         try:
             response = self._get_response_or_raise_not_found(path_params, request, resource)
@@ -216,7 +221,7 @@ class RestItApp:
             response = resource.handle_request(
                 request_method=request.request_method_name,
                 request=request,
-                path_params=path_params
+                path_params=path_params,
             )
 
         else:

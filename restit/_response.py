@@ -4,12 +4,11 @@ from typing import Union, Any
 
 
 class Response:
-
     def __init__(
-            self,
-            response_body: Any,
-            status_code: Union[int, HTTPStatus] = 200,
-            headers: dict = None
+        self,
+        response_body: Any,
+        status_code: Union[int, HTTPStatus] = 200,
+        headers: dict = None,
     ):
         self.response_body_input = response_body
         self._status: HTTPStatus = HTTPStatus(status_code, None) if isinstance(status_code, int) else status_code
