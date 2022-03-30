@@ -1,6 +1,8 @@
+import json
 import unittest
+from enum import Enum
 
-from marshmallow import Schema, fields
+from marshmallow import Schema, fields, validate
 from marshmallow.validate import Range, Regexp, Length
 
 from restit.open_api.open_api_schema_converter import OpenApiSchemaConverter
@@ -35,7 +37,7 @@ class SchemaWithMapping(Schema):
 
 class OpenApiSchemaConverterTestCase(unittest.TestCase):
     def test_simple(self):
-        open_api_schema = OpenApiSchemaConverter.convert_schema(SimpleSchema(), {})
+        open_api_schema = OpenApiSchemaConverter().convert_schema(SimpleSchema(), {})
 
         self.assertEqual(
             {
@@ -70,7 +72,7 @@ class OpenApiSchemaConverterTestCase(unittest.TestCase):
         )
 
     def test_nested(self):
-        open_api_schema = OpenApiSchemaConverter.convert_schema(SchemaWithNested(), {})
+        open_api_schema = OpenApiSchemaConverter().convert_schema(SchemaWithNested(), {})
 
         self.assertEqual(
             {
@@ -112,7 +114,7 @@ class OpenApiSchemaConverterTestCase(unittest.TestCase):
         )
 
     def test_integer_list(self):
-        open_api_schema = OpenApiSchemaConverter.convert(SchemaWithIntegerList(), {})
+        open_api_schema = OpenApiSchemaConverter().convert(SchemaWithIntegerList(), {})
         self.assertEqual(
             {
                 "description": None,
@@ -132,7 +134,7 @@ class OpenApiSchemaConverterTestCase(unittest.TestCase):
         )
 
     def test_nested_list(self):
-        open_api_schema = OpenApiSchemaConverter.convert(SchemaWithNestedList(), {})
+        open_api_schema = OpenApiSchemaConverter().convert(SchemaWithNestedList(), {})
 
         self.assertEqual(
             {
@@ -181,7 +183,7 @@ class OpenApiSchemaConverterTestCase(unittest.TestCase):
         )
 
     def test_mapping(self):
-        open_api_schema = OpenApiSchemaConverter.convert(SchemaWithMapping(), {})
+        open_api_schema = OpenApiSchemaConverter().convert(SchemaWithMapping(), {})
 
         self.assertEqual(
             {
@@ -204,17 +206,56 @@ class OpenApiSchemaConverterTestCase(unittest.TestCase):
             _fields1 = fields.List(fields.Nested(lambda: MyRecursiveSchema()))
             _fields2 = fields.List(fields.Nested("self"))
 
-        open_api_schema = OpenApiSchemaConverter.convert(MyRecursiveSchema(), {})
+        open_api_schema = OpenApiSchemaConverter().convert(MyRecursiveSchema(), {})
 
         self.assertEqual(
             {
                 "description": None,
                 "properties": {
-                    "_fields1": {"items": {"description": "MyRecursiveSchema"}, "type": "array"},
-                    "_fields2": {"items": {"description": "MyRecursiveSchema"}, "type": "array"},
+                    "_fields1": {"items": {"description": "MyRecursiveSchema", "type": "object"}, "type": "array"},
+                    "_fields2": {"items": {"description": "MyRecursiveSchema", "type": "object"}, "type": "array"},
                 },
                 "required": [],
                 "type": "object",
             },
             open_api_schema,
+        )
+
+    def test_enum_schema_json_serializable(self):
+        class MyEnum(Enum):
+            FIRST = "FIRST"
+            SECOND = "SECOND"
+
+        class MyEnumSchema(Schema):
+            my_enum = fields.String(
+                required=False, default=MyEnum.FIRST, validate=validate.OneOf([e.value for e in MyEnum])
+            )
+
+        open_api_schema = OpenApiSchemaConverter().convert(MyEnumSchema(), {})
+        self.assertEqual(
+            {
+                "description": None,
+                "properties": {
+                    "my_enum": {
+                        "default": "FIRST",
+                        "description": "A string field.",
+                        "enum": ["FIRST", "SECOND"],
+                        "type": "string",
+                    }
+                },
+                "required": [],
+                "type": "object",
+            },
+            open_api_schema,
+        )
+
+        open_api_schema_json = json.dumps(open_api_schema)
+
+        self.assertEqual(
+            (
+                '{"required": [], "type": "object", "description": null, "properties": '
+                '{"my_enum": {"type": "string", "description": "A string field.", "enum": '
+                '["FIRST", "SECOND"], "default": "FIRST"}}}'
+            ),
+            open_api_schema_json,
         )

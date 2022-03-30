@@ -72,7 +72,7 @@ class OpenApiDocumentation:
         ):
             self._resources.append(resource)
 
-    @lru_cache()
+    @lru_cache(maxsize=1)
     def generate_spec(self) -> dict:
         """Generate the `OpenApi`_ specification as a dictionary
 
@@ -137,7 +137,7 @@ class OpenApiDocumentation:
     @staticmethod
     def _create_content_field(content_types: dict, root_spec: dict):
         return {
-            content_type: {"schema": OpenApiSchemaConverter.convert(schema, root_spec)}
+            content_type: {"schema": OpenApiSchemaConverter().convert(schema, root_spec)}
             for content_type, schema in content_types.items()
         }
 
@@ -150,7 +150,7 @@ class OpenApiDocumentation:
                     "in": "query",
                     "description": query_parameter.description,
                     "required": query_parameter.field_type.required,
-                    "schema": OpenApiSchemaConverter.convert(query_parameter.field_type, root_spec),
+                    "schema": OpenApiSchemaConverter().convert(query_parameter.field_type, root_spec),
                 }
                 for query_parameter in getattr(method_object, "__query_parameters__", [])
             ]
@@ -173,7 +173,7 @@ class OpenApiDocumentation:
                     "in": "path",
                     "required": True,
                     "description": path_parameter.description,
-                    "schema": OpenApiSchemaConverter.convert_field(path_parameter.field_type),
+                    "schema": OpenApiSchemaConverter().convert_field(path_parameter.field_type),
                 }
                 for name, path_parameter in path_parameters.items()
             ]
