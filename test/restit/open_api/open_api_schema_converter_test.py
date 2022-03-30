@@ -198,3 +198,23 @@ class OpenApiSchemaConverterTestCase(unittest.TestCase):
             },
             open_api_schema,
         )
+
+    def test_recursive_schema(self):
+        class MyRecursiveSchema(Schema):
+            _fields1 = fields.List(fields.Nested(lambda: MyRecursiveSchema()))
+            _fields2 = fields.List(fields.Nested("self"))
+
+        open_api_schema = OpenApiSchemaConverter.convert(MyRecursiveSchema(), {})
+
+        self.assertEqual(
+            {
+                "description": None,
+                "properties": {
+                    "_fields1": {"items": {"description": "MyRecursiveSchema"}, "type": "array"},
+                    "_fields2": {"items": {"description": "MyRecursiveSchema"}, "type": "array"},
+                },
+                "required": [],
+                "type": "object",
+            },
+            open_api_schema,
+        )

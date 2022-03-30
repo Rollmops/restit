@@ -29,17 +29,34 @@ _OPEN_API_SCHEMA_TYPE_MAPPING = {
 }
 
 
+def prevent_schema_recursion():
+    handled_schemas = []
+
+    def decorator(func):
+        def wrapper(schema: Schema, root_spec):
+            if schema.__class__ in handled_schemas:
+                return {"description": schema.__class__.__name__}
+
+            handled_schemas.append(schema.__class__)
+            return func(schema, root_spec)
+
+        return wrapper
+
+    return decorator
+
+
 class OpenApiSchemaConverter:
     @staticmethod
     def convert(schema_or_field: Union[Field, Schema], root_spec: dict):
         if isinstance(schema_or_field, Schema):
             return OpenApiSchemaConverter.convert_schema(schema_or_field, root_spec)
-        elif isinstance(schema_or_field, Nested):
+        if isinstance(schema_or_field, Nested):
             return OpenApiSchemaConverter.convert_schema(schema_or_field.schema, root_spec)
-        else:
-            return OpenApiSchemaConverter.convert_field(schema_or_field)
+
+        return OpenApiSchemaConverter.convert_field(schema_or_field)
 
     @staticmethod
+    @prevent_schema_recursion()
     def convert_schema(schema: Schema, root_spec: dict):
         open_api_schema = {
             "required": [],
