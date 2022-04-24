@@ -22,10 +22,21 @@ class DevelopmentServerTestCase(unittest.TestCase):
         self.development_server = DevelopmentServer(self.restit_app)
 
     def test_start_in_context(self):
-        with self.development_server.start_in_context() as port:
-            response = requests.get(f"http://127.0.0.1:{port}/")
-            self.assertEqual(200, response.status_code)
-            self.assertEqual("Hello", response.text)
+        with self.assertLogs("restit") as logs:
+            with self.development_server.start_in_context() as port:
+                response = requests.get(f"http://127.0.0.1:{port}/")
+                self.assertEqual(200, response.status_code)
+                self.assertEqual("Hello", response.text)
+
+        self.assertRegex(
+            logs.output[0],
+            r"^INFO:restit\.development_server:Development server is now running at http://127\.0\.0\.1:\d+$"
+        )
+
+        self.assertEqual(
+            "INFO:restit.development_server:Stopping development server",
+            logs.output[-1],
+        )
 
     def test_restit_app_in_context(self):
         with self.restit_app.start_development_server_in_context(port=0) as port:

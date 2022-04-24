@@ -104,8 +104,9 @@ class Resource:
     def head(self, request: Request) -> Response:
         raise MethodNotAllowed()
 
-    def handle_request(self, request_method: str, request: Request, path_params: Dict) -> Response:
-        method_object = getattr(self, request_method.lower())
+    def handle_request(self, request: Request, path_params: Dict) -> Response:
+        LOGGER.info(request.log_str())
+        method_object = getattr(self, request.request_method_name.lower())
         request._path_params = self._collect_and_convert_path_parameters(path_params)
         self._process_query_parameters(method_object, request)
         request = self._validate_request_body(method_object, request)

@@ -33,7 +33,6 @@ class TodosResource(Resource):
     def get(self, request: Request) -> Response:
         """Get a list of all todo ids"""
 
-        raise BadRequest("Huhu")
         todo_ids = self.repo.get_todo_ids()
 
         return Response({"collection": todo_ids, "sort": request.query_parameters["sort"]})

@@ -34,16 +34,16 @@ class DevelopmentServer:
         self._is_running = True
         if blocking:
             LOGGER.info(
-                "Starting development server in blocking mode at http://%s:%d/",
+                "Starting development server in blocking mode at http://%s:%d",
                 self.host,
                 self.server.server_port,
             )
             self._wait_until_stopped()
         else:
             LOGGER.info(
-                "Development server is now running at http://%s:%d/",
+                "Development server is now running at http://%s:%d",
                 self.host,
-                self.port,
+                self.server.server_port,
             )
             return self.server.server_port
 

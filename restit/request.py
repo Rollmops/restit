@@ -145,5 +145,8 @@ class Request:
     def __str__(self) -> str:
         return f"Request(url={self.original_url}"
 
+    def log_str(self) -> str:
+        return f"{self.request_method_name} {self.original_url}"
+
     class DeserializedBodyAlreadySetException(Exception):
         pass

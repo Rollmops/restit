@@ -218,11 +218,7 @@ class RestItApp:
         if resource is not None:
             # noinspection PyBroadException
             # noinspection PyProtectedMember
-            response = resource.handle_request(
-                request_method=request.request_method_name,
-                request=request,
-                path_params=path_params,
-            )
+            response = resource.handle_request(request, path_params)
 
         else:
             raise NotFound()

@@ -211,3 +211,11 @@ class RestitTestAppTestCase(unittest.TestCase):
         self.resit_test_app.raise_exceptions = True
         with self.assertRaises(Resource.NoResponseReturnException):
             self.resit_test_app.get("/no_response_exception")
+
+    def test_logging(self):
+        with self.assertLogs("restit") as logs:
+            self.resit_test_app.get("/miau/1?a=1", data={"key": "value", "key2": "value2"})
+
+        self.assertIn(
+            "INFO:restit.resource:GET http://127.0.0.1/miau/1?a=1", logs.output
+        )
